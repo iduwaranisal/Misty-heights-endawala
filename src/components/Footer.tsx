@@ -38,7 +38,7 @@ export default function Footer({ onOpenBooking }: { onOpenBooking: () => void })
 
             <div className="pt-1 flex items-center gap-3">
               <a
-                href="https://www.facebook.com/search/top?q=misty%20heights%20endawala%20sinharaja"
+                href="https://www.facebook.com/profile.php?id=61571649441031"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold border border-emerald-200 transition-colors"

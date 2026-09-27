@@ -304,7 +304,7 @@ Please let me know availability and details. Thank you!`;
                 </span>
               </div>
               <a
-                href="https://www.facebook.com/search/top?q=misty%20heights%20endawala%20sinharaja"
+                href="https://www.facebook.com/profile.php?id=61571649441031"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-4 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold border border-emerald-200 transition-colors shrink-0"
