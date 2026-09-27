@@ -53,14 +53,14 @@ Please let me know availability and details. Thank you!`;
         <div className="text-center max-w-2xl mx-auto mb-16">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100/80 text-emerald-900 text-xs font-semibold uppercase tracking-wider mb-4 border border-emerald-200">
             <Sparkles className="w-3.5 h-3.5 text-emerald-700" />
-            Direct Host Reservations
+            Book Your Stay
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-bold text-[#0f2416] tracking-tight">
-            Plan Your Rainforest Escape
+            Plan Your Rainforest Getaway
           </h2>
           <p className="mt-4 text-base text-gray-600 leading-relaxed">
-            Reserve your dates directly with our local retreat host. Connect instantly via WhatsApp
-            or phone for quick, personal assistance.
+            Reserve your holiday directly with us. Send a quick message on WhatsApp or call us
+            anytime for friendly help.
           </p>
         </div>
 
@@ -71,7 +71,7 @@ Please let me know availability and details. Thank you!`;
             <div className="flex items-center justify-between border-b border-gray-100 pb-5 mb-6">
               <div>
                 <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider block">
-                  Fast WhatsApp Booking
+                  Easy WhatsApp Booking
                 </span>
                 <h3 className="text-xl sm:text-2xl font-serif font-bold text-[#0f2416]">
                   Check Availability
@@ -79,7 +79,7 @@ Please let me know availability and details. Thank you!`;
               </div>
               <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold border border-emerald-200">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                Live 24/7 Response
+                Quick Reply
               </div>
             </div>
 
@@ -171,7 +171,7 @@ Please let me know availability and details. Thank you!`;
                     <option value="2 Guests · Couples Retreat">2 Guests · Couples Retreat</option>
                     <option value="3–4 Guests · Family or Small Group">3–4 Guests · Family or Small Group</option>
                     <option value="5–8 Guests · Group Getaway">5–8 Guests · Group Getaway</option>
-                    <option value="Exclusive Full Cabana Booking">Exclusive Full Cabana Booking</option>
+                    <option value="Entire Wooden Cabana (Private Stay)">Entire Wooden Cabana (Private Stay)</option>
                   </select>
                 </div>
               </div>
@@ -210,16 +210,16 @@ Please let me know availability and details. Thank you!`;
             </form>
           </div>
 
-          {/* Right Column: Host & Direct Contact Showcase */}
+          {/* Right Column: Direct Contact Showcase */}
           <div className="lg:col-span-5 space-y-6">
-            {/* Host Identity Card */}
+            {/* Contact Card */}
             <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-[#0e2717] via-[#144327] to-[#0e2717] text-white shadow-xl space-y-6 border border-emerald-700/40">
               <div>
                 <span className="text-xs uppercase tracking-wider text-emerald-300 font-semibold block">
                   Authentic Hospitality
                 </span>
                 <h3 className="text-2xl font-serif font-bold text-white mt-1">
-                  Connect with the Host
+                  Talk Directly With Us
                 </h3>
                 <p className="text-xs text-emerald-100/80 mt-1 leading-relaxed">
                   We look forward to welcoming you to the cool mountains of Sinharaja.
@@ -237,7 +237,7 @@ Please let me know availability and details. Thank you!`;
                   </div>
                   <div>
                     <span className="text-[11px] text-emerald-300 uppercase tracking-wider block font-semibold">
-                      Primary Reservation Line
+                      Primary Phone Line
                     </span>
                     <strong className="text-lg text-white font-serif">071 981 7000</strong>
                   </div>
@@ -252,7 +252,7 @@ Please let me know availability and details. Thank you!`;
                   </div>
                   <div>
                     <span className="text-[11px] text-emerald-300 uppercase tracking-wider block font-semibold">
-                      Secondary Contact
+                      Secondary Phone Line
                     </span>
                     <strong className="text-lg text-white font-serif">071 868 0633</strong>
                   </div>
@@ -276,15 +276,15 @@ Please let me know availability and details. Thank you!`;
                 </a>
               </div>
 
-              {/* Host Guarantees */}
+              {/* Our Promise */}
               <div className="pt-4 border-t border-emerald-800/80 space-y-2.5 text-xs text-emerald-100/90">
                 <div className="flex items-center gap-2.5">
                   <Clock className="w-4 h-4 text-emerald-300 shrink-0" />
-                  <span>Always Open · 24/7 guest check-in & assistance</span>
+                  <span>Open Every Day · Friendly assistance whenever you arrive</span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <ShieldCheck className="w-4 h-4 text-emerald-300 shrink-0" />
-                  <span>Direct owner booking with personalized care</span>
+                  <span>Direct booking with friendly, personal attention</span>
                 </div>
                 <div className="flex items-center gap-2.5">
                   <HeartHandshake className="w-4 h-4 text-emerald-300 shrink-0" />

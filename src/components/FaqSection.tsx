@@ -25,7 +25,7 @@ export default function FaqSection() {
     },
     {
       q: "How can I book or check available dates?",
-      a: "You can book directly by sending a WhatsApp message or calling our hotlines at 071 981 7000 or 071 868 0633. We are always open 24/7 to help you plan your visit.",
+      a: "You can book directly by sending a WhatsApp message or calling us at 071 981 7000 or 071 868 0633. We are always open to help you plan your visit.",
     },
     {
       q: "How do we reach Misty Heights from Colombo or Galle?",

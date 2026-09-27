@@ -161,7 +161,7 @@ export default function Header({ onOpenBooking }: { onOpenBooking: () => void })
                 className="py-3 text-center text-xs font-bold rounded-xl bg-gray-50 border border-gray-200 text-gray-800 hover:bg-gray-100 flex items-center justify-center gap-1.5"
               >
                 <Phone className="w-3.5 h-3.5 text-emerald-700" />
-                Call Host
+                Call Us
               </a>
               <a
                 href="https://wa.me/94719817000?text=Hello%20Misty%20Heights%20Endawala!"

@@ -10,7 +10,6 @@ import {
   MessageSquare,
   Phone,
   ArrowRight,
-  Sparkles,
 } from "lucide-react";
 
 export default function Hero({ onOpenBooking }: { onOpenBooking: () => void }) {
@@ -76,7 +75,7 @@ export default function Hero({ onOpenBooking }: { onOpenBooking: () => void }) {
               </div>
             </div>
 
-            {/* Clean Hero Call to Actions (No bulky booking form) */}
+            {/* Clean Hero Call to Actions */}
             <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 max-w-lg">
               <button
                 onClick={onOpenBooking}
@@ -94,17 +93,17 @@ export default function Hero({ onOpenBooking }: { onOpenBooking: () => void }) {
                 className="py-3.5 px-6 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold text-sm flex items-center justify-center gap-2 transition-colors"
               >
                 <MessageSquare className="w-4 h-4 text-emerald-700" />
-                WhatsApp Host
+                WhatsApp Us
               </a>
             </div>
 
             <div className="flex items-center gap-2 text-xs text-gray-500 pt-1">
               <Phone className="w-3.5 h-3.5 text-emerald-700" />
-              <span>Direct Hotline: <strong className="text-gray-800">071 981 7000</strong> · 24/7 Always Open</span>
+              <span>Call Us: <strong className="text-gray-800">071 981 7000</strong> · Open Every Day</span>
             </div>
           </div>
 
-          {/* Right Column: Hero Real Photograph */}
+          {/* Right Column: Hero Real Photograph (Unobstructed, full view) */}
           <div className="lg:col-span-6 relative">
             <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white aspect-[4/3] group">
               <Image
@@ -123,17 +122,6 @@ export default function Hero({ onOpenBooking }: { onOpenBooking: () => void }) {
                     Two-story wooden retreat surrounded by pure mountain mist
                   </p>
                 </div>
-              </div>
-            </div>
-
-            {/* Quick Floating Stat Badge */}
-            <div className="absolute bottom-4 left-4 sm:-left-4 bg-white/95 backdrop-blur-md p-3.5 sm:p-4 rounded-2xl shadow-xl border border-emerald-100 flex items-center gap-3">
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-bold text-xs sm:text-sm">
-                24/7
-              </div>
-              <div className="text-left">
-                <div className="text-xs font-bold text-gray-900">Always Open</div>
-                <div className="text-[11px] text-gray-500">Endawala, Dellawa, Neluwa</div>
               </div>
             </div>
           </div>

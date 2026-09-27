@@ -46,7 +46,7 @@ export default function Footer({ onOpenBooking }: { onOpenBooking: () => void })
                 Facebook Page
               </a>
               <span className="text-xs text-gray-400">·</span>
-              <span className="text-xs font-semibold text-emerald-700">Always Open 24/7</span>
+              <span className="text-xs font-semibold text-emerald-700">Always Open</span>
             </div>
           </div>
 
@@ -123,7 +123,7 @@ export default function Footer({ onOpenBooking }: { onOpenBooking: () => void })
 
               <div className="flex items-center gap-2.5">
                 <Clock className="w-4 h-4 text-emerald-700 shrink-0" />
-                <span className="font-semibold text-emerald-800">Always open · 24/7 check-in</span>
+                <span className="font-semibold text-emerald-800">Always Open · Every Day</span>
               </div>
             </div>
           </div>

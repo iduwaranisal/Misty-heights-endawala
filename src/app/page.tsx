@@ -86,7 +86,7 @@ export default function Home() {
         <a
           href="tel:0719817000"
           className="w-13 h-13 rounded-full bg-white hover:bg-gray-50 text-emerald-800 border border-emerald-200 shadow-xl flex items-center justify-center transition-all hover:scale-105 active:scale-95"
-          aria-label="Call Host Directly"
+          aria-label="Call Us Directly"
         >
           <Phone className="w-5 h-5 text-emerald-700" />
         </a>

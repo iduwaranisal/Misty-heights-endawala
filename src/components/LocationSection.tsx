@@ -82,7 +82,7 @@ export default function LocationSection() {
                   className="py-2.5 px-4 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-50 text-xs font-semibold flex items-center gap-1.5 transition-colors"
                 >
                   <Phone className="w-3.5 h-3.5 text-emerald-700" />
-                  Call Host
+                  Call Us
                 </a>
               </div>
             </div>

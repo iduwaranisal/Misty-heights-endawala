@@ -15,7 +15,7 @@ export default function TestimonialsSection() {
       name: "Chaminda Silva",
       origin: "Galle, Sri Lanka",
       date: "Family Weekend",
-      text: "The hosts treated our family like their own. Delicious hot hoppers and coconut sambol for breakfast, and an unforgettable evening bonfire under a sky filled with stars. Zero city noise, just birds and breeze.",
+      text: "The family treated us like their own. Delicious hot hoppers and coconut sambol for breakfast, and an unforgettable evening bonfire under a sky filled with stars. Zero city noise, just birds and breeze.",
       highlight: "Unmatched village hospitality",
     },
     {

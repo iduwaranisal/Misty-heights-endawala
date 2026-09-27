@@ -102,7 +102,7 @@ export default function VillageDining({ onOpenBooking }: { onOpenBooking: () => 
                   Warm Island Hospitality
                 </strong>
                 <p className="text-emerald-800/90 mt-0.5 leading-relaxed">
-                  In true Sri Lankan tradition, our hosts treat every guest like family. Dietary
+                  In true Sri Lankan tradition, we treat every guest like family. Dietary
                   needs (vegetarian, vegan, halal) are handled with love and care.
                 </p>
               </div>

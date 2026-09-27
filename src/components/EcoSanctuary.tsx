@@ -6,23 +6,23 @@ export default function EcoSanctuary() {
   const commitments = [
     {
       icon: Droplets,
-      title: "Pristine River Stewardship",
-      desc: "We take great care to keep the natural waters of Edawala Dola completely clean, free of plastic or soap runoff.",
+      title: "Clean River & Natural Pools",
+      desc: "We take great care to keep the natural waters of Edawala Dola fresh, clean, and crystal clear.",
     },
     {
       icon: Leaf,
-      title: "UNESCO Sinharaja Buffer Zone",
-      desc: "Our hillside borders Sri Lanka's last viable primary tropical rainforest, preserving wild flora and endemic birds.",
+      title: "Bordering Sinharaja Rainforest",
+      desc: "Our hillside is right next to Sri Lanka's famous tropical rainforest, surrounded by wild greenery and birds.",
     },
     {
       icon: HeartHandshake,
-      title: "Village Community Support",
-      desc: "Meals are prepared with farm-fresh produce from Neluwa village families and fresh tea from local hillside growers.",
+      title: "Fresh Local Village Food",
+      desc: "Meals are made with fresh produce from Neluwa village homes and fresh tea from surrounding hillside growers.",
     },
     {
       icon: ShieldCheck,
-      title: "Natural Living & Clean Mountain Air",
-      desc: "Handcrafted timber cabana built to invite the natural mountain breeze, keeping energy footprints low.",
+      title: "Cool Mountain Air & Wooden Living",
+      desc: "Built from local timber with open spaces to invite the cool mountain breeze and clean air.",
     },
   ];
 
@@ -34,7 +34,7 @@ export default function EcoSanctuary() {
           <div className="lg:col-span-5 space-y-5">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold uppercase tracking-wider border border-emerald-100">
               <Leaf className="w-3.5 h-3.5 text-emerald-600" />
-              Eco Sanctuary & Heritage
+              Caring for Nature & Our Forest
             </div>
 
             <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#0f2416] tracking-tight">
@@ -42,15 +42,14 @@ export default function EcoSanctuary() {
             </h2>
 
             <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-              At Misty Heights Endawala, nature is not just our view — it is our home. We practice
-              mindful tourism that respects the delicate balance of Sinharaja, ensuring future
-              generations can swim in the same clear streams and breathe the same mountain mist.
+              At Misty Heights Endawala, nature is our home. We love and protect the fresh mountain
+              air, quiet green hills, and crystal streams of Sinharaja, so every traveler can enjoy
+              a peaceful and refreshing holiday.
             </p>
 
             <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-100 text-xs text-emerald-900 leading-relaxed">
-              <strong>Guest Nature Guideline:</strong> We kindly invite all visitors to avoid
-              leaving polythene or litter near the riverbanks and trails, keeping the forest
-              pure and wild.
+              <strong>A Gentle Reminder for Guests:</strong> Please help us protect our forest by
+              keeping riverbanks and walking trails free of plastic and litter.
             </div>
           </div>
 

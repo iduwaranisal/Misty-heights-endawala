@@ -49,7 +49,7 @@ Please confirm availability and details. Thank you!`;
 
         <div className="mb-6 border-b border-gray-100 pb-4">
           <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-wider block mb-1">
-            Direct Host Reservation
+            Book Your Stay
           </span>
           <h3 className="text-2xl font-serif font-bold text-[#0f2416]">
             Reserve Your Dates
@@ -136,7 +136,7 @@ Please confirm availability and details. Thank you!`;
                 <option value="2 Guests · Couples Retreat">2 Guests · Couples Retreat</option>
                 <option value="3-4 Guests · Family / Friends">3–4 Guests · Family / Friends</option>
                 <option value="5-8 Guests · Group Stay">5–8 Guests · Group Stay</option>
-                <option value="Full Cabana Exclusive">Exclusive Full Cabana Booking</option>
+                <option value="Entire Wooden Cabana (Private Stay)">Entire Wooden Cabana (Private Stay)</option>
               </select>
             </div>
           </div>
@@ -167,7 +167,7 @@ Please confirm availability and details. Thank you!`;
         </form>
 
         <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
-          <span>Prefer direct call?</span>
+          <span>Prefer to call us?</span>
           <a
             href="tel:0719817000"
             className="flex items-center gap-1 text-emerald-700 hover:underline font-bold"
