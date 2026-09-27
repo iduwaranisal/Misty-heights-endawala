@@ -22,11 +22,12 @@ export default function Hero({ onOpenBooking }: { onOpenBooking: () => void }) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Left Column: Clear Value Proposition */}
           <div className="lg:col-span-6 space-y-6 text-left">
-            {/* Cultural Welcome Tag */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100/90 border border-emerald-300/80 text-emerald-900 text-xs font-semibold">
-              <span className="text-emerald-700 font-serif font-bold">ආයුබෝවන්</span>
-              <span className="text-emerald-400">·</span>
-              <span>Ayubowan · Welcome to Sinharaja, Sri Lanka</span>
+            {/* Cultural Welcome Tag (Responsive on all screen sizes) */}
+            <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-emerald-50 border border-emerald-200/90 text-emerald-900 text-xs font-medium max-w-full">
+              <span className="text-emerald-700 font-serif font-bold shrink-0">ආයුබෝවන්</span>
+              <span className="text-emerald-300 shrink-0">·</span>
+              <span className="sm:hidden font-medium">Welcome to Sinharaja</span>
+              <span className="hidden sm:inline font-medium">Ayubowan · Welcome to Sinharaja, Sri Lanka</span>
             </div>
 
             {/* Main Headline */}
