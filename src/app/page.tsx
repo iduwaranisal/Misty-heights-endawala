@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
+import AdventureTicker from "@/components/AdventureTicker";
+import RevealOnScroll from "@/components/RevealOnScroll";
 import CorePillars from "@/components/CorePillars";
 import CabanaShowcase from "@/components/CabanaShowcase";
 import NaturalPool from "@/components/NaturalPool";
@@ -22,62 +24,87 @@ export default function Home() {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-[#0f2416] selection:bg-emerald-700 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-white text-[#0a1f12] selection:bg-emerald-700 selection:text-white">
       {/* Navigation Header */}
       <Header onOpenBooking={() => setIsBookingOpen(true)} />
 
       {/* Main Content Sections */}
       <main className="flex-1">
-        {/* 1. Hero Section */}
+        {/* 1. Hero Section with Luxury Slideshow */}
         <Hero onOpenBooking={() => setIsBookingOpen(true)} />
 
-        {/* 2. 4 Core Pillars: Hikes, Kayaking, Bonfire, Nature Stay */}
-        <CorePillars onOpenBooking={() => setIsBookingOpen(true)} />
+        {/* 2. Infinite Adventure Marquee Ticker */}
+        <AdventureTicker />
 
-        {/* 3. The Cabana Living Experience */}
-        <CabanaShowcase onOpenBooking={() => setIsBookingOpen(true)} />
+        {/* 3. 4 Core Pillars: Hikes, Kayaking, Bonfire, Nature Stay */}
+        <RevealOnScroll>
+          <CorePillars onOpenBooking={() => setIsBookingOpen(true)} />
+        </RevealOnScroll>
 
-        {/* 4. Edawala Dola Natural River Pool */}
-        <NaturalPool />
+        {/* 4. The Cabana Living Experience with Interactive Photo Carousel */}
+        <RevealOnScroll>
+          <CabanaShowcase onOpenBooking={() => setIsBookingOpen(true)} />
+        </RevealOnScroll>
 
-        {/* 5. Activities to Enjoy with Friends & Family */}
-        <Experiences onOpenBooking={() => setIsBookingOpen(true)} />
+        {/* 5. Edawala Dola Natural River Pool */}
+        <RevealOnScroll>
+          <NaturalPool />
+        </RevealOnScroll>
 
-        {/* 6. Authentic Sri Lankan Village Dining */}
-        <VillageDining onOpenBooking={() => setIsBookingOpen(true)} />
+        {/* 6. Activities to Enjoy with Friends & Family */}
+        <RevealOnScroll>
+          <Experiences onOpenBooking={() => setIsBookingOpen(true)} />
+        </RevealOnScroll>
 
-        {/* 7. Real Photo Gallery (Strictly 8 photos with View All button to /gallery) */}
-        <PhotoGallery />
+        {/* 7. Authentic Sri Lankan Village Dining */}
+        <RevealOnScroll>
+          <VillageDining onOpenBooking={() => setIsBookingOpen(true)} />
+        </RevealOnScroll>
 
-        {/* 8. Traveler Stories & Guest Reviews */}
-        <TestimonialsSection />
+        {/* 8. Real Photo Gallery (8 Homepage photos with View All button) */}
+        <RevealOnScroll>
+          <PhotoGallery />
+        </RevealOnScroll>
 
-        {/* 9. Eco Sanctuary & Rainforest Harmony */}
-        <EcoSanctuary />
+        {/* 9. Traveler Stories & Guest Reviews */}
+        <RevealOnScroll>
+          <TestimonialsSection />
+        </RevealOnScroll>
 
-        {/* 10. Location, Driving Routes & Map */}
-        <LocationSection />
+        {/* 10. Eco Sanctuary & Rainforest Harmony */}
+        <RevealOnScroll>
+          <EcoSanctuary />
+        </RevealOnScroll>
 
-        {/* 11. Frequently Asked Questions */}
-        <FaqSection />
+        {/* 11. Location, Driving Routes & Real Plus Code Map */}
+        <RevealOnScroll>
+          <LocationSection />
+        </RevealOnScroll>
 
-        {/* 12. Ultra-Modern Direct Booking Section */}
-        <BookingSection />
+        {/* 12. Frequently Asked Questions */}
+        <RevealOnScroll>
+          <FaqSection />
+        </RevealOnScroll>
+
+        {/* 13. Direct Booking Section */}
+        <RevealOnScroll>
+          <BookingSection />
+        </RevealOnScroll>
       </main>
 
       {/* Footer */}
       <Footer onOpenBooking={() => setIsBookingOpen(true)} />
 
-      {/* Modern Pop-up Reservation Modal */}
+      {/* Pop-up Reservation Modal */}
       <BookingModal isOpen={isBookingOpen} onClose={() => setIsBookingOpen(false)} />
 
-      {/* Floating Fast Action Contact Buttons */}
+      {/* Floating Action Contact Buttons with Pulse & Hover */}
       <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-2.5">
         <a
           href="https://wa.me/94719817000?text=Hello%20Misty%20Heights%20Endawala,%20I%20would%20like%20to%20inquire%20about%20a%20stay."
           target="_blank"
           rel="noopener noreferrer"
-          className="w-13 h-13 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-xl flex items-center justify-center transition-all hover:scale-105 active:scale-95"
+          className="w-13 h-13 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white shadow-xl shadow-emerald-950/20 flex items-center justify-center transition-all hover:scale-110 active:scale-95 animate-float"
           aria-label="Chat on WhatsApp"
         >
           <MessageSquare className="w-6 h-6" />
@@ -85,10 +112,10 @@ export default function Home() {
 
         <a
           href="tel:0719817000"
-          className="w-13 h-13 rounded-full bg-white hover:bg-gray-50 text-emerald-800 border border-emerald-200 shadow-xl flex items-center justify-center transition-all hover:scale-105 active:scale-95"
+          className="w-13 h-13 rounded-full bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-xl flex items-center justify-center transition-all hover:scale-110 active:scale-95"
           aria-label="Call Us Directly"
         >
-          <Phone className="w-5 h-5 text-emerald-700" />
+          <Phone className="w-5 h-5 text-amber-600" />
         </a>
       </div>
     </div>

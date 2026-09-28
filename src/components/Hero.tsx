@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import {
   Calendar,
@@ -10,21 +11,72 @@ import {
   MessageSquare,
   Phone,
   ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  Sparkles,
 } from "lucide-react";
 
+const heroSlides = [
+  {
+    src: "/images/cabana-view.jpg",
+    tag: "Wooden Cabana",
+    title: "Handcrafted retreat nestled above the forest canopy",
+  },
+  {
+    src: "/images/photo_2026-09-28_18-10-31.jpg",
+    tag: "Hilltop Panorama",
+    title: "Scenic aerial view of our cabana amidst misty mountains",
+  },
+  {
+    src: "/images/natural-stream.jpg",
+    tag: "Edawala Dola River",
+    title: "Crystal-clear natural rock pool fresh from Sinharaja",
+  },
+  {
+    src: "/images/photo_2026-09-28_18-10-40.jpg",
+    tag: "River Adventures",
+    title: "Kayaking and rafting through peaceful rainforest bends",
+  },
+  {
+    src: "/images/photo_2026-09-28_18-10-34.jpg",
+    tag: "Balcony Dining",
+    title: "Fresh fruits, juices & breakfast overlooking morning mist",
+  },
+];
+
 export default function Hero({ onOpenBooking }: { onOpenBooking: () => void }) {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  // Auto-play slideshow every 4.5 seconds
+  useEffect(() => {
+    if (isPaused) return;
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+    }, 4500);
+    return () => clearInterval(timer);
+  }, [isPaused]);
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
+  };
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-[#0a2a18] to-emerald-900 pt-10 pb-16 lg:pt-16 lg:pb-24">
-      {/* Decorative blobs */}
+      {/* Decorative ambient gradient blooms */}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-teal-500/20 to-transparent rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-gradient-to-tr from-amber-500/15 to-transparent rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[450px] h-[450px] bg-gradient-to-tr from-amber-500/15 to-transparent rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          {/* Left Column */}
+          {/* Left Column: Content */}
           <div className="lg:col-span-6 space-y-6 text-left">
-            {/* Welcome Tag */}
-            <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-white/10 backdrop-blur border border-white/20 text-emerald-100 text-xs font-medium max-w-full">
+            {/* Cultural Welcome Tag */}
+            <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-white/10 backdrop-blur border border-white/20 text-emerald-100 text-xs font-medium max-w-full badge-glow animate-float">
               <span className="text-amber-300 font-serif font-bold shrink-0">ආයුබෝවන්</span>
               <span className="text-white/40 shrink-0">·</span>
               <span className="sm:hidden font-medium">Welcome to Sinharaja</span>
@@ -45,7 +97,7 @@ export default function Hero({ onOpenBooking }: { onOpenBooking: () => void }) {
               adventure!
             </p>
 
-            {/* Feature Badges */}
+            {/* Feature Badges with hover lift */}
             <div className="grid grid-cols-2 gap-3 pt-1 max-w-lg">
               {[
                 { icon: Mountain, label: "Scenic Hikes", color: "bg-emerald-500/20 text-emerald-300" },
@@ -53,7 +105,10 @@ export default function Hero({ onOpenBooking }: { onOpenBooking: () => void }) {
                 { icon: Flame, label: "Bonfire & BBQ", color: "bg-amber-500/20 text-amber-300" },
                 { icon: Home, label: "Cozy Nature Stay", color: "bg-emerald-500/20 text-emerald-300" },
               ].map(({ icon: Icon, label, color }) => (
-                <div key={label} className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white/8 backdrop-blur border border-white/15 shadow-xs">
+                <div
+                  key={label}
+                  className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white/8 backdrop-blur border border-white/15 shadow-xs card-lift"
+                >
                   <div className={`w-8 h-8 rounded-lg ${color} flex items-center justify-center shrink-0`}>
                     <Icon className="w-4 h-4" />
                   </div>
@@ -62,7 +117,7 @@ export default function Hero({ onOpenBooking }: { onOpenBooking: () => void }) {
               ))}
             </div>
 
-            {/* CTAs */}
+            {/* Call to Actions */}
             <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 max-w-lg">
               <button
                 onClick={onOpenBooking}
@@ -90,27 +145,90 @@ export default function Hero({ onOpenBooking }: { onOpenBooking: () => void }) {
             </div>
           </div>
 
-          {/* Right Column: Hero Photo */}
+          {/* Right Column: Hotel Experience Image Slideshow */}
           <div className="lg:col-span-6 relative">
-            {/* Glowing ring around image */}
+            {/* Glowing ring */}
             <div className="absolute -inset-1 rounded-3xl bg-gradient-to-br from-amber-400/40 via-teal-500/30 to-emerald-600/40 blur-lg" />
-            <div className="relative rounded-3xl overflow-hidden shadow-2xl border-2 border-white/20 aspect-[4/3] group">
-              <Image
-                src="/images/cabana-view.jpg"
-                alt="Misty Heights Real Wooden Cabana Overlooking Sinharaja Mountains"
-                fill
-                priority
-                className="object-cover group-hover:scale-105 transition-transform duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/80 via-transparent to-transparent flex items-end p-6">
-                <div className="text-white">
-                  <span className="text-xs uppercase tracking-widest text-amber-300 font-semibold block">
-                    Sinharaja Rainforest Foothills
+
+            <div
+              className="relative rounded-3xl overflow-hidden shadow-2xl border-2 border-white/20 aspect-[4/3] group bg-[#071a0e]"
+              onMouseEnter={() => setIsPaused(true)}
+              onMouseLeave={() => setIsPaused(false)}
+            >
+              {/* Slides */}
+              {heroSlides.map((slide, index) => (
+                <div
+                  key={slide.src}
+                  className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                    index === currentSlide ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
+                  }`}
+                >
+                  <Image
+                    src={slide.src}
+                    alt={slide.title}
+                    fill
+                    priority={index === 0}
+                    className={`object-cover ${index === currentSlide ? "animate-kenburns" : ""}`}
+                  />
+                  {/* Subtle vignette gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/90 via-emerald-950/20 to-transparent" />
+                </div>
+              ))}
+
+              {/* Slide Details Overlay */}
+              <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6 z-20 flex items-end justify-between gap-4">
+                <div className="text-white max-w-sm">
+                  <span className="text-[11px] uppercase tracking-widest text-amber-300 font-bold block mb-1">
+                    {heroSlides[currentSlide].tag}
                   </span>
-                  <p className="text-lg font-serif font-bold text-white mt-1">
-                    Two-story wooden retreat surrounded by pure mountain mist
+                  <p className="text-sm sm:text-base font-serif font-bold text-white line-clamp-2">
+                    {heroSlides[currentSlide].title}
                   </p>
                 </div>
+
+                {/* Slide Counter */}
+                <div className="px-2.5 py-1 rounded-full bg-black/50 backdrop-blur border border-white/20 text-white text-[11px] font-bold shrink-0">
+                  0{currentSlide + 1} / 0{heroSlides.length}
+                </div>
+              </div>
+
+              {/* Navigation Arrows */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  prevSlide();
+                }}
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/40 hover:bg-black/70 backdrop-blur border border-white/20 text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 z-20 cursor-pointer"
+                aria-label="Previous Slide"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  nextSlide();
+                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/40 hover:bg-black/70 backdrop-blur border border-white/20 text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 z-20 cursor-pointer"
+                aria-label="Next Slide"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+
+              {/* Dots / Progress Bar */}
+              <div className="absolute top-4 right-4 z-20 flex items-center gap-1.5 bg-black/40 backdrop-blur px-2.5 py-1.5 rounded-full border border-white/15">
+                {heroSlides.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentSlide(idx)}
+                    className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                      idx === currentSlide
+                        ? "w-6 bg-amber-400"
+                        : "w-1.5 bg-white/40 hover:bg-white/70"
+                    }`}
+                    aria-label={`Go to slide ${idx + 1}`}
+                  />
+                ))}
               </div>
             </div>
           </div>

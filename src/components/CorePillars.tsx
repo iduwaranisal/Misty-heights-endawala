@@ -60,26 +60,26 @@ export default function CorePillars({ onOpenBooking }: { onOpenBooking: () => vo
           {pillars.map((item, idx) => (
             <div
               key={idx}
-              className="group bg-white rounded-2xl border border-gray-200/80 hover:border-emerald-300 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden"
+              className="group bg-white rounded-2xl border border-emerald-100/80 shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col overflow-hidden card-lift"
             >
               <div className="relative h-48 w-full overflow-hidden bg-gray-100">
                 <Image
                   src={item.image}
                   alt={item.title}
                   fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                 />
-                <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-lg text-xs font-bold text-emerald-800 shadow-sm">
+                <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-lg text-xs font-bold text-emerald-900 shadow-sm">
                   {item.badge}
                 </div>
               </div>
 
               <div className="p-5 flex-1 flex flex-col justify-between">
                 <div>
-                  <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-3">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                     <item.icon className="w-4 h-4" />
                   </div>
-                  <h3 className="text-base font-serif font-bold text-[#0f2416] group-hover:text-emerald-700 transition-colors">
+                  <h3 className="text-base font-serif font-bold text-[#0a1f12] group-hover:text-emerald-700 transition-colors">
                     {item.title}
                   </h3>
                   <p className="text-xs text-gray-600 mt-2 leading-relaxed">{item.desc}</p>
@@ -89,7 +89,7 @@ export default function CorePillars({ onOpenBooking }: { onOpenBooking: () => vo
                   <span>{item.subtitle}</span>
                   <button
                     onClick={onOpenBooking}
-                    className="hover:underline flex items-center gap-0.5 text-xs font-bold"
+                    className="hover:underline flex items-center gap-0.5 text-xs font-bold text-amber-600 hover:text-amber-700 cursor-pointer"
                   >
                     Inquire <ArrowUpRight className="w-3.5 h-3.5" />
                   </button>
