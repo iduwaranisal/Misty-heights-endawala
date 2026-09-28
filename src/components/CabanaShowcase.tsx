@@ -80,7 +80,7 @@ export default function CabanaShowcase({ onOpenBooking }: { onOpenBooking: () =>
               {amenities.map((item, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center gap-3 p-3 rounded-xl bg-white border border-gray-200/80 shadow-xs"
+                  className="flex items-center gap-3 p-3 rounded-xl bg-white border border-emerald-100 shadow-xs card-lift"
                 >
                   <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
                     <item.icon className="w-4 h-4" />
@@ -90,28 +90,28 @@ export default function CabanaShowcase({ onOpenBooking }: { onOpenBooking: () =>
               ))}
             </div>
 
-            <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-100 text-xs text-emerald-900 space-y-1.5">
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50/50 border border-emerald-100 text-xs text-emerald-950 space-y-1.5 shadow-xs">
               <div className="flex items-center justify-between font-semibold">
                 <span>Ideal For:</span>
-                <span>Couples, Families & Groups of Friends</span>
+                <span className="text-emerald-800">Couples, Families &amp; Groups of Friends</span>
               </div>
               <div className="flex items-center justify-between text-gray-600">
                 <span>Location:</span>
-                <span>Warukandeniya, Neluwa, Galle District</span>
+                <span className="font-medium text-gray-800">Warukandeniya, Neluwa, Galle District</span>
               </div>
             </div>
 
             <div className="pt-2 flex flex-wrap gap-3">
               <button
                 onClick={onOpenBooking}
-                className="px-6 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs sm:text-sm shadow-md transition-all flex items-center gap-2 cursor-pointer"
+                className="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-bold text-xs sm:text-sm shadow-md shadow-amber-900/15 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
               >
                 <Calendar className="w-4 h-4" />
                 Reserve The Cabana
               </button>
               <a
                 href="tel:0719817000"
-                className="px-5 py-3 rounded-xl border border-gray-300 text-gray-800 hover:bg-gray-50 font-semibold text-xs sm:text-sm transition-colors"
+                className="px-5 py-3 rounded-xl border border-emerald-200 text-emerald-900 hover:bg-emerald-50 font-semibold text-xs sm:text-sm transition-colors"
               >
                 Call 071 981 7000
               </a>

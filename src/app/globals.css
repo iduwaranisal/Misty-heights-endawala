@@ -2,23 +2,25 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #0f2416;
-  --surface: #f8faf8;
-  --surface-hover: #f0f5f1;
-  --brand-green: #15803d;
-  --brand-dark: #0f2416;
+  --foreground: #0a1f12;
+  --surface: #f4faf6;
+  --surface-hover: #e8f5ec;
+  --brand-green: #166534;
+  --brand-dark: #0a1f12;
   --brand-emerald: #059669;
   --brand-light: #ecfdf5;
-  --border-light: #e5ede7;
+  --brand-amber: #d97706;
+  --brand-teal: #0d9488;
+  --border-light: #d1fae5;
 }
 
 @theme {
-  --color-brand-900: #081a0e;
-  --color-brand-800: #0f2b18;
-  --color-brand-700: #144a29;
-  --color-brand-600: #166534;
-  --color-brand-500: #15803d;
-  --color-brand-400: #22c55e;
+  --color-brand-900: #052e16;
+  --color-brand-800: #14532d;
+  --color-brand-700: #15803d;
+  --color-brand-600: #16a34a;
+  --color-brand-500: #22c55e;
+  --color-brand-400: #4ade80;
   --color-brand-300: #86efac;
   --color-brand-100: #dcfce7;
   --color-brand-50: #f0fdf4;
@@ -30,22 +32,42 @@ html {
 
 body {
   background-color: #ffffff;
-  color: #0f2416;
+  color: #0a1f12;
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
   overflow-x: hidden;
 }
 
-/* Subtle clean scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #f0fdf4; }
+::-webkit-scrollbar-thumb { background: #6ee7b7; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #059669; }
+
+/* Animated gradient text utility */
+@keyframes shimmer {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
-::-webkit-scrollbar-track {
-  background: #f8faf8;
+.text-gradient-animate {
+  background: linear-gradient(135deg, #15803d 0%, #0d9488 40%, #d97706 70%, #15803d 100%);
+  background-size: 300% 300%;
+  animation: shimmer 5s ease infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
+
+/* Section badge glow */
+.badge-glow {
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #166534;
+
+/* Thrilling card hover lift */
+.card-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(10, 31, 18, 0.12);
 }
