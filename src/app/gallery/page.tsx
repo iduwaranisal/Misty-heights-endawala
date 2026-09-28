@@ -88,6 +88,115 @@ export default function GalleryPage() {
       category: "nature",
       desc: "Peaceful evening colors settling over the mountain ranges as the nighttime campfire begins.",
     },
+    // — New Photos —
+    {
+      src: "/images/photo_2026-09-28_18-10-31.jpg",
+      title: "Cabana Hilltop Aerial View",
+      category: "cabana",
+      desc: "Bird's eye view of the cabana perched on a peaceful hilltop surrounded by lush tropical greenery.",
+    },
+    {
+      src: "/images/photo_2026-09-28_18-10-41.jpg",
+      title: "Cabana Nestled in the Mountains",
+      category: "cabana",
+      desc: "The wooden retreat sitting quietly among tall trees and rolling green mountain hills.",
+    },
+    {
+      src: "/images/photo_2026-09-28_18-10-37.jpg",
+      title: "Drone View – Cabana & Rainforest River",
+      category: "nature",
+      desc: "Aerial shot showing the cabana, winding jungle path, and the Edawala river bend below.",
+    },
+    {
+      src: "/images/photo_2026-09-28_18-10-29.jpg",
+      title: "Calm River Bend Under Blue Sky",
+      category: "water",
+      desc: "A wide, calm stretch of the natural river pool reflecting tall rainforest trees and blue sky.",
+    },
+    {
+      src: "/images/photo_2026-09-28_18-10-28.jpg",
+      title: "River Rushing Over Smooth Rocks",
+      category: "water",
+      desc: "Fresh mountain water rushing over flat rocks and boulders at the edge of our natural swimming area.",
+    },
+    {
+      src: "/images/photo_2026-09-28_18-10-31 (2).jpg",
+      title: "Peaceful Natural Swimming Pool",
+      category: "water",
+      desc: "The wide, still section of the river perfect for a refreshing dip or quiet float.",
+    },
+    {
+      src: "/images/photo_2026-09-28_18-10-36.jpg",
+      title: "Crystal Clear River Rock Pools",
+      category: "water",
+      desc: "Sun-lit rock pools with golden-clear water – perfect for wading and relaxing by the stream.",
+    },
+    {
+      src: "/images/photo_2026-09-28_18-10-40.jpg",
+      title: "Family Kayaking on the River",
+      category: "water",
+      desc: "A mum and daughter paddling a yellow kayak through the calm jungle river with life jackets on.",
+    },
+    {
+      src: "/images/photo_2026-09-28_18-10-42.jpg",
+      title: "Kids Kayaking with the Family",
+      category: "water",
+      desc: "A guide paddles a group of little ones down the clear river surrounded by rainforest trees.",
+    },
+    {
+      src: "/images/photo_2026-09-28_18-10-41 (2).jpg",
+      title: "Rubber Boat Fun on the River",
+      category: "water",
+      desc: "Guests enjoying a fun river ride on an inflatable boat with yellow paddles.",
+    },
+    {
+      src: "/images/photo_2026-09-28_18-10-33.jpg",
+      title: "Group River Swimming & Boating",
+      category: "water",
+      desc: "A fun group of friends swimming and rafting together on the calm river surrounded by greenery.",
+    },
+    {
+      src: "/images/photo_2026-09-28_18-10-38.jpg",
+      title: "River Fun with Friends",
+      category: "water",
+      desc: "Guests laughing and swimming together in the wide river pool next to a leafy forest bank.",
+    },
+    {
+      src: "/images/photo_2026-09-28_18-10-34.jpg",
+      title: "Breakfast on the Balcony",
+      category: "cabana",
+      desc: "A beautifully set table with fresh juice, fruits and local treats enjoyed with a misty mountain view.",
+    },
+    {
+      src: "/images/photo_2026-09-28_18-10-35.jpg",
+      title: "Guests Dining with a Forest View",
+      category: "cabana",
+      desc: "A family sharing a warm meal on the open veranda with the green hills stretching behind them.",
+    },
+    {
+      src: "/images/photo_2026-09-28_18-10-25.jpg",
+      title: "Fresh Village Fruit Salad",
+      category: "nature",
+      desc: "A colourful plate of locally sourced village fruit with the Sinharaja forest in the background.",
+    },
+    {
+      src: "/images/photo_2026-09-28_18-10-30.jpg",
+      title: "Spiced Crab with Mountain Views",
+      category: "nature",
+      desc: "A plate of freshly cooked Sri Lankan spiced crab, served with the green hills as a backdrop.",
+    },
+    {
+      src: "/images/photo_2026-09-28_18-10-39.jpg",
+      title: "Fresh Watermelon by the Rainforest",
+      category: "nature",
+      desc: "A plate of cool, sweet watermelon enjoyed in the open air overlooking the mountain forest.",
+    },
+    {
+      src: "/images/photo_2026-09-28_18-10-26.jpg",
+      title: "Guests Exploring the Rainforest Trail",
+      category: "nature",
+      desc: "Two smiling travelers on a guided walk through the lush Sinharaja forest canopy trail.",
+    },
   ];
 
   const filteredImages =
