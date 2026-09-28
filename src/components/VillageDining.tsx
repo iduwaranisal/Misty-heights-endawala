@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Utensils, HeartHandshake, Flame, ArrowRight } from "lucide-react";
+import { Utensils, HeartHandshake, ArrowRight } from "lucide-react";
 
 export default function VillageDining({ onOpenBooking }: { onOpenBooking: () => void }) {
   const meals = [
@@ -9,45 +9,45 @@ export default function VillageDining({ onOpenBooking }: { onOpenBooking: () => 
       title: "Traditional Sri Lankan Breakfast",
       desc: "Crispy hoppers (appa) and egg hoppers served hot with fresh coconut sambol, bananas, and spicy lunu miris.",
       tag: "Breakfast",
-      tagColor: "bg-amber-50 text-amber-800 border-amber-200",
+      tagColor: "bg-emerald-50 text-emerald-800 border-emerald-100",
     },
     {
       title: "Village Clay-Pot Rice & Curries",
       desc: "Country red or white rice served with tender jackfruit (polos), coconut dhal, fresh river fish, and garden greens.",
       tag: "Lunch",
-      tagColor: "bg-emerald-50 text-emerald-800 border-emerald-200",
+      tagColor: "bg-teal-50 text-teal-800 border-teal-100",
     },
     {
       title: "Rainforest Bonfire Barbecue",
       desc: "Grilled barbecue meats, spicy seafood, roasted corn, sweet potatoes, and music under starry night skies.",
       tag: "Dinner BBQ",
-      tagColor: "bg-orange-50 text-orange-800 border-orange-200",
+      tagColor: "bg-stone-100 text-stone-800 border-stone-200",
     },
     {
       title: "Fresh Herbal & Ceylon Black Tea",
       desc: "Fragrant Ceylon tea from nearby hill plantations, accompanied by morning herbal kola kanda with jaggery.",
       tag: "Tea & Health",
-      tagColor: "bg-teal-50 text-teal-800 border-teal-200",
+      tagColor: "bg-emerald-50 text-emerald-800 border-emerald-100",
     },
   ];
 
   return (
-    <section id="dining" className="py-20 bg-gradient-to-b from-white via-amber-50/20 to-white relative overflow-hidden">
-      {/* Decorative warm ambient glow */}
-      <div className="absolute top-1/2 right-0 w-96 h-96 bg-amber-200/30 rounded-full blur-3xl pointer-events-none -z-10" />
+    <section id="dining" className="py-20 bg-gradient-to-b from-white via-emerald-50/20 to-white relative overflow-hidden">
+      {/* Decorative ambient glow */}
+      <div className="absolute top-1/2 right-0 w-96 h-96 bg-emerald-100/40 rounded-full blur-3xl pointer-events-none -z-10" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Left Column: Information & Menu Items */}
           <div className="lg:col-span-7 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-amber-50 to-orange-50 text-amber-900 text-xs font-semibold uppercase tracking-wider border border-amber-200 badge-glow">
-              <Flame className="w-3.5 h-3.5 text-orange-500" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-900 text-xs font-semibold uppercase tracking-wider border border-emerald-200 badge-glow">
+              <Utensils className="w-3.5 h-3.5 text-emerald-700" />
               Authentic Island Flavors
             </div>
 
             <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#0a1f12] tracking-tight">
-              Homecooked Village Food &{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 via-orange-600 to-red-600">
+              Homecooked Village Food &amp;{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-700">
                 Fireside Meals
               </span>
             </h2>
@@ -77,7 +77,7 @@ export default function VillageDining({ onOpenBooking }: { onOpenBooking: () => 
             <div className="pt-2 flex items-center gap-4">
               <button
                 onClick={onOpenBooking}
-                className="text-xs sm:text-sm font-bold text-amber-700 hover:text-amber-800 flex items-center gap-1.5 transition-colors cursor-pointer group"
+                className="text-xs sm:text-sm font-bold text-emerald-800 hover:text-emerald-950 flex items-center gap-1.5 transition-colors cursor-pointer group"
               >
                 <span>Inquire about custom meal packages</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -96,7 +96,7 @@ export default function VillageDining({ onOpenBooking }: { onOpenBooking: () => 
               />
               <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/80 via-transparent to-transparent flex items-end p-5">
                 <div className="text-white">
-                  <span className="text-xs font-semibold text-amber-300 uppercase tracking-wider block">
+                  <span className="text-xs font-semibold text-emerald-300 uppercase tracking-wider block">
                     Balcony &amp; Veranda Dining
                   </span>
                   <p className="text-sm font-serif font-bold text-white mt-1">
@@ -106,13 +106,13 @@ export default function VillageDining({ onOpenBooking }: { onOpenBooking: () => 
               </div>
             </div>
 
-            <div className="p-5 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200/80 text-xs text-amber-950 flex items-start gap-3 shadow-xs">
-              <HeartHandshake className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
+            <div className="p-5 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50/50 border border-emerald-200/80 text-xs text-emerald-950 flex items-start gap-3 shadow-xs">
+              <HeartHandshake className="w-5 h-5 text-emerald-700 shrink-0 mt-0.5" />
               <div>
-                <strong className="block text-amber-950 font-serif text-sm">
+                <strong className="block text-emerald-950 font-serif text-sm">
                   Warm Island Hospitality
                 </strong>
-                <p className="text-amber-900/80 mt-0.5 leading-relaxed">
+                <p className="text-emerald-800/90 mt-0.5 leading-relaxed">
                   In true Sri Lankan tradition, we treat every guest like family. Dietary needs
                   (vegetarian, vegan, halal) are happily catered with love and care.
                 </p>

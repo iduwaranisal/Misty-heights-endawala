@@ -194,9 +194,9 @@ Please let me know availability and details. Thank you!`;
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full py-4 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-bold text-sm sm:text-base shadow-lg shadow-amber-900/20 flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99]"
+                  className="w-full py-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm sm:text-base shadow-xl shadow-emerald-950/20 flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99] border border-emerald-600/30"
                 >
-                  <MessageSquare className="w-5 h-5" />
+                  <MessageSquare className="w-5 h-5 text-emerald-300" />
                   Request Availability on WhatsApp
                   <ArrowRight className="w-4 h-4" />
                 </button>
@@ -214,9 +214,9 @@ Please let me know availability and details. Thank you!`;
           <div className="lg:col-span-5 space-y-6">
             {/* Contact Card */}
             <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-[#071d10] via-[#0d2e1b] to-[#071d10] text-white shadow-2xl space-y-6 border border-emerald-500/20 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-48 h-48 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
               <div>
-                <span className="text-xs uppercase tracking-wider text-amber-300 font-semibold block">
+                <span className="text-xs uppercase tracking-wider text-emerald-300 font-semibold block">
                   Authentic Hospitality
                 </span>
                 <h3 className="text-2xl font-serif font-bold text-white mt-1">
@@ -233,11 +233,11 @@ Please let me know availability and details. Thank you!`;
                   href="tel:0719817000"
                   className="flex items-center gap-3.5 p-4 rounded-2xl bg-white/10 hover:bg-white/15 transition-all border border-white/10 group card-lift"
                 >
-                  <div className="w-11 h-11 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <div className="w-11 h-11 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                     <Phone className="w-5 h-5" />
                   </div>
                   <div>
-                    <span className="text-[11px] text-amber-300 uppercase tracking-wider block font-semibold">
+                    <span className="text-[11px] text-emerald-300 uppercase tracking-wider block font-semibold">
                       Primary Phone Line
                     </span>
                     <strong className="text-lg text-white font-serif">071 981 7000</strong>

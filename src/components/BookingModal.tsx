@@ -157,9 +157,9 @@ Please confirm availability and details. Thank you!`;
           <div className="pt-2">
             <button
               type="submit"
-              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-bold text-sm shadow-md shadow-amber-900/15 flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99]"
+              className="w-full py-3.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm shadow-md shadow-emerald-950/20 flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99]"
             >
-              <MessageSquare className="w-4 h-4" />
+              <MessageSquare className="w-4 h-4 text-emerald-300" />
               Send Booking on WhatsApp
               <ArrowRight className="w-4 h-4" />
             </button>

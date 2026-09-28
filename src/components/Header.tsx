@@ -86,7 +86,7 @@ export default function Header({ onOpenBooking }: { onOpenBooking: () => void })
             </a>
             <button
               onClick={onOpenBooking}
-              className="inline-flex items-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-bold rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white shadow-md shadow-amber-900/15 hover:shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-bold rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white shadow-md shadow-emerald-950/15 hover:scale-105 active:scale-95 transition-all cursor-pointer"
             >
               <Calendar className="w-4 h-4" />
               <span>Book Your Stay</span>
@@ -97,7 +97,7 @@ export default function Header({ onOpenBooking }: { onOpenBooking: () => void })
           <div className="flex items-center gap-2 lg:hidden">
             <button
               onClick={onOpenBooking}
-              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-xs cursor-pointer"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white shadow-xs cursor-pointer transition-all"
             >
               <Calendar className="w-3.5 h-3.5" />
               <span>Book</span>
@@ -149,7 +149,7 @@ export default function Header({ onOpenBooking }: { onOpenBooking: () => void })
                 setMobileMenuOpen(false);
                 onOpenBooking();
               }}
-              className="w-full py-3.5 text-center text-sm font-bold rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-orange-500 text-white shadow-md flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-3.5 text-center text-sm font-bold rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all"
             >
               <Calendar className="w-4 h-4" />
               Book Your Stay

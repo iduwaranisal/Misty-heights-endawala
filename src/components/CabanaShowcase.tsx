@@ -85,7 +85,7 @@ export default function CabanaShowcase({ onOpenBooking }: { onOpenBooking: () =>
 
               {/* Gradient overlay with caption */}
               <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/90 via-black/20 to-transparent flex flex-col justify-end p-5 text-white">
-                <span className="text-[10px] uppercase font-bold tracking-widest text-amber-300">
+                <span className="text-[10px] uppercase font-bold tracking-widest text-emerald-300">
                   Photo 0{activePhoto + 1} of 0{cabanaPhotos.length}
                 </span>
                 <h4 className="text-base sm:text-lg font-serif font-bold text-white mt-0.5">
@@ -122,7 +122,7 @@ export default function CabanaShowcase({ onOpenBooking }: { onOpenBooking: () =>
                   onClick={() => setActivePhoto(idx)}
                   className={`relative rounded-xl overflow-hidden aspect-[4/3] border-2 transition-all cursor-pointer ${
                     activePhoto === idx
-                      ? "border-amber-400 scale-105 shadow-md ring-2 ring-amber-300/40"
+                      ? "border-emerald-600 scale-105 shadow-md ring-2 ring-emerald-400/40"
                       : "border-transparent opacity-60 hover:opacity-100 hover:scale-102"
                   }`}
                   aria-label={`View photo ${idx + 1}`}
@@ -147,7 +147,7 @@ export default function CabanaShowcase({ onOpenBooking }: { onOpenBooking: () =>
 
             <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#0a1f12] tracking-tight">
               A Warm, Handcrafted{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 via-teal-600 to-amber-600">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-800 via-emerald-600 to-teal-700">
                 Wooden Retreat
               </span>
             </h2>
@@ -187,7 +187,7 @@ export default function CabanaShowcase({ onOpenBooking }: { onOpenBooking: () =>
             <div className="pt-2 flex flex-wrap gap-3">
               <button
                 onClick={onOpenBooking}
-                className="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-bold text-xs sm:text-sm shadow-md shadow-amber-900/15 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
+                className="px-6 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs sm:text-sm shadow-md shadow-emerald-950/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
               >
                 <Calendar className="w-4 h-4" />
                 Reserve The Cabana

@@ -14,12 +14,12 @@ import {
 const tickerItems = [
   { icon: Mountain, text: "Sinharaja Rainforest Foothills", accent: "text-emerald-400" },
   { icon: Waves, text: "Natural River Pool Swimming", accent: "text-cyan-400" },
-  { icon: Compass, text: "River Kayaking & Inflatable Rafting", accent: "text-teal-400" },
-  { icon: Flame, text: "Starlit Bonfire & BBQ Evenings", accent: "text-amber-400" },
-  { icon: Home, text: "Handcrafted Wooden Cabana Retreat", accent: "text-orange-400" },
-  { icon: Coffee, text: "Fresh Ceylon Tea & Village Dining", accent: "text-amber-300" },
-  { icon: Bird, text: "Endemic Birds & Tropical Nature Walks", accent: "text-emerald-300" },
-  { icon: Sparkles, text: "Zero City Noise · Pure Serenity", accent: "text-yellow-300" },
+  { icon: Compass, text: "River Kayaking & Inflatable Rafting", accent: "text-teal-300" },
+  { icon: Flame, text: "Starlit Bonfire & BBQ Evenings", accent: "text-emerald-300" },
+  { icon: Home, text: "Handcrafted Wooden Cabana Retreat", accent: "text-teal-400" },
+  { icon: Coffee, text: "Fresh Ceylon Tea & Village Dining", accent: "text-emerald-300" },
+  { icon: Bird, text: "Endemic Birds & Tropical Nature Walks", accent: "text-emerald-400" },
+  { icon: Sparkles, text: "Zero City Noise · Pure Serenity", accent: "text-teal-200" },
 ];
 
 export default function AdventureTicker() {

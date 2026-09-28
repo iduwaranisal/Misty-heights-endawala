@@ -77,7 +77,7 @@ export default function Hero({ onOpenBooking }: { onOpenBooking: () => void }) {
           <div className="lg:col-span-6 space-y-6 text-left">
             {/* Cultural Welcome Tag */}
             <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-white/10 backdrop-blur border border-white/20 text-emerald-100 text-xs font-medium max-w-full badge-glow animate-float">
-              <span className="text-amber-300 font-serif font-bold shrink-0">ආයුබෝවන්</span>
+              <span className="text-emerald-300 font-serif font-bold shrink-0">ආයුබෝවන්</span>
               <span className="text-white/40 shrink-0">·</span>
               <span className="sm:hidden font-medium">Welcome to Sinharaja</span>
               <span className="hidden sm:inline font-medium">Ayubowan · Welcome to Sinharaja, Sri Lanka</span>
@@ -102,7 +102,7 @@ export default function Hero({ onOpenBooking }: { onOpenBooking: () => void }) {
               {[
                 { icon: Mountain, label: "Scenic Hikes", color: "bg-emerald-500/20 text-emerald-300" },
                 { icon: Waves, label: "Kayaking & Pool", color: "bg-teal-500/20 text-teal-300" },
-                { icon: Flame, label: "Bonfire & BBQ", color: "bg-amber-500/20 text-amber-300" },
+                { icon: Flame, label: "Bonfire & BBQ", color: "bg-emerald-500/20 text-emerald-300" },
                 { icon: Home, label: "Cozy Nature Stay", color: "bg-emerald-500/20 text-emerald-300" },
               ].map(({ icon: Icon, label, color }) => (
                 <div
@@ -121,7 +121,7 @@ export default function Hero({ onOpenBooking }: { onOpenBooking: () => void }) {
             <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5 max-w-lg">
               <button
                 onClick={onOpenBooking}
-                className="py-3.5 px-7 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-bold text-sm shadow-lg shadow-amber-900/30 flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                className="py-3.5 px-7 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-xl shadow-emerald-950/40 btn-primary-glow border border-emerald-400/30 flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95 cursor-pointer"
               >
                 <Calendar className="w-4 h-4" />
                 Book Your Stay
@@ -140,7 +140,7 @@ export default function Hero({ onOpenBooking }: { onOpenBooking: () => void }) {
             </div>
 
             <div className="flex items-center gap-2 text-xs text-emerald-200/70 pt-1">
-              <Phone className="w-3.5 h-3.5 text-amber-400" />
+              <Phone className="w-3.5 h-3.5 text-emerald-400" />
               <span>Call Us: <strong className="text-white">071 981 7000</strong> · Open Every Day</span>
             </div>
           </div>
@@ -148,7 +148,7 @@ export default function Hero({ onOpenBooking }: { onOpenBooking: () => void }) {
           {/* Right Column: Hotel Experience Image Slideshow */}
           <div className="lg:col-span-6 relative">
             {/* Glowing ring */}
-            <div className="absolute -inset-1 rounded-3xl bg-gradient-to-br from-amber-400/40 via-teal-500/30 to-emerald-600/40 blur-lg" />
+            <div className="absolute -inset-1 rounded-3xl bg-gradient-to-br from-emerald-500/30 via-teal-500/20 to-emerald-700/30 blur-lg" />
 
             <div
               className="relative rounded-3xl overflow-hidden shadow-2xl border-2 border-white/20 aspect-[4/3] group bg-[#071a0e]"
@@ -178,7 +178,7 @@ export default function Hero({ onOpenBooking }: { onOpenBooking: () => void }) {
               {/* Slide Details Overlay */}
               <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6 z-20 flex items-end justify-between gap-4">
                 <div className="text-white max-w-sm">
-                  <span className="text-[11px] uppercase tracking-widest text-amber-300 font-bold block mb-1">
+                  <span className="text-[11px] uppercase tracking-widest text-emerald-300 font-bold block mb-1">
                     {heroSlides[currentSlide].tag}
                   </span>
                   <p className="text-sm sm:text-base font-serif font-bold text-white line-clamp-2">
@@ -223,7 +223,7 @@ export default function Hero({ onOpenBooking }: { onOpenBooking: () => void }) {
                     onClick={() => setCurrentSlide(idx)}
                     className={`h-1.5 rounded-full transition-all cursor-pointer ${
                       idx === currentSlide
-                        ? "w-6 bg-amber-400"
+                        ? "w-6 bg-emerald-400"
                         : "w-1.5 bg-white/40 hover:bg-white/70"
                     }`}
                     aria-label={`Go to slide ${idx + 1}`}

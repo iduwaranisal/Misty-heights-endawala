@@ -100,7 +100,7 @@ export default function PhotoGallery() {
           </div>
           <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#0a1f12] tracking-tight">
             Moments in Nature &amp;{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 via-teal-600 to-amber-600">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-800 via-emerald-600 to-teal-700">
               Adventure
             </span>
           </h2>
@@ -124,7 +124,7 @@ export default function PhotoGallery() {
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4 text-white">
-                <span className="text-[10px] uppercase font-bold tracking-wider text-amber-300">
+                <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-300">
                   {img.category}
                 </span>
                 <h4 className="text-xs sm:text-sm font-semibold text-white leading-snug">{img.title}</h4>
@@ -140,10 +140,10 @@ export default function PhotoGallery() {
         <div className="mt-12 text-center">
           <Link
             href="/gallery"
-            className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full bg-gradient-to-r from-emerald-800 via-teal-700 to-emerald-800 hover:from-emerald-900 hover:to-teal-800 text-white font-bold text-sm shadow-lg shadow-emerald-950/20 transition-all hover:scale-105"
+            className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm shadow-lg shadow-emerald-950/20 transition-all hover:scale-105"
           >
             <span>View All Photos</span>
-            <ArrowRight className="w-4 h-4 text-amber-300" />
+            <ArrowRight className="w-4 h-4 text-emerald-300" />
           </Link>
           <p className="text-xs text-gray-500 mt-2">
             Explore our complete 28-photo collection of the cabana, rivers, dining, and adventures.

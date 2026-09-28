@@ -24,7 +24,7 @@ export default function Footer({ onOpenBooking }: { onOpenBooking: () => void })
                 <span className="text-xl font-serif font-bold text-white tracking-tight block">
                   MISTY HEIGHTS
                 </span>
-                <span className="text-xs font-semibold tracking-wider text-amber-400 uppercase block">
+                <span className="text-xs font-semibold tracking-wider text-emerald-400 uppercase block">
                   Endawala · Sinharaja
                 </span>
               </div>
@@ -46,13 +46,13 @@ export default function Footer({ onOpenBooking }: { onOpenBooking: () => void })
                 Facebook Page
               </a>
               <span className="text-xs text-white/30">·</span>
-              <span className="text-xs font-semibold text-amber-400">Always Open</span>
+              <span className="text-xs font-semibold text-emerald-400">Always Open</span>
             </div>
           </div>
 
           {/* Quick Links */}
           <div className="lg:col-span-3 space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-amber-300">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-300">
               Quick Links
             </h4>
             <ul className="space-y-2 text-xs font-medium text-emerald-100/70">
@@ -91,18 +91,18 @@ export default function Footer({ onOpenBooking }: { onOpenBooking: () => void })
 
           {/* Contact Details */}
           <div className="lg:col-span-4 space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-amber-300">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-300">
               Contact &amp; Location
             </h4>
 
             <div className="space-y-2.5 text-xs text-emerald-100/80">
               <div className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                <MapPin className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                 <span>Warukandeniya, Neluwa, Galle District, Sri Lanka</span>
               </div>
 
               <div className="flex items-center gap-2.5">
-                <Phone className="w-4 h-4 text-amber-400 shrink-0" />
+                <Phone className="w-4 h-4 text-emerald-400 shrink-0" />
                 <div className="flex gap-2">
                   <a href="tel:0719817000" className="hover:text-white font-semibold">
                     071 981 7000
@@ -115,15 +115,15 @@ export default function Footer({ onOpenBooking }: { onOpenBooking: () => void })
               </div>
 
               <div className="flex items-center gap-2.5">
-                <Mail className="w-4 h-4 text-amber-400 shrink-0" />
+                <Mail className="w-4 h-4 text-emerald-400 shrink-0" />
                 <a href="mailto:mistyheightsendawala@gmail.com" className="hover:text-white">
                   mistyheightsendawala@gmail.com
                 </a>
               </div>
 
               <div className="flex items-center gap-2.5">
-                <Clock className="w-4 h-4 text-amber-400 shrink-0" />
-                <span className="font-semibold text-amber-300">Always Open · Every Day</span>
+                <Clock className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span className="font-semibold text-emerald-300">Always Open · Every Day</span>
               </div>
             </div>
           </div>

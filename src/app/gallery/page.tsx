@@ -238,7 +238,7 @@ export default function GalleryPage() {
 
             <button
               onClick={() => setIsBookingOpen(true)}
-              className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white text-xs font-bold shadow-md shadow-amber-900/15 hover:scale-105 transition-all"
+              className="hidden sm:inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shadow-md shadow-emerald-950/20 hover:scale-105 transition-all"
             >
               <Calendar className="w-3.5 h-3.5" />
               Book Your Stay
@@ -253,7 +253,7 @@ export default function GalleryPage() {
             </div>
             <h1 className="text-3xl sm:text-5xl font-serif font-bold text-[#0a1f12] tracking-tight">
               Life at{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-700 via-teal-600 to-amber-600">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-800 via-emerald-600 to-teal-700">
                 Misty Heights Endawala
               </span>
             </h1>
@@ -300,7 +300,7 @@ export default function GalleryPage() {
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4 text-white">
-                  <span className="text-[10px] uppercase font-bold tracking-wider text-amber-300">
+                  <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-300">
                     {img.category}
                   </span>
                   <h4 className="text-xs sm:text-sm font-semibold text-white leading-snug">{img.title}</h4>
@@ -314,7 +314,7 @@ export default function GalleryPage() {
 
           {/* Booking CTA Bar */}
           <div className="mt-16 p-8 rounded-3xl bg-gradient-to-r from-emerald-950 via-teal-900 to-emerald-950 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-2xl relative overflow-hidden border border-white/10">
-            <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
             <div className="space-y-1 text-center sm:text-left relative z-10">
               <h3 className="text-xl sm:text-2xl font-serif font-bold">
                 Experience Misty Heights in Person
@@ -326,7 +326,7 @@ export default function GalleryPage() {
             <div className="flex flex-wrap items-center gap-3 relative z-10">
               <button
                 onClick={() => setIsBookingOpen(true)}
-                className="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-400 via-amber-300 to-orange-400 hover:from-amber-300 hover:to-orange-300 text-emerald-950 font-bold text-xs sm:text-sm shadow-lg transition-all cursor-pointer hover:scale-105"
+                className="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs sm:text-sm shadow-xl shadow-emerald-950/40 btn-primary-glow border border-emerald-400/30 transition-all cursor-pointer hover:scale-105"
               >
                 Book Your Stay
               </button>

@@ -18,8 +18,8 @@ const reviews = [
     date: "Family Weekend",
     text: "The family treated us like their own. Delicious hot hoppers and coconut sambol for breakfast, and an unforgettable evening bonfire under a sky filled with stars. Zero city noise, just birds and breeze.",
     highlight: "Unmatched village hospitality",
-    accent: "from-amber-500 to-orange-500",
-    badgeColor: "bg-amber-50 text-amber-800 border-amber-200",
+    accent: "from-teal-500 to-emerald-500",
+    badgeColor: "bg-teal-50 text-teal-800 border-teal-200",
   },
   {
     name: "Elena & Marcus",
@@ -27,8 +27,8 @@ const reviews = [
     date: "Holiday Getaway",
     text: "We booked Misty Heights for its closeness to Sinharaja. The wooden cabana is cozy, clean, and breezy. We kayaked on the quiet river and spotted beautiful endemic birds right from the patio.",
     highlight: "Sinharaja birdwatching & kayak",
-    accent: "from-sky-500 to-blue-500",
-    badgeColor: "bg-sky-50 text-sky-800 border-sky-200",
+    accent: "from-cyan-500 to-teal-500",
+    badgeColor: "bg-cyan-50 text-cyan-800 border-cyan-200",
   },
 ];
 
@@ -37,18 +37,18 @@ export default function TestimonialsSection() {
     <section className="py-20 bg-gradient-to-b from-emerald-950 via-[#0a2a18] to-emerald-900 relative overflow-hidden">
       {/* Background accents */}
       <div className="absolute top-0 left-1/3 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-14">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur border border-white/20 text-emerald-200 text-xs font-semibold uppercase tracking-wider mb-3">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <Sparkles className="w-3.5 h-3.5 text-emerald-300" />
             Traveler Stories
           </div>
           <h2 className="text-3xl sm:text-4xl font-serif font-bold text-white tracking-tight">
             Memories Shared by{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-teal-200 to-emerald-400">
               Our Guests
             </span>
           </h2>
