@@ -186,12 +186,6 @@ export default function GalleryPage() {
       desc: "A plate of freshly cooked Sri Lankan spiced crab, served with the green hills as a backdrop.",
     },
     {
-      src: "/images/photo_2026-09-28_18-10-39.jpg",
-      title: "Fresh Watermelon by the Rainforest",
-      category: "nature",
-      desc: "A plate of cool, sweet watermelon enjoyed in the open air overlooking the mountain forest.",
-    },
-    {
       src: "/images/photo_2026-09-28_18-10-26.jpg",
       title: "Guests Exploring the Rainforest Trail",
       category: "nature",
@@ -294,7 +288,7 @@ export default function GalleryPage() {
               <div
                 key={idx}
                 onClick={() => openLightbox(idx)}
-                className="group relative rounded-2xl overflow-hidden shadow-xs hover:shadow-xl bg-gray-100 aspect-[4/3] cursor-pointer transition-all border border-gray-100"
+                className="group relative rounded-2xl overflow-hidden shadow-xs hover:shadow-xl bg-gray-100 aspect-square cursor-pointer transition-all border border-gray-100"
               >
                 <Image
                   src={img.src}
