@@ -97,7 +97,7 @@ export default function CabanaShowcase({ onOpenBooking }: { onOpenBooking: () =>
               </div>
               <div className="flex items-center justify-between text-gray-600">
                 <span>Location:</span>
-                <span>Endawala, Dellawa, Neluwa, Galle District</span>
+                <span>Warukandeniya, Neluwa, Galle District</span>
               </div>
             </div>
 

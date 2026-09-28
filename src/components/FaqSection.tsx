@@ -29,7 +29,7 @@ export default function FaqSection() {
     },
     {
       q: "How do we reach Misty Heights from Colombo or Galle?",
-      a: "From Colombo, take the Southern Expressway (E01) to Kurundugahahetekma or Baddegama exit, then travel through Neluwa to Dellawa and Endawala (approx. 2.5 - 3 hours). The road is paved and accessible by all standard vehicles.",
+      a: "From Colombo, take the Southern Expressway (E01) to Kurundugahahetekma or Baddegama exit, then travel through Neluwa to Warukandeniya (approx. 2.5 - 3 hours). The road is paved and accessible by all standard vehicles.",
     },
   ];
 

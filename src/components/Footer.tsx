@@ -98,7 +98,7 @@ export default function Footer({ onOpenBooking }: { onOpenBooking: () => void })
             <div className="space-y-2.5 text-xs text-gray-600">
               <div className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-emerald-700 shrink-0 mt-0.5" />
-                <span>Endawala, Dellawa, Neluwa, Galle District, Sri Lanka</span>
+                <span>Warukandeniya, Neluwa, Galle District, Sri Lanka</span>
               </div>
 
               <div className="flex items-center gap-2.5">
