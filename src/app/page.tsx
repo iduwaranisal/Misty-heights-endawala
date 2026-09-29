@@ -17,7 +17,7 @@ import FaqSection from "@/components/FaqSection";
 import BookingSection from "@/components/BookingSection";
 import Footer from "@/components/Footer";
 import BookingModal from "@/components/BookingModal";
-import { MessageSquare, Phone } from "lucide-react";
+import { MessageSquare, Phone, Calendar } from "lucide-react";
 
 export default function Home() {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
@@ -75,25 +75,37 @@ export default function Home() {
       {/* Pop-up Reservation Modal */}
       <BookingModal isOpen={isBookingOpen} onClose={() => setIsBookingOpen(false)} />
 
-      {/* Floating Action Contact Buttons with Pulse & Hover */}
+      {/* Floating Action Buttons */}
       <div className="fixed bottom-6 right-6 z-40 flex flex-col gap-2.5">
-        <a
-          href="https://wa.me/94719817000?text=Hello%20Misty%20Heights%20Endawala,%20I%20would%20like%20to%20inquire%20about%20a%20stay."
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-13 h-13 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white shadow-xl shadow-emerald-950/20 flex items-center justify-center transition-all hover:scale-110 active:scale-95 animate-float"
-          aria-label="Chat on WhatsApp"
+        {/* Book Now pill */}
+        <button
+          onClick={() => setIsBookingOpen(true)}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white shadow-xl shadow-emerald-950/30 text-sm font-bold transition-all hover:scale-105 active:scale-95 cursor-pointer"
+          aria-label="Open booking"
         >
-          <MessageSquare className="w-6 h-6" />
-        </a>
+          <Calendar className="w-4 h-4" />
+          Book Now
+        </button>
 
-        <a
-          href="tel:0719817000"
-          className="w-13 h-13 rounded-full bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-xl flex items-center justify-center transition-all hover:scale-110 active:scale-95"
-          aria-label="Call Us Directly"
-        >
-          <Phone className="w-5 h-5 text-emerald-700" />
-        </a>
+        <div className="flex gap-2.5 justify-end">
+          <a
+            href="https://wa.me/94719817000?text=Hello%20Misty%20Heights%20Endawala,%20I%20would%20like%20to%20inquire%20about%20a%20stay."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-12 h-12 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white shadow-xl shadow-emerald-950/20 flex items-center justify-center transition-all hover:scale-110 active:scale-95 animate-float"
+            aria-label="Chat on WhatsApp"
+          >
+            <MessageSquare className="w-5 h-5" />
+          </a>
+
+          <a
+            href="tel:0719817000"
+            className="w-12 h-12 rounded-full bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-xl flex items-center justify-center transition-all hover:scale-110 active:scale-95"
+            aria-label="Call Us Directly"
+          >
+            <Phone className="w-4 h-4 text-emerald-700" />
+          </a>
+        </div>
       </div>
     </div>
   );
