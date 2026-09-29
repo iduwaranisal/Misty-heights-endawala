@@ -15,6 +15,8 @@ export interface IBooking extends Document {
   checkOut: Date;
   checkInTime: string;   // "14:00"
   checkOutTime: string;  // "11:00"
+  checkInDateStr?: string;  // "YYYY-MM-DD"
+  checkOutDateStr?: string; // "YYYY-MM-DD"
   // Stay details
   guests: number;
   notes?: string;
@@ -35,8 +37,9 @@ const BookingSchema = new Schema<IBooking>(
     checkIn: { type: Date, required: true },
     checkOut: { type: Date, required: true },
     checkInTime: { type: String, default: "14:00" },
-    checkOutTime: { type: String, default: "11:00" },
-    guests: { type: Number, required: true, min: 1, max: 20 },
+    checkInDateStr: { type: String },
+    checkOutDateStr: { type: String },
+    guests: { type: Number, required: true, min: 1 },
     notes: { type: String, trim: true },
     status: {
       type: String,

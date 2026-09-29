@@ -69,17 +69,21 @@ export async function submitPublicBooking(
   try {
     await connectDB();
 
-    const checkInDate = new Date(data.checkIn);
-    const checkOutDate = new Date(data.checkOut);
-    const [inH, inM] = (data.checkInTime || "14:00").split(":").map(Number);
-    const [outH, outM] = (data.checkOutTime || "11:00").split(":").map(Number);
-    checkInDate.setHours(inH, inM, 0, 0);
-    checkOutDate.setHours(outH, outM, 0, 0);
+    const [inY, inM, inD] = data.checkIn.split("-").map(Number);
+    const [outY, outM, outD] = data.checkOut.split("-").map(Number);
+    const [inH, inMin] = (data.checkInTime || "14:00").split(":").map(Number);
+    const [outH, outMin] = (data.checkOutTime || "11:00").split(":").map(Number);
+    
+    const checkInDate = new Date(inY, inM - 1, inD, inH, inMin, 0, 0);
+    const checkOutDate = new Date(outY, outM - 1, outD, outH, outMin, 0, 0);
 
     if (checkInDate >= checkOutDate) {
       return { success: false, message: "Check-out must be after check-in" };
     }
-    if (checkInDate < new Date()) {
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (new Date(inY, inM - 1, inD) < today) {
       return { success: false, message: "Check-in date cannot be in the past" };
     }
 
@@ -118,7 +122,9 @@ export async function submitPublicBooking(
       checkOut: checkOutDate,
       checkInTime: data.checkInTime || "14:00",
       checkOutTime: data.checkOutTime || "11:00",
-      guests: data.guests,
+      checkInDateStr: data.checkIn,
+      checkOutDateStr: data.checkOut,
+      guests: Math.max(1, parseInt(String(data.guests), 10) || 1),
       notes: data.notes?.trim(),
       status: "pending",
       source: data.source || "website",
@@ -150,10 +156,13 @@ export async function adminCreateBooking(
   try {
     await connectDB();
 
-    const checkInDate = new Date(data.checkIn);
-    const checkOutDate = new Date(data.checkOut);
-    checkInDate.setHours(14, 0, 0, 0);
-    checkOutDate.setHours(11, 0, 0, 0);
+    const [inY, inM, inD] = data.checkIn.split("-").map(Number);
+    const [outY, outM, outD] = data.checkOut.split("-").map(Number);
+    const [inH, inMin] = (data.checkInTime || "14:00").split(":").map(Number);
+    const [outH, outMin] = (data.checkOutTime || "11:00").split(":").map(Number);
+    
+    const checkInDate = new Date(inY, inM - 1, inD, inH, inMin, 0, 0);
+    const checkOutDate = new Date(outY, outM - 1, outD, outH, outMin, 0, 0);
 
     if (checkInDate >= checkOutDate) {
       return { success: false, message: "Check-out must be after check-in" };
@@ -186,7 +195,9 @@ export async function adminCreateBooking(
       checkOut: checkOutDate,
       checkInTime: data.checkInTime || "14:00",
       checkOutTime: data.checkOutTime || "11:00",
-      guests: data.guests,
+      checkInDateStr: data.checkIn,
+      checkOutDateStr: data.checkOut,
+      guests: Math.max(1, parseInt(String(data.guests), 10) || 1),
       notes: data.notes?.trim(),
       status: "confirmed",  // Admin-created bookings are auto-confirmed
       source: data.source || "manual",
@@ -266,13 +277,17 @@ export async function getAllBookings(filter?: {
 
     return {
       success: true,
-      bookings: bookings.map((b) => ({
-        id: b._id.toString(),
-        guestName: b.guestName,
-        guestPhone: b.guestPhone,
-        guestEmail: b.guestEmail || "",
-        checkIn: b.checkIn.toISOString(),
-        checkOut: b.checkOut.toISOString(),
+      bookings: bookings.map((b) => {
+        // Fallback for old bookings that don't have checkInDateStr
+        const checkInStr = b.checkInDateStr || b.checkIn.toISOString().slice(0, 10);
+        const checkOutStr = b.checkOutDateStr || b.checkOut.toISOString().slice(0, 10);
+        return {
+          id: b._id.toString(),
+          guestName: b.guestName,
+          guestPhone: b.guestPhone,
+          guestEmail: b.guestEmail || "",
+          checkIn: checkInStr,
+          checkOut: checkOutStr,
         checkInTime: b.checkInTime,
         checkOutTime: b.checkOutTime,
         guests: b.guests,
@@ -281,7 +296,8 @@ export async function getAllBookings(filter?: {
         source: b.source,
         totalNights: b.totalNights,
         createdAt: b.createdAt.toISOString(),
-      })),
+      };
+    }),
     };
   } catch (err) {
     console.error("getAllBookings error:", err);
@@ -324,12 +340,13 @@ export async function checkDateAvailabilityAction(
 ): Promise<ActionResult> {
   try {
     await connectDB();
-    const checkInDate = new Date(checkIn);
-    const checkOutDate = new Date(checkOut);
-    const [inH, inM] = checkInTime.split(":").map(Number);
-    const [outH, outM] = checkOutTime.split(":").map(Number);
-    checkInDate.setHours(inH, inM, 0, 0);
-    checkOutDate.setHours(outH, outM, 0, 0);
+    const [inY, inM, inD] = checkIn.split("-").map(Number);
+    const [outY, outM, outD] = checkOut.split("-").map(Number);
+    const [inH, inMin] = checkInTime.split(":").map(Number);
+    const [outH, outMin] = checkOutTime.split(":").map(Number);
+    
+    const checkInDate = new Date(inY, inM - 1, inD, inH, inMin, 0, 0);
+    const checkOutDate = new Date(outY, outM - 1, outD, outH, outMin, 0, 0);
 
     const conflict = await checkAvailability(
       { checkIn: checkInDate, checkOut: checkOutDate },

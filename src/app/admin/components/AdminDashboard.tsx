@@ -71,10 +71,13 @@ interface Props {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const fmt = (iso: string) =>
-  new Date(iso).toLocaleDateString("en-LK", {
+const fmt = (iso: string) => {
+  if (!iso) return "";
+  const [y, m, d] = iso.slice(0, 10).split("-").map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString("en-LK", {
     day: "2-digit", month: "short", year: "numeric",
   });
+};
 
 const statusColor: Record<BookingStatus, string> = {
   pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
@@ -443,15 +446,11 @@ function NewBookingForm({ onSuccess }: { onSuccess: () => void }) {
           <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wider">
             Guests *
           </label>
-          <select
-            className={inputCls} required
+          <input
+            className={inputCls} type="number" required min={1}
             value={form.guests}
-            onChange={(e) => setForm((f) => ({ ...f, guests: Number(e.target.value) }))}
-          >
-            {Array.from({ length: 20 }, (_, i) => i + 1).map((n) => (
-              <option key={n} value={n}>{n} Guest{n > 1 ? "s" : ""}</option>
-            ))}
-          </select>
+            onChange={(e) => setForm((f) => ({ ...f, guests: Math.max(1, parseInt(e.target.value) || 1) }))}
+          />
         </div>
         <div>
           <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wider">

@@ -17,8 +17,11 @@ interface Suggestion {
 
 type Step = "dates" | "details" | "confirm" | "success";
 
-const fmt = (iso: string) =>
-  new Date(iso).toLocaleDateString("en-LK", { day: "2-digit", month: "long", year: "numeric" });
+const fmt = (iso: string) => {
+  if (!iso) return "";
+  const [y, m, d] = iso.slice(0, 10).split("-").map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString("en-LK", { day: "2-digit", month: "long", year: "numeric" });
+};
 
 const calcNights = (checkIn: string, checkOut: string) => {
   if (!checkIn || !checkOut) return 0;
