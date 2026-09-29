@@ -67,10 +67,6 @@ export default function Hero({ onOpenBooking }: { onOpenBooking: () => void }) {
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-emerald-950 via-[#0a2a18] to-emerald-900 pt-10 pb-16 lg:pt-16 lg:pb-24">
-      {/* Decorative ambient gradient blooms */}
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-br from-teal-500/20 to-transparent rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[450px] h-[450px] bg-gradient-to-tr from-amber-500/15 to-transparent rounded-full blur-3xl pointer-events-none" />
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Left Column: Content */}
@@ -147,11 +143,8 @@ export default function Hero({ onOpenBooking }: { onOpenBooking: () => void }) {
 
           {/* Right Column: Hotel Experience Image Slideshow */}
           <div className="lg:col-span-6 relative">
-            {/* Glowing ring */}
-            <div className="absolute -inset-1 rounded-3xl bg-gradient-to-br from-emerald-500/30 via-teal-500/20 to-emerald-700/30 blur-lg" />
-
             <div
-              className="relative rounded-3xl overflow-hidden shadow-2xl border-2 border-white/20 aspect-[4/3] group bg-[#071a0e]"
+              className="relative rounded-3xl overflow-hidden shadow-2xl border-2 border-white/20 ring-1 ring-emerald-500/30 aspect-[4/3] group bg-[#071a0e]"
               onMouseEnter={() => setIsPaused(true)}
               onMouseLeave={() => setIsPaused(false)}
             >
@@ -167,6 +160,7 @@ export default function Hero({ onOpenBooking }: { onOpenBooking: () => void }) {
                     src={slide.src}
                     alt={slide.title}
                     fill
+                    sizes="(max-width: 1024px) 100vw, 50vw"
                     priority={index === 0}
                     className={`object-cover ${index === currentSlide ? "animate-kenburns" : ""}`}
                   />

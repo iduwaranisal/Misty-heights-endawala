@@ -44,10 +44,6 @@ Please let me know availability and details. Thank you!`;
 
   return (
     <section id="contact" className="py-24 bg-gradient-to-b from-white via-emerald-50/30 to-white relative overflow-hidden">
-      {/* Decorative ambient gradient blooms */}
-      <div className="absolute top-1/3 left-0 w-96 h-96 bg-emerald-100/40 rounded-full blur-3xl pointer-events-none -z-10" />
-      <div className="absolute bottom-10 right-0 w-96 h-96 bg-teal-100/40 rounded-full blur-3xl pointer-events-none -z-10" />
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-16">
@@ -214,7 +210,6 @@ Please let me know availability and details. Thank you!`;
           <div className="lg:col-span-5 space-y-6">
             {/* Contact Card */}
             <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-[#071d10] via-[#0d2e1b] to-[#071d10] text-white shadow-2xl space-y-6 border border-emerald-500/20 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
               <div>
                 <span className="text-xs uppercase tracking-wider text-emerald-300 font-semibold block">
                   Authentic Hospitality

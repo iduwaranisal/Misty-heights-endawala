@@ -146,7 +146,7 @@ export default function PhotoGallery() {
             <ArrowRight className="w-4 h-4 text-emerald-300" />
           </Link>
           <p className="text-xs text-gray-500 mt-2">
-            Explore our complete 28-photo collection of the cabana, rivers, dining, and adventures.
+            Explore our complete photo collection of the cabana, rivers, dining, and adventures.
           </p>
         </div>
       </div>

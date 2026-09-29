@@ -314,7 +314,6 @@ export default function GalleryPage() {
 
           {/* Booking CTA Bar */}
           <div className="mt-16 p-8 rounded-3xl bg-gradient-to-r from-emerald-950 via-teal-900 to-emerald-950 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-2xl relative overflow-hidden border border-white/10">
-            <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
             <div className="space-y-1 text-center sm:text-left relative z-10">
               <h3 className="text-xl sm:text-2xl font-serif font-bold">
                 Experience Misty Heights in Person

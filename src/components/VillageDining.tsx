@@ -33,9 +33,6 @@ export default function VillageDining({ onOpenBooking }: { onOpenBooking: () => 
 
   return (
     <section id="dining" className="py-20 bg-gradient-to-b from-white via-emerald-50/20 to-white relative overflow-hidden">
-      {/* Decorative ambient glow */}
-      <div className="absolute top-1/2 right-0 w-96 h-96 bg-emerald-100/40 rounded-full blur-3xl pointer-events-none -z-10" />
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Left Column: Information & Menu Items */}

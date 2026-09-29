@@ -76,10 +76,6 @@ const experiences = [
 export default function Experiences({ onOpenBooking }: { onOpenBooking: () => void }) {
   return (
     <section id="experiences" className="py-20 bg-gradient-to-b from-white via-emerald-50/30 to-white relative overflow-hidden">
-      {/* Decorative background accent */}
-      <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-100/40 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-80 h-80 bg-teal-100/40 rounded-full blur-3xl pointer-events-none" />
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-14">

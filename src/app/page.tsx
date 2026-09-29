@@ -4,7 +4,6 @@ import { useState } from "react";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import AdventureTicker from "@/components/AdventureTicker";
-import RevealOnScroll from "@/components/RevealOnScroll";
 import CorePillars from "@/components/CorePillars";
 import CabanaShowcase from "@/components/CabanaShowcase";
 import NaturalPool from "@/components/NaturalPool";
@@ -37,59 +36,37 @@ export default function Home() {
         <AdventureTicker />
 
         {/* 3. 4 Core Pillars: Hikes, Kayaking, Bonfire, Nature Stay */}
-        <RevealOnScroll>
-          <CorePillars onOpenBooking={() => setIsBookingOpen(true)} />
-        </RevealOnScroll>
+        <CorePillars onOpenBooking={() => setIsBookingOpen(true)} />
 
         {/* 4. The Cabana Living Experience with Interactive Photo Carousel */}
-        <RevealOnScroll>
-          <CabanaShowcase onOpenBooking={() => setIsBookingOpen(true)} />
-        </RevealOnScroll>
+        <CabanaShowcase onOpenBooking={() => setIsBookingOpen(true)} />
 
         {/* 5. Edawala Dola Natural River Pool */}
-        <RevealOnScroll>
-          <NaturalPool />
-        </RevealOnScroll>
+        <NaturalPool />
 
         {/* 6. Activities to Enjoy with Friends & Family */}
-        <RevealOnScroll>
-          <Experiences onOpenBooking={() => setIsBookingOpen(true)} />
-        </RevealOnScroll>
+        <Experiences onOpenBooking={() => setIsBookingOpen(true)} />
 
         {/* 7. Authentic Sri Lankan Village Dining */}
-        <RevealOnScroll>
-          <VillageDining onOpenBooking={() => setIsBookingOpen(true)} />
-        </RevealOnScroll>
+        <VillageDining onOpenBooking={() => setIsBookingOpen(true)} />
 
         {/* 8. Real Photo Gallery (8 Homepage photos with View All button) */}
-        <RevealOnScroll>
-          <PhotoGallery />
-        </RevealOnScroll>
+        <PhotoGallery />
 
         {/* 9. Traveler Stories & Guest Reviews */}
-        <RevealOnScroll>
-          <TestimonialsSection />
-        </RevealOnScroll>
+        <TestimonialsSection />
 
         {/* 10. Eco Sanctuary & Rainforest Harmony */}
-        <RevealOnScroll>
-          <EcoSanctuary />
-        </RevealOnScroll>
+        <EcoSanctuary />
 
         {/* 11. Location, Driving Routes & Real Plus Code Map */}
-        <RevealOnScroll>
-          <LocationSection />
-        </RevealOnScroll>
+        <LocationSection />
 
         {/* 12. Frequently Asked Questions */}
-        <RevealOnScroll>
-          <FaqSection />
-        </RevealOnScroll>
+        <FaqSection />
 
         {/* 13. Direct Booking Section */}
-        <RevealOnScroll>
-          <BookingSection />
-        </RevealOnScroll>
+        <BookingSection />
       </main>
 
       {/* Footer */}
@@ -115,7 +92,7 @@ export default function Home() {
           className="w-13 h-13 rounded-full bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-xl flex items-center justify-center transition-all hover:scale-110 active:scale-95"
           aria-label="Call Us Directly"
         >
-          <Phone className="w-5 h-5 text-amber-600" />
+          <Phone className="w-5 h-5 text-emerald-700" />
         </a>
       </div>
     </div>

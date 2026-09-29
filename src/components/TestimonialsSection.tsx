@@ -35,10 +35,6 @@ const reviews = [
 export default function TestimonialsSection() {
   return (
     <section className="py-20 bg-gradient-to-b from-emerald-950 via-[#0a2a18] to-emerald-900 relative overflow-hidden">
-      {/* Background accents */}
-      <div className="absolute top-0 left-1/3 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-14">
