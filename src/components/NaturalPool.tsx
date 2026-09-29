@@ -6,6 +6,16 @@ import { useSettings } from "@/components/SettingsProvider";
 
 export default function NaturalPool() {
   const { getSetting } = useSettings();
+  const badge = getSetting("site.pool.badge", "Dellawa River & Edawala Dola (Gin Ganga Basin)");
+  const title = getSetting("site.pool.title", "Swim in Pure Natural Dellawa River Waters");
+  const description = getSetting("site.pool.desc", "Step directly into the unpolluted waters of the Dellawa River system and Edawala Dola stream. Flowing straight from the protected Sinharaja Forest ridge towards the Gin Ganga basin, this freshwater river offers pristine natural rock bathing pools, gentle shallows, and calm stretches perfect for kayaking and rafting thrills.");
+  const linkText = getSetting("site.pool.linkText", "Inquire about Dellawa river bathing times & kayaks");
+  const feat1Title = getSetting("site.pool.feat1Title", "Crystal River Rock Pools");
+  const feat1Desc = getSetting("site.pool.feat1Desc", "Pure mountain spring water with smooth river stones and wild forest ferns along the Dellawa river bank.");
+  const feat2Title = getSetting("site.pool.feat2Title", "River Kayaking & Rafting");
+  const feat2Desc = getSetting("site.pool.feat2Desc", "Paddle gently beneath lush Sinharaja canopy bends with kayaks, inflatable boats, and life vests ready.");
+  const whatsapp = getSetting("site.contact.whatsapp", "94719817000");
+
   return (
     <section id="pool" className="py-20 bg-gradient-to-b from-white via-teal-50/30 to-white relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -14,21 +24,15 @@ export default function NaturalPool() {
           <div className="lg:col-span-6 space-y-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-teal-50 to-cyan-50 text-teal-900 text-xs font-semibold uppercase tracking-wider border border-teal-200 badge-glow">
               <Droplets className="w-3.5 h-3.5 text-teal-600" />
-              Dellawa River &amp; Edawala Dola (Gin Ganga Basin)
+              {badge}
             </div>
 
             <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#0a1f12] tracking-tight">
-              Swim in Pure Natural{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-700 via-cyan-600 to-emerald-600">
-                Dellawa River Waters
-              </span>
+              {title}
             </h2>
 
             <p className="text-base text-gray-600 leading-relaxed">
-              Step directly into the unpolluted waters of the Dellawa River system and Edawala Dola stream.
-              Flowing straight from the protected Sinharaja Forest ridge towards the Gin Ganga basin, this
-              freshwater river offers pristine natural rock bathing pools, gentle shallows, and calm stretches
-              perfect for kayaking and rafting thrills.
+              {description}
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
@@ -37,10 +41,10 @@ export default function NaturalPool() {
                   <div className="w-7 h-7 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center shrink-0">
                     <Waves className="w-4 h-4" />
                   </div>
-                  <span>Crystal River Rock Pools</span>
+                  <span>{feat1Title}</span>
                 </div>
                 <p className="text-xs text-gray-500 leading-relaxed">
-                  Pure mountain spring water with smooth river stones and wild forest ferns along the Dellawa river bank.
+                  {feat1Desc}
                 </p>
               </div>
 
@@ -49,22 +53,22 @@ export default function NaturalPool() {
                   <div className="w-7 h-7 rounded-lg bg-cyan-50 text-cyan-700 flex items-center justify-center shrink-0">
                     <Compass className="w-4 h-4" />
                   </div>
-                  <span>River Kayaking &amp; Rafting</span>
+                  <span>{feat2Title}</span>
                 </div>
                 <p className="text-xs text-gray-500 leading-relaxed">
-                  Paddle gently beneath lush Sinharaja canopy bends with kayaks, inflatable boats, and life vests ready.
+                  {feat2Desc}
                 </p>
               </div>
             </div>
 
             <div className="pt-2">
               <a
-                href="https://wa.me/94719817000?text=Hello%20Misty%20Heights!%20I%20would%20like%20to%20know%20more%20about%20the%20Dellawa%20river%20swimming%20and%20kayaking."
+                href={`https://wa.me/${whatsapp}?text=Hello%20Misty%20Heights!%20I%20would%20like%20to%20know%20more%20about%20the%20Dellawa%20river%20swimming%20and%20kayaking.`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-teal-700 hover:text-teal-900 transition-colors group"
               >
-                <span>Inquire about Dellawa river bathing times &amp; kayaks</span>
+                <span>{linkText}</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </a>
             </div>

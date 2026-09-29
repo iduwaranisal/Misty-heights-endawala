@@ -4,8 +4,11 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Phone, Menu, X, Calendar, MessageSquare, ChevronRight } from "lucide-react";
+import { useSettings } from "@/components/SettingsProvider";
 
 export default function Header({ onOpenBooking }: { onOpenBooking: () => void }) {
+  const { getSetting } = useSettings();
+  const whatsapp = getSetting("site.contact.whatsapp", "94719817000");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -76,7 +79,7 @@ export default function Header({ onOpenBooking }: { onOpenBooking: () => void })
           {/* Desktop Actions */}
           <div className="hidden lg:flex items-center gap-3">
             <a
-              href="https://wa.me/94719817000?text=Hello%20Misty%20Heights%20Endawala,%20I%20would%20like%20to%20inquire%20about%20booking%20a%20stay."
+              href={`https://wa.me/${whatsapp}?text=Hello%20Misty%20Heights%20Endawala,%20I%20would%20like%20to%20inquire%20about%20booking%20a%20stay.`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 transition-colors"
@@ -104,7 +107,7 @@ export default function Header({ onOpenBooking }: { onOpenBooking: () => void })
             </button>
 
             <a
-              href="https://wa.me/94719817000"
+              href={`https://wa.me/${whatsapp}`}
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-colors"

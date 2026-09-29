@@ -48,10 +48,13 @@ const HERO_DEFAULTS = [
 
 export default function Hero({ onOpenBooking }: { onOpenBooking: () => void }) {
   const { getSetting } = useSettings();
-  const heroSlides = HERO_DEFAULTS.map((slide, i) => ({
-    ...slide,
-    src: i === 0 ? getSetting("site.hero.bg", slide.src) : getSetting(`site.hero.slide${i + 1}`, slide.src)
-  }));
+  const customSlides = getSetting<Array<{ src: string; tag: string; title: string }>>("site.hero.slides", HERO_DEFAULTS);
+  const heroSlides = (customSlides && customSlides.length > 0) ? customSlides : HERO_DEFAULTS;
+
+  const badge = getSetting("site.hero.badge", "Ayubowan · Welcome to Dellawa, Endawala & Sinharaja Forest");
+  const title = getSetting("site.hero.title", "Misty Heights Endawala");
+  const subtitle = getSetting("site.hero.subtitle", "Relax in our handcrafted wooden villa retreat in Endawala, Dellawa bordering the Sinharaja Forest. Enjoy breathtaking mountain views, natural river pool swimming (Gin Ganga basin), and serene nature holidays filled with adventure.");
+  const ctaText = getSetting("site.hero.ctaText", "Reserve Your Stay");
 
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
@@ -63,7 +66,7 @@ export default function Hero({ onOpenBooking }: { onOpenBooking: () => void }) {
       setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
     }, 4500);
     return () => clearInterval(timer);
-  }, [isPaused]);
+  }, [isPaused, heroSlides.length]);
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
@@ -83,15 +86,14 @@ export default function Hero({ onOpenBooking }: { onOpenBooking: () => void }) {
             <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-white/10 backdrop-blur border border-white/20 text-emerald-100 text-xs font-medium max-w-full badge-glow animate-float">
               <span className="text-emerald-300 font-serif font-bold shrink-0">ආයුබෝවන්</span>
               <span className="text-white/40 shrink-0">·</span>
-              <span className="sm:hidden font-medium">Dellawa · Endawala · Sinharaja</span>
-              <span className="hidden sm:inline font-medium">Ayubowan · Welcome to Dellawa, Endawala &amp; Sinharaja Forest</span>
+              <span className="font-medium truncate">{badge}</span>
             </div>
 
             {/* Main Headline */}
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-bold tracking-tight leading-[1.15]">
               <span className="text-white">Escape to{" "}</span>
               <span className="text-gradient-animate">
-                Misty Heights Endawala
+                {title}
               </span>
               <span className="block text-xl sm:text-2xl text-emerald-200/90 font-sans font-normal mt-2.5">
                 Sinharaja Forest Villa &amp; Dellawa River Retreat
@@ -99,9 +101,7 @@ export default function Hero({ onOpenBooking }: { onOpenBooking: () => void }) {
             </h1>
 
             <p className="text-base sm:text-lg text-emerald-100/80 leading-relaxed max-w-xl">
-              Relax in our handcrafted wooden villa retreat in Endawala, Dellawa bordering the Sinharaja
-              Forest. Enjoy breathtaking mountain views, natural river pool swimming (Gin Ganga basin),
-              and serene nature holidays filled with adventure.
+              {subtitle}
             </p>
 
             {/* Feature Badges with hover lift */}
@@ -131,12 +131,12 @@ export default function Hero({ onOpenBooking }: { onOpenBooking: () => void }) {
                 className="py-3.5 px-7 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm shadow-xl shadow-emerald-950/40 btn-primary-glow border border-emerald-400/30 flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95 cursor-pointer"
               >
                 <Calendar className="w-4 h-4" />
-                Book Your Stay
+                {ctaText}
                 <ArrowRight className="w-4 h-4" />
               </button>
 
               <a
-                href="https://wa.me/94719817000?text=Hello%20Misty%20Heights%20Endawala,%20I%20would%20like%20to%20inquire%20about%20booking%20a%20stay."
+                href={`https://wa.me/${getSetting("site.contact.whatsapp", "94719817000")}?text=Hello%20Misty%20Heights%20Endawala,%20I%20would%20like%20to%20inquire%20about%20booking%20a%20stay.`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="py-3.5 px-6 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/25 font-bold text-sm flex items-center justify-center gap-2 transition-all backdrop-blur"
@@ -148,7 +148,7 @@ export default function Hero({ onOpenBooking }: { onOpenBooking: () => void }) {
 
             <div className="flex items-center gap-2 text-xs text-emerald-200/70 pt-1">
               <Phone className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Call Us: <strong className="text-white">071 981 7000</strong> · Open Every Day</span>
+              <span>Call Us: <strong className="text-white">{getSetting("site.contact.primaryPhone", "071 981 7000")}</strong> · Open Every Day</span>
             </div>
           </div>
 

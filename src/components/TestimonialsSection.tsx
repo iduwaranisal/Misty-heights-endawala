@@ -32,7 +32,23 @@ const reviews = [
   },
 ];
 
+import { useSettings } from "@/components/SettingsProvider";
+
 export default function TestimonialsSection() {
+  const { getSetting } = useSettings();
+  const badge = getSetting("site.reviews.badge", "Traveler Stories");
+  const title = getSetting("site.reviews.title", "Memories Shared by Our Guests");
+  const subtitle = getSetting("site.reviews.subtitle", "Real experiences from travelers who found quiet moments and warm hospitality at Misty Heights.");
+  const customReviews = getSetting<Array<{ name: string; origin: string; date: string; text: string; highlight: string }>>("site.reviews.items", []);
+
+  const displayReviews = (customReviews && customReviews.length > 0)
+    ? customReviews.map((r, i) => ({
+        ...r,
+        accent: reviews[i % reviews.length]?.accent || "from-emerald-500 to-teal-500",
+        badgeColor: reviews[i % reviews.length]?.badgeColor || "bg-emerald-50 text-emerald-800 border-emerald-200",
+      }))
+    : reviews;
+
   return (
     <section className="py-20 bg-gradient-to-b from-emerald-950 via-[#0a2a18] to-emerald-900 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
@@ -40,22 +56,19 @@ export default function TestimonialsSection() {
         <div className="text-center max-w-2xl mx-auto mb-14">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur border border-white/20 text-emerald-200 text-xs font-semibold uppercase tracking-wider mb-3">
             <Sparkles className="w-3.5 h-3.5 text-emerald-300" />
-            Traveler Stories
+            {badge}
           </div>
           <h2 className="text-3xl sm:text-4xl font-serif font-bold text-white tracking-tight">
-            Memories Shared by{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-teal-200 to-emerald-400">
-              Our Guests
-            </span>
+            {title}
           </h2>
           <p className="mt-3 text-sm sm:text-base text-emerald-200/70 leading-relaxed">
-            Real experiences from travelers who found quiet moments and warm hospitality at Misty Heights.
+            {subtitle}
           </p>
         </div>
 
-        {/* 3 Testimonial Cards */}
+        {/* Testimonial Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {reviews.map((rev, idx) => (
+          {displayReviews.map((rev, idx) => (
             <div
               key={idx}
               className="relative bg-white/8 backdrop-blur-md rounded-3xl p-7 border border-white/15 hover:border-white/30 hover:bg-white/12 transition-all duration-300 flex flex-col justify-between card-lift"

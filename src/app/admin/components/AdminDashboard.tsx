@@ -1,17 +1,29 @@
 "use client";
 
-import { useState, useTransition, useCallback } from "react";
+import { useState, useTransition, useCallback, useEffect } from "react";
 import {
   LayoutDashboard, Calendar, Plus, LogOut, Users, Clock,
   CheckCircle, XCircle, Loader2, Phone, Mail, Trash2,
   ChevronLeft, ChevronRight, AlertTriangle, Sparkles,
-  RefreshCw, Menu, X, Check, Ban, ClipboardList, Image as ImageIcon, Settings, Search
+  RefreshCw, Menu, X, Check, Ban, ClipboardList, Image as ImageIcon, Settings, Search,
+  Globe, Home, Waves, Utensils, Compass, Star, HelpCircle, Download, ExternalLink
 } from "lucide-react";
 import {
   adminLogout, adminCreateBooking, updateBookingStatus,
   deleteBooking, getAllBookings, getBookingStats,
   checkDateAvailabilityAction
 } from "@/actions/bookings";
+import { getSettings } from "@/actions/settings";
+import GeneralSettingsCMS from "./cms/GeneralSettingsCMS";
+import HeroCMS from "./cms/HeroCMS";
+import CabanaCMS from "./cms/CabanaCMS";
+import RiverPoolCMS from "./cms/RiverPoolCMS";
+import DiningCMS from "./cms/DiningCMS";
+import ExperiencesCMS from "./cms/ExperiencesCMS";
+import TestimonialsCMS from "./cms/TestimonialsCMS";
+import FaqCMS from "./cms/FaqCMS";
+import SeoCMS from "./cms/SeoCMS";
+import MediaLibraryCMS from "./cms/MediaLibraryCMS";
 import SettingsView from "./SettingsView";
 import { useRouter } from "next/navigation";
 
@@ -671,27 +683,59 @@ function BookingCard({ booking, onRefresh }: { booking: Booking; onRefresh: () =
 
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 
+type TabType =
+  | "dashboard"
+  | "bookings"
+  | "new"
+  | "cms_general"
+  | "cms_hero"
+  | "cms_cabana"
+  | "cms_pool"
+  | "cms_dining"
+  | "cms_experiences"
+  | "cms_reviews"
+  | "cms_faq"
+  | "cms_seo"
+  | "cms_media";
+
 export default function AdminDashboard({ stats, initialBookings, username }: Props) {
   const [bookings, setBookings] = useState<Booking[]>(initialBookings);
   const [activeStats, setActiveStats] = useState<Stats | null>(stats);
-  const [activeTab, setActiveTab] = useState<"dashboard" | "bookings" | "new" | "settings">("dashboard");
+  const [activeTab, setActiveTab] = useState<TabType>("dashboard");
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [isRefreshing, startRefresh] = useTransition();
   const [isLoggingOut, startLogout] = useTransition();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [settings, setSettings] = useState<Record<string, any>>({});
   const router = useRouter();
+
+  const loadSettings = useCallback(async () => {
+    try {
+      const list = await getSettings();
+      const map: Record<string, any> = {};
+      list.forEach((s) => { map[s.key] = s.value; });
+      setSettings(map);
+    } catch (e) {
+      console.error("loadSettings error:", e);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadSettings();
+  }, [loadSettings]);
 
   const refresh = useCallback(() => {
     startRefresh(async () => {
       const [b, s] = await Promise.all([
-        getAllBookings({}), // Fetch all so client-side filtering is instant
+        getAllBookings({}),
         getBookingStats(),
       ]);
       setBookings((b.bookings || []) as Booking[]);
       setActiveStats(s as Stats | null);
+      await loadSettings();
     });
-  }, [statusFilter]);
+  }, [loadSettings]);
 
   const handleLogout = () => {
     startLogout(async () => {
@@ -710,65 +754,140 @@ export default function AdminDashboard({ stats, initialBookings, username }: Pro
     return matchesStatus && matchesSearch;
   });
 
-  const navItems = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "bookings", label: "All Bookings", icon: ClipboardList },
-    { id: "new", label: "New Booking", icon: Plus },
-    { id: "settings", label: "Site Settings", icon: Settings },
-  ] as const;
+  const exportBookingsToCSV = () => {
+    const headers = ["Booking ID", "Guest Name", "Phone", "Email", "Check-In", "Time In", "Check-Out", "Time Out", "Nights", "Guests", "Status", "Source", "Notes", "Created At"];
+    const rows = filteredBookings.map(b => [
+      b.id,
+      `"${(b.guestName || "").replace(/"/g, '""')}"`,
+      `"${b.guestPhone}"`,
+      `"${b.guestEmail || ""}"`,
+      b.checkIn.slice(0, 10),
+      b.checkInTime || "14:00",
+      b.checkOut.slice(0, 10),
+      b.checkOutTime || "11:00",
+      b.totalNights,
+      b.guests,
+      b.status,
+      b.source,
+      `"${(b.notes || "").replace(/"/g, '""')}"`,
+      b.createdAt.slice(0, 10)
+    ]);
+    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", `misty-heights-bookings-${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const operationsNav = [
+    { id: "dashboard" as TabType, label: "Overview", icon: LayoutDashboard },
+    { id: "bookings" as TabType, label: "All Bookings", icon: ClipboardList, badge: activeStats?.pending },
+    { id: "new" as TabType, label: "New Booking", icon: Plus },
+  ];
+
+  const cmsNav = [
+    { id: "cms_general" as TabType, label: "General & Contacts", icon: Globe },
+    { id: "cms_hero" as TabType, label: "Hero Banner & Slides", icon: Sparkles },
+    { id: "cms_cabana" as TabType, label: "Cabana Showcase", icon: Home },
+    { id: "cms_pool" as TabType, label: "River Pool & Stream", icon: Waves },
+    { id: "cms_dining" as TabType, label: "Village Dining & BBQ", icon: Utensils },
+    { id: "cms_experiences" as TabType, label: "Activities & Pillars", icon: Compass },
+    { id: "cms_reviews" as TabType, label: "Guest Reviews", icon: Star },
+    { id: "cms_faq" as TabType, label: "FAQ Questions", icon: HelpCircle },
+    { id: "cms_seo" as TabType, label: "SEO & Google Search", icon: Search },
+    { id: "cms_media" as TabType, label: "Cloudinary Media", icon: ImageIcon },
+  ];
+
+  const getTabTitle = () => {
+    switch (activeTab) {
+      case "dashboard": return "Operations Overview";
+      case "bookings": return "Smart Booking Management";
+      case "new": return "Create New Booking";
+      case "cms_general": return "General Info & Contacts";
+      case "cms_hero": return "Hero Banner & Slides";
+      case "cms_cabana": return "Cabana Villa Experience";
+      case "cms_pool": return "Natural River Pool";
+      case "cms_dining": return "Village Dining & BBQ";
+      case "cms_experiences": return "Activities & Core Pillars";
+      case "cms_reviews": return "Guest Reviews & Stories";
+      case "cms_faq": return "Frequently Asked Questions";
+      case "cms_seo": return "SEO & Search Engine";
+      case "cms_media": return "Media Library & Uploader";
+      default: return "Admin Dashboard";
+    }
+  };
 
   const Sidebar = () => (
-    <div className="flex flex-col h-full bg-emerald-950 text-white w-64 p-5 gap-2">
+    <div className="flex flex-col h-full bg-[#0b2416] text-white w-64 p-4 overflow-y-auto">
       {/* Brand */}
-      <div className="flex items-center gap-3 px-2 py-4 mb-2">
-        <div className="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center">
+      <div className="flex items-center gap-3 px-2 py-3 mb-2 border-b border-emerald-900/60 shrink-0">
+        <div className="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center shrink-0 shadow-xs">
           <Sparkles className="w-5 h-5 text-white" />
         </div>
-        <div>
-          <p className="font-bold text-sm leading-none">Misty Heights</p>
-          <p className="text-[10px] text-emerald-400 mt-0.5">Admin Dashboard</p>
+        <div className="min-w-0">
+          <p className="font-bold text-sm leading-tight truncate">Misty Heights</p>
+          <p className="text-[10px] text-emerald-400 font-medium">Control Center</p>
         </div>
       </div>
 
-      {/* Nav */}
-      {navItems.map(({ id, label, icon: Icon }) => (
-        <button
-          key={id}
-          onClick={() => { setActiveTab(id); setSidebarOpen(false); }}
-          className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all w-full text-left cursor-pointer
-            ${activeTab === id
-              ? "bg-emerald-600 text-white"
-              : "text-emerald-200 hover:bg-emerald-800/60"}`}
-        >
-          <Icon className="w-4 h-4" />
-          {label}
-        </button>
-      ))}
-
-      {/* Stats quick view */}
-      {activeStats && (
-        <div className="mt-4 p-3 rounded-xl bg-emerald-900/60 border border-emerald-700/40 space-y-2">
-          <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Quick Stats</p>
-          <div className="space-y-1 text-xs text-emerald-200">
-            <div className="flex justify-between">
-              <span>Pending</span><span className="font-bold text-yellow-300">{activeStats.pending}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Confirmed</span><span className="font-bold text-emerald-300">{activeStats.confirmed}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Today Check-ins</span><span className="font-bold text-white">{activeStats.todayCheckIns}</span>
-            </div>
-          </div>
+      <div className="space-y-6 flex-1">
+        {/* Operations */}
+        <div className="space-y-1">
+          <p className="px-3 text-[10px] font-bold text-emerald-400/80 uppercase tracking-widest mb-1.5">
+            Operations
+          </p>
+          {operationsNav.map(({ id, label, icon: Icon, badge }) => (
+            <button
+              key={id}
+              onClick={() => { setActiveTab(id); setSidebarOpen(false); }}
+              className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all w-full text-left cursor-pointer
+                ${activeTab === id
+                  ? "bg-emerald-600 text-white shadow-xs"
+                  : "text-emerald-200/90 hover:bg-emerald-900/60 hover:text-white"}`}
+            >
+              <div className="flex items-center gap-2.5">
+                <Icon className="w-4 h-4" />
+                <span>{label}</span>
+              </div>
+              {badge ? (
+                <span className="px-1.5 py-0.5 rounded-full bg-yellow-400 text-yellow-950 text-[10px] font-bold">
+                  {badge}
+                </span>
+              ) : null}
+            </button>
+          ))}
         </div>
-      )}
+
+        {/* Website CMS */}
+        <div className="space-y-1">
+          <p className="px-3 text-[10px] font-bold text-emerald-400/80 uppercase tracking-widest mb-1.5">
+            Website Customization
+          </p>
+          {cmsNav.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              onClick={() => { setActiveTab(id); setSidebarOpen(false); }}
+              className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all w-full text-left cursor-pointer
+                ${activeTab === id
+                  ? "bg-emerald-600 text-white shadow-xs"
+                  : "text-emerald-200/90 hover:bg-emerald-900/60 hover:text-white"}`}
+            >
+              <Icon className="w-4 h-4 shrink-0" />
+              <span className="truncate">{label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* User + Logout */}
-      <div className="mt-auto pt-4 border-t border-emerald-800">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs font-semibold text-white">{username}</p>
-            <p className="text-[10px] text-emerald-400">Administrator</p>
+      <div className="mt-6 pt-3 border-t border-emerald-900/60 shrink-0">
+        <div className="flex items-center justify-between px-2">
+          <div className="min-w-0">
+            <p className="text-xs font-semibold text-white truncate">{username}</p>
+            <p className="text-[10px] text-emerald-400">Master Admin</p>
           </div>
           <button
             onClick={handleLogout}
@@ -788,55 +907,68 @@ export default function AdminDashboard({ stats, initialBookings, username }: Pro
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          className="fixed inset-0 bg-black/60 backdrop-blur-xs z-30 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* Sidebar — desktop always visible, mobile slide-in */}
+      {/* Sidebar */}
       <div className={`
-        fixed inset-y-0 left-0 z-40 lg:relative lg:z-auto transform transition-transform duration-200
+        fixed inset-y-0 left-0 z-40 lg:relative lg:z-auto transform transition-transform duration-200 shrink-0
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
       `}>
         <Sidebar />
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top Bar */}
-        <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-3">
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        {/* Top Header Bar */}
+        <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-3.5 flex items-center justify-between shrink-0 shadow-2xs">
+          <div className="flex items-center gap-3 min-w-0">
             <button
-              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 text-gray-600"
+              className="lg:hidden p-2 rounded-xl hover:bg-gray-100 text-gray-600 cursor-pointer"
               onClick={() => setSidebarOpen(true)}
             >
               <Menu className="w-5 h-5" />
             </button>
-            <div>
-              <h1 className="font-bold text-gray-900 text-lg">
-                {activeTab === "dashboard" && "Dashboard"}
-                {activeTab === "bookings" && "Booking Management"}
-                {activeTab === "new" && "New Booking"}
+            <div className="min-w-0">
+              <h1 className="font-bold text-gray-900 text-base sm:text-lg truncate">
+                {getTabTitle()}
               </h1>
-              <p className="text-xs text-gray-500">Misty Heights Endawala</p>
+              <p className="text-[11px] text-gray-400 truncate">
+                Misty Heights Endawala · Sinharaja
+              </p>
             </div>
           </div>
-          <button
-            onClick={refresh}
-            disabled={isRefreshing}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 text-xs font-medium text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer"
-          >
-            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
-            Refresh
-          </button>
+
+          <div className="flex items-center gap-2.5">
+            <a
+              href="/"
+              target="_blank"
+              rel="noreferrer"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-50 hover:text-emerald-700 transition-colors shadow-2xs"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              View Live Website
+            </a>
+
+            <button
+              onClick={refresh}
+              disabled={isRefreshing}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-xs font-bold text-gray-700 transition-colors cursor-pointer"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin" : ""}`} />
+              <span className="hidden sm:inline">Refresh</span>
+            </button>
+          </div>
         </div>
 
         {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
 
           {/* ── DASHBOARD TAB ── */}
           {activeTab === "dashboard" && (
-            <div className="space-y-6">
+            <div className="space-y-6 max-w-7xl mx-auto">
               {/* Stat Cards */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard label="Total Bookings" value={activeStats?.total ?? 0} icon={ClipboardList} color="bg-gray-100 text-gray-600" />
@@ -845,7 +977,7 @@ export default function AdminDashboard({ stats, initialBookings, username }: Pro
                 <StatCard label="Today Check-ins" value={activeStats?.todayCheckIns ?? 0} icon={Users} color="bg-blue-100 text-blue-600" />
               </div>
 
-              {/* Calendar + Recent Bookings */}
+              {/* Calendar + Pending Bookings */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <BookingCalendar bookings={bookings} />
 
@@ -898,7 +1030,7 @@ export default function AdminDashboard({ stats, initialBookings, username }: Pro
 
           {/* ── BOOKINGS TAB ── */}
           {activeTab === "bookings" && (
-            <div className="space-y-5">
+            <div className="space-y-5 max-w-7xl mx-auto">
               {/* Filter bar */}
               <div className="flex flex-col md:flex-row gap-4 justify-between bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
                 <div className="flex flex-wrap gap-2 items-center">
@@ -920,15 +1052,27 @@ export default function AdminDashboard({ stats, initialBookings, username }: Pro
                     </button>
                   ))}
                 </div>
-                <div className="relative w-full md:w-64">
-                  <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    placeholder="Search name, phone, email..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
-                  />
+
+                <div className="flex items-center gap-2">
+                  <div className="relative w-full md:w-64">
+                    <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      placeholder="Search name, phone, email..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+                    />
+                  </div>
+
+                  <button
+                    onClick={exportBookingsToCSV}
+                    className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold transition-colors cursor-pointer shrink-0 shadow-2xs"
+                    title="Export Bookings to CSV"
+                  >
+                    <Download className="w-3.5 h-3.5 text-emerald-600" />
+                    <span className="hidden sm:inline">Export CSV</span>
+                  </button>
                 </div>
               </div>
 
@@ -950,12 +1094,12 @@ export default function AdminDashboard({ stats, initialBookings, username }: Pro
 
           {/* ── NEW BOOKING TAB ── */}
           {activeTab === "new" && (
-            <div className="max-w-2xl">
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+            <div className="max-w-3xl mx-auto">
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8">
                 <div className="mb-6">
                   <h2 className="text-lg font-bold text-gray-900">Create New Booking</h2>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Conflicts are checked automatically · Smart date suggestions provided on conflict
+                  <p className="text-xs text-gray-500 mt-1">
+                    Conflicts are checked automatically with accurate times · Smart alternative dates suggested on conflict
                   </p>
                 </div>
                 <NewBookingForm onSuccess={() => { refresh(); setActiveTab("bookings"); }} />
@@ -963,12 +1107,39 @@ export default function AdminDashboard({ stats, initialBookings, username }: Pro
             </div>
           )}
 
-          {/* ── SETTINGS TAB ── */}
-          {activeTab === "settings" && (
-            <div className="max-w-2xl">
-              <SettingsView />
-            </div>
-          )}
+          {/* ── CMS SECTIONS ── */}
+          <div className="max-w-5xl mx-auto">
+            {activeTab === "cms_general" && (
+              <GeneralSettingsCMS settings={settings} onRefresh={loadSettings} />
+            )}
+            {activeTab === "cms_hero" && (
+              <HeroCMS settings={settings} onRefresh={loadSettings} />
+            )}
+            {activeTab === "cms_cabana" && (
+              <CabanaCMS settings={settings} onRefresh={loadSettings} />
+            )}
+            {activeTab === "cms_pool" && (
+              <RiverPoolCMS settings={settings} onRefresh={loadSettings} />
+            )}
+            {activeTab === "cms_dining" && (
+              <DiningCMS settings={settings} onRefresh={loadSettings} />
+            )}
+            {activeTab === "cms_experiences" && (
+              <ExperiencesCMS settings={settings} onRefresh={loadSettings} />
+            )}
+            {activeTab === "cms_reviews" && (
+              <TestimonialsCMS settings={settings} onRefresh={loadSettings} />
+            )}
+            {activeTab === "cms_faq" && (
+              <FaqCMS settings={settings} onRefresh={loadSettings} />
+            )}
+            {activeTab === "cms_seo" && (
+              <SeoCMS settings={settings} onRefresh={loadSettings} />
+            )}
+            {activeTab === "cms_media" && (
+              <MediaLibraryCMS />
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -3,8 +3,19 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Phone, Mail, MapPin, Clock, Heart } from "lucide-react";
+import { useSettings } from "@/components/SettingsProvider";
 
 export default function Footer({ onOpenBooking }: { onOpenBooking: () => void }) {
+  const { getSetting } = useSettings();
+  const brandName = getSetting("site.general.name", "MISTY HEIGHTS");
+  const tagline = getSetting("site.general.tagline", "Endawala · Dellawa · Sinharaja Forest");
+  const description = getSetting("site.general.description", "Escape to Misty Heights Endawala 🌿✨ Handcrafted wooden villa & cabana retreat in Dellawa bordering Sinharaja Forest. Enjoy breathtaking mountain views, Dellawa River swimming (Gin Ganga basin), and peaceful nature holidays! 🏞️");
+  const facebookUrl = getSetting("site.contact.facebookUrl", "https://www.facebook.com/profile.php?id=61571649441031");
+  const address = getSetting("site.contact.address", "Warukandeniya, Endawala, Dellawa, Neluwa, Galle District, Sri Lanka");
+  const primaryPhone = getSetting("site.contact.primaryPhone", "071 981 7000");
+  const secondaryPhone = getSetting("site.contact.secondaryPhone", "071 868 0633");
+  const email = getSetting("site.contact.email", "mistyheightsendawala@gmail.com");
+
   return (
     <footer className="bg-gradient-to-b from-emerald-950 via-[#071a0e] to-[#041209] border-t border-white/10 text-emerald-100/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14">
@@ -22,23 +33,21 @@ export default function Footer({ onOpenBooking }: { onOpenBooking: () => void })
               </div>
               <div>
                 <span className="text-xl font-serif font-bold text-white tracking-tight block">
-                  MISTY HEIGHTS
+                  {brandName}
                 </span>
                 <span className="text-xs font-semibold tracking-wider text-emerald-400 uppercase block">
-                  Endawala · Dellawa · Sinharaja Forest
+                  {tagline}
                 </span>
               </div>
             </div>
 
             <p className="text-xs sm:text-sm text-emerald-100/70 leading-relaxed max-w-sm">
-              Escape to Misty Heights Endawala 🌿✨ Handcrafted wooden villa &amp; cabana retreat in Dellawa
-              bordering Sinharaja Forest. Enjoy breathtaking mountain views, Dellawa River swimming
-              (Gin Ganga basin), and peaceful nature holidays! 🏞️
+              {description}
             </p>
 
             <div className="pt-1 flex items-center gap-3">
               <a
-                href="https://www.facebook.com/profile.php?id=61571649441031"
+                href={facebookUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-emerald-200 text-xs font-semibold border border-white/15 transition-colors"
@@ -98,26 +107,30 @@ export default function Footer({ onOpenBooking }: { onOpenBooking: () => void })
             <div className="space-y-2.5 text-xs text-emerald-100/80">
               <div className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                <span>Warukandeniya, Endawala, Dellawa, Neluwa, Galle District, Sri Lanka</span>
+                <span>{address}</span>
               </div>
 
               <div className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-emerald-400 shrink-0" />
                 <div className="flex gap-2">
-                  <a href="tel:0719817000" className="hover:text-white font-semibold">
-                    071 981 7000
+                  <a href={`tel:${primaryPhone.replace(/\s+/g, '')}`} className="hover:text-white font-semibold">
+                    {primaryPhone}
                   </a>
-                  <span>/</span>
-                  <a href="tel:0718680633" className="hover:text-white font-semibold">
-                    071 868 0633
-                  </a>
+                  {secondaryPhone && (
+                    <>
+                      <span>/</span>
+                      <a href={`tel:${secondaryPhone.replace(/\s+/g, '')}`} className="hover:text-white font-semibold">
+                        {secondaryPhone}
+                      </a>
+                    </>
+                  )}
                 </div>
               </div>
 
               <div className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-emerald-400 shrink-0" />
-                <a href="mailto:mistyheightsendawala@gmail.com" className="hover:text-white">
-                  mistyheightsendawala@gmail.com
+                <a href={`mailto:${email}`} className="hover:text-white">
+                  {email}
                 </a>
               </div>
 

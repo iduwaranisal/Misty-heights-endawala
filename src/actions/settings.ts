@@ -43,6 +43,55 @@ export async function saveSetting(key: string, value: any, type: string = "strin
   return { success: true, message: "Setting saved successfully" };
 }
 
+export async function saveMultipleSettings(
+  settingsMap: Record<string, { value: any; type?: string; description?: string } | any>
+) {
+  const admin = await verifyAdminSession();
+  if (!admin) return { success: false, message: "Unauthorized" };
+
+  try {
+    await connectDB();
+    const ops = Object.entries(settingsMap).map(([key, data]) => {
+      const isObj = data && typeof data === "object" && "value" in data && !Array.isArray(data);
+      const value = isObj ? data.value : data;
+      const type = isObj && data.type ? data.type : (typeof value === "object" ? "json" : typeof value === "number" ? "number" : typeof value === "boolean" ? "boolean" : "string");
+      const description = isObj && data.description ? data.description : undefined;
+
+      return {
+        updateOne: {
+          filter: { key },
+          update: { $set: { key, value, type, description } },
+          upsert: true,
+        },
+      };
+    });
+
+    if (ops.length > 0) {
+      await Setting.bulkWrite(ops);
+    }
+
+    revalidatePath("/");
+    return { success: true, message: "Settings saved successfully" };
+  } catch (error: any) {
+    console.error("saveMultipleSettings error:", error);
+    return { success: false, message: error.message || "Failed to save settings" };
+  }
+}
+
+export async function deleteSetting(key: string) {
+  const admin = await verifyAdminSession();
+  if (!admin) return { success: false, message: "Unauthorized" };
+
+  try {
+    await connectDB();
+    await Setting.deleteOne({ key });
+    revalidatePath("/");
+    return { success: true, message: "Setting deleted successfully" };
+  } catch (error: any) {
+    return { success: false, message: error.message || "Failed to delete setting" };
+  }
+}
+
 export async function uploadImageToCloudinary(formData: FormData) {
   const admin = await verifyAdminSession();
   if (!admin) return { success: false, message: "Unauthorized" };

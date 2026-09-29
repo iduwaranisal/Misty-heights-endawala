@@ -62,10 +62,17 @@ const amenities = [
 export default function CabanaShowcase({ onOpenBooking }: { onOpenBooking: () => void }) {
   const { getSetting } = useSettings();
   
-  const cabanaPhotos = CABANA_DEFAULTS.map((photo, i) => ({
-    ...photo,
-    src: getSetting(`site.cabana.image${i + 1}`, photo.src)
-  }));
+  const customPhotos = getSetting<Array<{ src: string; title: string; caption: string }>>("site.cabana.photos", CABANA_DEFAULTS);
+  const cabanaPhotos = (customPhotos && customPhotos.length > 0) ? customPhotos : CABANA_DEFAULTS;
+
+  const badge = getSetting("site.cabana.badge", "Sinharaja Forest Villa & Wooden Cabana");
+  const title = getSetting("site.cabana.title", "The Cabana Living Experience");
+  const description = getSetting("site.cabana.description", "Built with genuine Sri Lankan timber and traditional clay roofing tiles, this private wooden retreat blends seamlessly into the Sinharaja Forest ridge near Dellawa and Endawala. Designed for travelers seeking an authentic nature villa stay with panoramic observation views, clean air, and cozy comfort.");
+  const customAmenities = getSetting<string[]>("site.cabana.amenities", []);
+  const displayAmenities = customAmenities && customAmenities.length > 0
+    ? customAmenities.map(label => ({ label, icon: Bed }))
+    : amenities;
+
   const [activePhoto, setActivePhoto] = useState(0);
 
   const nextPhoto = () => {
@@ -85,8 +92,8 @@ export default function CabanaShowcase({ onOpenBooking }: { onOpenBooking: () =>
             {/* Main Active Photo */}
             <div className="relative rounded-3xl overflow-hidden shadow-xl border-4 border-white aspect-[4/3] group bg-[#071a0e] card-lift">
               <Image
-                src={cabanaPhotos[activePhoto].src}
-                alt={cabanaPhotos[activePhoto].title}
+                src={cabanaPhotos[activePhoto]?.src || "/images/cabana-view.jpg"}
+                alt={cabanaPhotos[activePhoto]?.title || "Cabana"}
                 fill
                 className="object-cover transition-all duration-700"
               />
@@ -150,26 +157,20 @@ export default function CabanaShowcase({ onOpenBooking }: { onOpenBooking: () =>
           <div className="lg:col-span-6 space-y-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-900 text-xs font-semibold uppercase tracking-wider border border-emerald-200 badge-glow">
               <Camera className="w-3.5 h-3.5 text-emerald-600" />
-              Sinharaja Forest Villa &amp; Wooden Cabana
+              {badge}
             </div>
 
             <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#0a1f12] tracking-tight">
-              A Handcrafted Wooden{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-800 via-emerald-600 to-teal-700">
-                Villa &amp; Cabana Retreat
-              </span>
+              {title}
             </h2>
 
             <p className="text-base text-gray-600 leading-relaxed">
-              Built with genuine Sri Lankan timber and traditional clay roofing tiles, this private
-              wooden retreat blends seamlessly into the Sinharaja Forest ridge near Dellawa and Endawala.
-              Designed for travelers seeking an authentic nature villa stay with panoramic observation views,
-              clean air, and cozy comfort.
+              {description}
             </p>
 
             {/* Clean 2-column checklist with card-lift */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-              {amenities.map((item, idx) => (
+              {displayAmenities.map((item, idx) => (
                 <div
                   key={idx}
                   className="flex items-center gap-3 p-3 rounded-xl bg-white border border-emerald-100 shadow-xs card-lift"

@@ -73,7 +73,25 @@ const experiences = [
   },
 ];
 
+import { useSettings } from "@/components/SettingsProvider";
+
 export default function Experiences({ onOpenBooking }: { onOpenBooking: () => void }) {
+  const { getSetting } = useSettings();
+  const title = getSetting("site.exp.title", "Memories to Create with Family & Friends");
+  const subtitle = getSetting("site.exp.subtitle", "Unwind, recharge, and reconnect with nature in simple, peaceful ways.");
+  const customItems = getSetting<Array<{ title: string; desc: string; tag: string }>>("site.exp.items", []);
+
+  const displayExperiences = (customItems && customItems.length > 0)
+    ? customItems.map((item, i) => ({
+        ...item,
+        icon: experiences[i % experiences.length]?.icon || Waves,
+        gradient: experiences[i % experiences.length]?.gradient || "from-emerald-600 to-teal-600",
+        iconBg: experiences[i % experiences.length]?.iconBg || "bg-emerald-50 text-emerald-800",
+        tagStyle: experiences[i % experiences.length]?.tagStyle || "bg-emerald-50 text-emerald-800 border-emerald-100",
+        accent: experiences[i % experiences.length]?.accent || "text-emerald-800",
+      }))
+    : experiences;
+
   return (
     <section id="experiences" className="py-20 bg-gradient-to-b from-white via-emerald-50/30 to-white relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
@@ -83,19 +101,16 @@ export default function Experiences({ onOpenBooking }: { onOpenBooking: () => vo
             ✨ Things to Enjoy
           </div>
           <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#0a1f12] tracking-tight">
-            Memories to Create with{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-800 via-emerald-600 to-teal-700">
-              Family &amp; Friends
-            </span>
+            {title}
           </h2>
           <p className="mt-3 text-sm sm:text-base text-gray-600 leading-relaxed">
-            Unwind, recharge, and reconnect with nature in simple, peaceful ways.
+            {subtitle}
           </p>
         </div>
 
         {/* 6 Harmonious Activity Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {experiences.map((exp, idx) => (
+          {displayExperiences.map((exp, idx) => (
             <div
               key={idx}
               className="group p-6 rounded-2xl bg-white border border-gray-100 hover:border-emerald-200 shadow-sm hover:shadow-xl card-lift relative overflow-hidden"
