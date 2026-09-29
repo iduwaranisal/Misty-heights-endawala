@@ -128,6 +128,8 @@ export default function BookingSection() {
   const [email, setEmail] = useState("");
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
+  const [checkInTime, setCheckInTime] = useState("14:00");
+  const [checkOutTime, setCheckOutTime] = useState("11:00");
   const [guests, setGuests] = useState(2);
   const [notes, setNotes] = useState("");
 
@@ -141,13 +143,13 @@ export default function BookingSection() {
 
   const nights = calcNights(checkIn, checkOut);
 
-  const checkDates = useCallback((ci: string, co: string) => {
+  const checkDates = useCallback((ci: string, co: string, timeIn: string, timeOut: string) => {
     if (!ci || !co) return;
     setAvailStatus("checking");
     setSuggestions([]);
     setResult(null);
     startCheck(async () => {
-      const res = await checkDateAvailabilityAction(ci, co);
+      const res = await checkDateAvailabilityAction(ci, co, timeIn, timeOut);
       setAvailStatus(res.success ? "free" : "conflict");
       if (!res.success && res.suggestions) setSuggestions(res.suggestions as Suggestion[]);
     });
@@ -155,13 +157,23 @@ export default function BookingSection() {
 
   const handleCheckIn = (v: string) => {
     setCheckIn(v);
-    if (checkOut && v >= checkOut) { setCheckOut(""); setAvailStatus("idle"); setSuggestions([]); }
-    else if (checkOut) checkDates(v, checkOut);
+    if (checkOut && v > checkOut) { setCheckOut(""); setAvailStatus("idle"); setSuggestions([]); }
+    else if (checkOut && v <= checkOut) checkDates(v, checkOut, checkInTime, checkOutTime);
   };
 
   const handleCheckOut = (v: string) => {
     setCheckOut(v);
-    if (checkIn) checkDates(checkIn, v);
+    if (checkIn && checkIn <= v) checkDates(checkIn, v, checkInTime, checkOutTime);
+  };
+
+  const handleTimeChange = (type: 'in' | 'out', val: string) => {
+    if (type === 'in') {
+      setCheckInTime(val);
+      if (checkIn && checkOut) checkDates(checkIn, checkOut, val, checkOutTime);
+    } else {
+      setCheckOutTime(val);
+      if (checkIn && checkOut) checkDates(checkIn, checkOut, checkInTime, val);
+    }
   };
 
   const applySuggestion = (s: Suggestion) => {
@@ -177,13 +189,13 @@ export default function BookingSection() {
     startTransition(async () => {
       const res = await submitPublicBooking({
         guestName: name, guestPhone: phone, guestEmail: email,
-        checkIn, checkOut, guests, notes,
+        checkIn, checkOut, checkInTime, checkOutTime, guests, notes,
       });
       if (res.success && res.data) {
         const id = (res.data as { bookingId: string }).bookingId;
         setSubmitted(true);
         setResult({ ok: true, msg: res.message });
-        const msg = `🌿 Ayubowan Misty Heights Endawala!\n\nBooking submitted via website:\n• Name: ${name}\n• Phone: ${phone}\n• Check-in: ${fmt(checkIn)}\n• Check-out: ${fmt(checkOut)}\n• ${nights} nights · ${guests} guests\n${notes ? `• Notes: ${notes}` : ""}\n• Ref: #${id.slice(-6).toUpperCase()}\n\nPlease confirm availability. Thank you!`;
+        const msg = `🌿 Ayubowan Misty Heights Endawala!\n\nBooking submitted via website:\n• Name: ${name}\n• Phone: ${phone}\n• Check-in: ${fmt(checkIn)} at ${checkInTime}\n• Check-out: ${fmt(checkOut)} at ${checkOutTime}\n• ${nights} nights · ${guests} guests\n${notes ? `• Notes: ${notes}` : ""}\n• Ref: #${id.slice(-6).toUpperCase()}\n\nPlease confirm availability. Thank you!`;
         setTimeout(() => {
           window.open(`https://wa.me/94719817000?text=${encodeURIComponent(msg)}`, "_blank");
         }, 600);
@@ -271,19 +283,31 @@ export default function BookingSection() {
                       <Calendar className="w-3.5 h-3.5 text-emerald-600" />
                       Select Your Dates
                     </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <MiniCalendar
-                        label="Check-In Date"
-                        value={checkIn}
-                        onChange={handleCheckIn}
-                        minDate={new Date().toISOString().slice(0, 10)}
-                      />
-                      <MiniCalendar
-                        label="Check-Out Date"
-                        value={checkOut}
-                        onChange={handleCheckOut}
-                        minDate={checkIn || new Date().toISOString().slice(0, 10)}
-                      />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <MiniCalendar
+                          label="Check-In Date"
+                          value={checkIn}
+                          onChange={handleCheckIn}
+                          minDate={new Date().toISOString().slice(0, 10)}
+                        />
+                        <div className="flex items-center gap-3 p-2.5 rounded-xl border border-gray-200 bg-gray-50 focus-within:ring-2 focus-within:ring-emerald-500 transition-all">
+                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider w-10">Time</span>
+                          <input type="time" value={checkInTime} onChange={(e) => handleTimeChange('in', e.target.value)} className="flex-1 bg-transparent border-none text-sm font-bold text-gray-900 outline-none p-0 cursor-pointer" />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <MiniCalendar
+                          label="Check-Out Date"
+                          value={checkOut}
+                          onChange={handleCheckOut}
+                          minDate={checkIn || new Date().toISOString().slice(0, 10)}
+                        />
+                        <div className="flex items-center gap-3 p-2.5 rounded-xl border border-gray-200 bg-gray-50 focus-within:ring-2 focus-within:ring-emerald-500 transition-all">
+                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider w-10">Time</span>
+                          <input type="time" value={checkOutTime} onChange={(e) => handleTimeChange('out', e.target.value)} className="flex-1 bg-transparent border-none text-sm font-bold text-gray-900 outline-none p-0 cursor-pointer" />
+                        </div>
+                      </div>
                     </div>
 
                     {/* Nights summary pill */}

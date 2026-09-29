@@ -2,8 +2,10 @@
 
 import Image from "next/image";
 import { Waves, Droplets, Compass, ArrowRight, Sparkles } from "lucide-react";
+import { useSettings } from "@/components/SettingsProvider";
 
 export default function NaturalPool() {
+  const { getSetting } = useSettings();
   return (
     <section id="pool" className="py-20 bg-gradient-to-b from-white via-teal-50/30 to-white relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -72,7 +74,7 @@ export default function NaturalPool() {
           <div className="lg:col-span-6 space-y-4">
             <div className="relative rounded-3xl overflow-hidden shadow-xl border-4 border-white aspect-[4/3] group bg-gray-100 card-lift">
               <Image
-                src="/images/natural-stream.jpg"
+                src={getSetting("site.pool.image1", "/images/natural-stream.jpg")}
                 alt="Edawala Dola Pristine Natural Stream in Sinharaja"
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-700"
@@ -92,7 +94,7 @@ export default function NaturalPool() {
             <div className="grid grid-cols-2 gap-4">
               <div className="relative rounded-2xl overflow-hidden shadow-md aspect-[4/3] bg-gray-100 group border-2 border-white">
                 <Image
-                  src="/images/photo_2026-09-28_18-10-40.jpg"
+                  src={getSetting("site.pool.image2", "/images/photo_2026-09-28_18-10-40.jpg")}
                   alt="Family Kayaking on the Clear River Waters"
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -106,7 +108,7 @@ export default function NaturalPool() {
 
               <div className="relative rounded-2xl overflow-hidden shadow-md aspect-[4/3] bg-gray-100 group border-2 border-white">
                 <Image
-                  src="/images/photo_2026-09-28_18-10-41 (2).jpg"
+                  src={getSetting("site.pool.image3", "/images/photo_2026-09-28_18-10-41 (2).jpg")}
                   alt="Rubber Boat Fun on the River"
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-500"

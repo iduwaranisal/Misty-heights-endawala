@@ -120,7 +120,7 @@ export async function suggestAlternatives(
 
   const suggestions: AlternativeSuggestion[] = [];
   const today = new Date();
-  today.setHours(14, 0, 0, 0);
+  today.setHours(requestedRange.checkIn.getHours(), requestedRange.checkIn.getMinutes(), 0, 0);
 
   /**
    * Check if a candidate window is free from all bookings
@@ -136,8 +136,8 @@ export async function suggestAlternatives(
   const beforeEnd = new Date(requestedRange.checkIn);
   const beforeStart = new Date(beforeEnd);
   beforeStart.setDate(beforeStart.getDate() - nights);
-  beforeStart.setHours(14, 0, 0, 0);
-  beforeEnd.setHours(11, 0, 0, 0);
+  beforeStart.setHours(requestedRange.checkIn.getHours(), requestedRange.checkIn.getMinutes(), 0, 0);
+  beforeEnd.setHours(requestedRange.checkOut.getHours(), requestedRange.checkOut.getMinutes(), 0, 0);
 
   if (beforeStart >= today && isWindowFree(beforeStart, beforeEnd)) {
     suggestions.push({
@@ -161,10 +161,10 @@ export async function suggestAlternatives(
 
   if (conflictCheck) {
     const afterStart = new Date(conflictCheck.checkOut);
-    afterStart.setHours(14, 0, 0, 0);
+    afterStart.setHours(requestedRange.checkIn.getHours(), requestedRange.checkIn.getMinutes(), 0, 0);
     const afterEnd = new Date(afterStart);
     afterEnd.setDate(afterEnd.getDate() + nights);
-    afterEnd.setHours(11, 0, 0, 0);
+    afterEnd.setHours(requestedRange.checkOut.getHours(), requestedRange.checkOut.getMinutes(), 0, 0);
 
     if (isWindowFree(afterStart, afterEnd)) {
       suggestions.push({
@@ -180,13 +180,13 @@ export async function suggestAlternatives(
   // --- Strategy 3: Scan forward to find next free window ---
   if (suggestions.length < 2) {
     let scanStart = new Date(requestedRange.checkIn);
-    scanStart.setHours(14, 0, 0, 0);
+    scanStart.setHours(requestedRange.checkIn.getHours(), requestedRange.checkIn.getMinutes(), 0, 0);
 
     // Scan day by day for next 90 days
     for (let i = 0; i < 90; i++) {
       const candidateEnd = new Date(scanStart);
       candidateEnd.setDate(candidateEnd.getDate() + nights);
-      candidateEnd.setHours(11, 0, 0, 0);
+      candidateEnd.setHours(requestedRange.checkOut.getHours(), requestedRange.checkOut.getMinutes(), 0, 0);
 
       if (isWindowFree(scanStart, candidateEnd)) {
         // Make sure this isn't the same as an existing suggestion

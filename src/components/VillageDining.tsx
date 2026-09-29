@@ -3,7 +3,10 @@
 import Image from "next/image";
 import { Utensils, HeartHandshake, ArrowRight } from "lucide-react";
 
+import { useSettings } from "@/components/SettingsProvider";
+
 export default function VillageDining({ onOpenBooking }: { onOpenBooking: () => void }) {
+  const { getSetting } = useSettings();
   const meals = [
     {
       title: "Traditional Sri Lankan Breakfast",
@@ -86,7 +89,7 @@ export default function VillageDining({ onOpenBooking }: { onOpenBooking: () => 
           <div className="lg:col-span-5 space-y-4">
             <div className="relative rounded-3xl overflow-hidden shadow-xl border-4 border-white aspect-[4/3] group bg-gray-100 card-lift">
               <Image
-                src="/images/photo_2026-09-28_18-10-34.jpg"
+                src={getSetting("site.dining.image", "/images/photo_2026-09-28_18-10-34.jpg")}
                 alt="Breakfast Table with Fruit and Juice Overlooking Mountain Views"
                 fill
                 className="object-cover group-hover:scale-105 transition-transform duration-700"

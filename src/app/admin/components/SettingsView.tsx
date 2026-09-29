@@ -1,97 +1,118 @@
 "use client";
 
-import { useState } from "react";
-import { uploadImageToCloudinary } from "@/actions/settings";
-import { Loader2, Image as ImageIcon, Copy, Check } from "lucide-react";
+import { useState, useEffect, useTransition } from "react";
+import { uploadImageToCloudinary, getSettings, saveSetting } from "@/actions/settings";
+import { Loader2, Image as ImageIcon, Save, Check } from "lucide-react";
+
+const IMAGE_KEYS = [
+  { key: "site.hero.bg", label: "Hero Background", desc: "The main background image on the landing page." },
+  { key: "site.cabana.image1", label: "Cabana Showcase", desc: "Main image for 'The Cabana Living Experience'." },
+  { key: "site.pool.image1", label: "Natural Pool", desc: "Image for the 'Edawala Dola' river pool section." },
+  { key: "site.dining.image", label: "Village Dining", desc: "Image for the authentic dining section." },
+];
 
 export default function SettingsView() {
-  const [uploading, setUploading] = useState(false);
-  const [result, setResult] = useState<{ok: boolean, msg: string} | null>(null);
-  const [copied, setCopied] = useState(false);
-  
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [settings, setSettings] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(true);
+  const [uploadingKey, setUploadingKey] = useState<string | null>(null);
+  const [savedKey, setSavedKey] = useState<string | null>(null);
+
+  useEffect(() => {
+    getSettings().then((data) => {
+      const map: Record<string, string> = {};
+      data.forEach(s => { map[s.key] = s.value; });
+      setSettings(map);
+      setLoading(false);
+    });
+  }, []);
+
+  const handleUploadAndSave = async (key: string, e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
     const file = e.target.files[0];
     const formData = new FormData();
     formData.append('file', file);
     
-    setUploading(true);
-    setResult(null);
-    setCopied(false);
+    setUploadingKey(key);
     try {
       const res = await uploadImageToCloudinary(formData);
-      if (res.success) {
-        setResult({ok: true, msg: res.url});
+      if (res.success && res.url) {
+        // Save to DB
+        await saveSetting(key, res.url, "image");
+        setSettings(prev => ({ ...prev, [key]: res.url! }));
+        setSavedKey(key);
+        setTimeout(() => setSavedKey(null), 3000);
       } else {
-        setResult({ok: false, msg: res.message || 'Upload failed'});
+        alert(res.message || 'Upload failed');
       }
     } catch (err: any) {
-      setResult({ok: false, msg: err.message});
+      alert(err.message);
     } finally {
-      setUploading(false);
+      setUploadingKey(null);
+      e.target.value = ''; // reset input
     }
   };
 
-  const copyToClipboard = () => {
-    if (result?.ok) {
-      navigator.clipboard.writeText(result.msg);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  };
+  if (loading) {
+    return <div className="p-8 flex justify-center"><Loader2 className="w-6 h-6 animate-spin text-emerald-600" /></div>;
+  }
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 max-w-2xl">
-      <h3 className="font-bold text-gray-900 text-lg mb-1">Website Content & Settings</h3>
-      <p className="text-sm text-gray-500 mb-6">Upload images directly to Cloudinary and copy the URL to use anywhere on your site.</p>
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 max-w-4xl">
+      <h3 className="font-bold text-gray-900 text-lg mb-1 flex items-center gap-2">
+        <ImageIcon className="w-5 h-5 text-emerald-600" />
+        Website Image Management
+      </h3>
+      <p className="text-sm text-gray-500 mb-8">
+        Customize the images shown across the frontend website. Uploading a new image will automatically update the live site.
+      </p>
       
       <div className="space-y-6">
-        <div className="p-6 border-2 border-dashed border-emerald-200 bg-emerald-50/50 rounded-xl transition-all hover:bg-emerald-50">
-          <h4 className="font-semibold text-emerald-900 mb-3 flex items-center gap-2">
-            <ImageIcon className="w-5 h-5 text-emerald-600"/> Upload New Image
-          </h4>
-          <input 
-            type="file" 
-            accept="image/*" 
-            onChange={handleUpload}
-            disabled={uploading}
-            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-emerald-600 file:text-white hover:file:bg-emerald-700 transition-all cursor-pointer"
-          />
-          {uploading && (
-            <div className="mt-4 flex items-center gap-2 text-sm font-semibold text-emerald-600">
-              <Loader2 className="w-4 h-4 animate-spin"/> Uploading to Cloudinary...
+        {IMAGE_KEYS.map((item) => (
+          <div key={item.key} className="flex flex-col sm:flex-row gap-6 p-4 rounded-xl border border-gray-100 bg-gray-50/50 items-start sm:items-center">
+            {/* Preview Box */}
+            <div className="w-full sm:w-32 h-24 shrink-0 rounded-lg bg-gray-200 border border-gray-300 overflow-hidden relative flex items-center justify-center">
+              {settings[item.key] ? (
+                <img src={settings[item.key]} alt={item.label} className="w-full h-full object-cover" />
+              ) : (
+                <ImageIcon className="w-6 h-6 text-gray-400" />
+              )}
             </div>
-          )}
-        </div>
-        
-        {result && (
-          <div className={`p-4 rounded-xl text-sm ${result.ok ? 'bg-emerald-50 text-emerald-900 border border-emerald-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
-            {result.ok ? (
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center gap-2 text-emerald-700 font-bold">
-                  <Check className="w-4 h-4" /> Image Uploaded Successfully!
-                </div>
-                <div className="flex items-center gap-2">
+
+            <div className="flex-1">
+              <h4 className="font-bold text-gray-900 text-sm">{item.label}</h4>
+              <p className="text-xs text-gray-500 mt-1 mb-3">{item.desc}</p>
+              
+              <div className="flex items-center gap-3">
+                <div className="relative">
                   <input 
-                    type="text" 
-                    readOnly 
-                    value={result.msg} 
-                    className="flex-1 bg-white border border-emerald-200 rounded-lg px-3 py-2 text-xs font-mono text-gray-600 focus:outline-none"
+                    type="file" 
+                    accept="image/*"
+                    id={`upload-${item.key}`}
+                    className="hidden"
+                    onChange={(e) => handleUploadAndSave(item.key, e)}
+                    disabled={uploadingKey !== null}
                   />
-                  <button 
-                    onClick={copyToClipboard}
-                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold flex items-center gap-1.5 transition-colors"
+                  <label 
+                    htmlFor={`upload-${item.key}`}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer
+                      ${uploadingKey === item.key ? 'bg-emerald-100 text-emerald-600 cursor-wait' : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'}`}
                   >
-                    {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                    {copied ? "Copied" : "Copy"}
-                  </button>
+                    {uploadingKey === item.key ? (
+                      <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Uploading...</>
+                    ) : (
+                      <>Upload New Image</>
+                    )}
+                  </label>
                 </div>
+                {savedKey === item.key && (
+                  <span className="text-xs font-bold text-emerald-600 flex items-center gap-1 animate-in fade-in">
+                    <Check className="w-3.5 h-3.5" /> Saved Live!
+                  </span>
+                )}
               </div>
-            ) : (
-              <div>{result.msg}</div>
-            )}
+            </div>
           </div>
-        )}
+        ))}
       </div>
     </div>
   );

@@ -244,13 +244,13 @@ function NewBookingForm({ onSuccess }: { onSuccess: () => void }) {
     setAvailabilityStatus("checking");
     setSuggestions([]);
     startTransition(async () => {
-      const res = await checkDateAvailabilityAction(form.checkIn, form.checkOut);
+      const res = await checkDateAvailabilityAction(form.checkIn, form.checkOut, form.checkInTime, form.checkOutTime);
       setAvailabilityStatus(res.success ? "free" : "conflict");
       if (!res.success && res.suggestions) {
         setSuggestions(res.suggestions as Suggestion[]);
       }
     });
-  }, [form.checkIn, form.checkOut]);
+  }, [form.checkIn, form.checkOut, form.checkInTime, form.checkOutTime]);
 
   const applySuggestion = (s: Suggestion) => {
     setForm((f) => ({

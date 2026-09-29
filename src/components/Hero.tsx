@@ -16,7 +16,9 @@ import {
   Sparkles,
 } from "lucide-react";
 
-const heroSlides = [
+import { useSettings } from "@/components/SettingsProvider";
+
+const HERO_DEFAULTS = [
   {
     src: "/images/cabana-view.jpg",
     tag: "Wooden Cabana",
@@ -45,6 +47,12 @@ const heroSlides = [
 ];
 
 export default function Hero({ onOpenBooking }: { onOpenBooking: () => void }) {
+  const { getSetting } = useSettings();
+  const heroSlides = HERO_DEFAULTS.map((slide, i) => ({
+    ...slide,
+    src: i === 0 ? getSetting("site.hero.bg", slide.src) : getSetting(`site.hero.slide${i + 1}`, slide.src)
+  }));
+
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 

@@ -71,8 +71,10 @@ export async function submitPublicBooking(
 
     const checkInDate = new Date(data.checkIn);
     const checkOutDate = new Date(data.checkOut);
-    checkInDate.setHours(14, 0, 0, 0);
-    checkOutDate.setHours(11, 0, 0, 0);
+    const [inH, inM] = (data.checkInTime || "14:00").split(":").map(Number);
+    const [outH, outM] = (data.checkOutTime || "11:00").split(":").map(Number);
+    checkInDate.setHours(inH, inM, 0, 0);
+    checkOutDate.setHours(outH, outM, 0, 0);
 
     if (checkInDate >= checkOutDate) {
       return { success: false, message: "Check-out must be after check-in" };
@@ -316,14 +318,18 @@ export async function getBookingStats() {
 export async function checkDateAvailabilityAction(
   checkIn: string,
   checkOut: string,
+  checkInTime: string = "14:00",
+  checkOutTime: string = "11:00",
   excludeId?: string
 ): Promise<ActionResult> {
   try {
     await connectDB();
     const checkInDate = new Date(checkIn);
     const checkOutDate = new Date(checkOut);
-    checkInDate.setHours(14, 0, 0, 0);
-    checkOutDate.setHours(11, 0, 0, 0);
+    const [inH, inM] = checkInTime.split(":").map(Number);
+    const [outH, outM] = checkOutTime.split(":").map(Number);
+    checkInDate.setHours(inH, inM, 0, 0);
+    checkOutDate.setHours(outH, outM, 0, 0);
 
     const conflict = await checkAvailability(
       { checkIn: checkInDate, checkOut: checkOutDate },

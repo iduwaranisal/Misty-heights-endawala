@@ -138,6 +138,8 @@ export default function BookingModal({
   const [step, setStep] = useState<Step>("dates");
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
+  const [checkInTime, setCheckInTime] = useState("14:00");
+  const [checkOutTime, setCheckOutTime] = useState("11:00");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -176,13 +178,13 @@ export default function BookingModal({
   };
 
   // Check availability when both dates set
-  const checkDates = useCallback((ci: string, co: string) => {
+  const checkDates = useCallback((ci: string, co: string, timeIn: string, timeOut: string) => {
     if (!ci || !co) return;
     setAvailStatus("checking");
     setSuggestions([]);
     setErrorMsg("");
     startCheck(async () => {
-      const res = await checkDateAvailabilityAction(ci, co);
+      const res = await checkDateAvailabilityAction(ci, co, timeIn, timeOut);
       setAvailStatus(res.success ? "free" : "conflict");
       if (!res.success && res.suggestions) setSuggestions(res.suggestions as Suggestion[]);
     });
@@ -190,14 +192,25 @@ export default function BookingModal({
 
   const handleCheckInChange = (v: string) => {
     setCheckIn(v);
-    if (checkOut && v >= checkOut) setCheckOut("");
+    if (checkOut && v > checkOut) setCheckOut("");
     setAvailStatus("idle");
     setSuggestions([]);
+    if (checkOut && v <= checkOut) checkDates(v, checkOut, checkInTime, checkOutTime);
   };
 
   const handleCheckOutChange = (v: string) => {
     setCheckOut(v);
-    if (v && checkIn) checkDates(checkIn, v);
+    if (v && checkIn) checkDates(checkIn, v, checkInTime, checkOutTime);
+  };
+
+  const handleTimeChange = (type: 'in' | 'out', val: string) => {
+    if (type === 'in') {
+      setCheckInTime(val);
+      if (checkIn && checkOut) checkDates(checkIn, checkOut, val, checkOutTime);
+    } else {
+      setCheckOutTime(val);
+      if (checkIn && checkOut) checkDates(checkIn, checkOut, checkInTime, val);
+    }
   };
 
   const applySuggestion = (s: Suggestion) => {
@@ -220,12 +233,12 @@ export default function BookingModal({
   const handleSubmit = () => {
     setErrorMsg("");
     startTransition(async () => {
-      const res = await submitPublicBooking({ guestName: name, guestPhone: phone, guestEmail: email, checkIn, checkOut, guests, notes });
+      const res = await submitPublicBooking({ guestName: name, guestPhone: phone, guestEmail: email, checkIn, checkOut, checkInTime, checkOutTime, guests, notes });
       if (res.success && res.data) {
         setBookingId((res.data as { bookingId: string }).bookingId || "");
         setStep("success");
         // Open WhatsApp to notify
-        const msg = `🌿 Ayubowan Misty Heights Endawala!\n\nMy booking has been submitted:\n• Name: ${name}\n• Phone: ${phone}\n• Check-in: ${fmt(checkIn)}\n• Check-out: ${fmt(checkOut)}\n• ${nights} nights · ${guests} guests\n${notes ? `• Notes: ${notes}` : ""}\n\nBooking Ref: ${(res.data as { bookingId: string }).bookingId?.slice(-6).toUpperCase()}\n\nPlease confirm my reservation. Thank you!`;
+        const msg = `🌿 Ayubowan Misty Heights Endawala!\n\nMy booking has been submitted:\n• Name: ${name}\n• Phone: ${phone}\n• Check-in: ${fmt(checkIn)} at ${checkInTime}\n• Check-out: ${fmt(checkOut)} at ${checkOutTime}\n• ${nights} nights · ${guests} guests\n${notes ? `• Notes: ${notes}` : ""}\n\nBooking Ref: ${(res.data as { bookingId: string }).bookingId?.slice(-6).toUpperCase()}\n\nPlease confirm my reservation. Thank you!`;
         setTimeout(() => {
           window.open(`https://wa.me/94719817000?text=${encodeURIComponent(msg)}`, "_blank");
         }, 800);
@@ -294,18 +307,30 @@ export default function BookingModal({
             <>
               {/* Calendar pickers */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <InlineCalendar
-                  label="Check-In Date"
-                  value={checkIn}
-                  onChange={handleCheckInChange}
-                  minDate={new Date().toISOString().slice(0, 10)}
-                />
-                <InlineCalendar
-                  label="Check-Out Date"
-                  value={checkOut}
-                  onChange={handleCheckOutChange}
-                  minDate={checkIn || new Date().toISOString().slice(0, 10)}
-                />
+                <div className="space-y-2">
+                  <InlineCalendar
+                    label="Check-In Date"
+                    value={checkIn}
+                    onChange={handleCheckInChange}
+                    minDate={new Date().toISOString().slice(0, 10)}
+                  />
+                  <div className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-gray-50">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider w-12">Time</span>
+                    <input type="time" value={checkInTime} onChange={e => handleTimeChange('in', e.target.value)} className="flex-1 bg-transparent border-none text-sm font-bold text-gray-900 outline-none p-0 cursor-pointer" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <InlineCalendar
+                    label="Check-Out Date"
+                    value={checkOut}
+                    onChange={handleCheckOutChange}
+                    minDate={checkIn || new Date().toISOString().slice(0, 10)}
+                  />
+                  <div className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-gray-50">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider w-12">Time</span>
+                    <input type="time" value={checkOutTime} onChange={e => handleTimeChange('out', e.target.value)} className="flex-1 bg-transparent border-none text-sm font-bold text-gray-900 outline-none p-0 cursor-pointer" />
+                  </div>
+                </div>
               </div>
 
               {/* Selected dates summary */}
@@ -481,8 +506,8 @@ export default function BookingModal({
                 {[
                   { label: "Guest", value: name, icon: User },
                   { label: "Phone", value: phone, icon: Phone },
-                  { label: "Check-In", value: `${fmt(checkIn)} at 2:00 PM`, icon: Calendar },
-                  { label: "Check-Out", value: `${fmt(checkOut)} at 11:00 AM`, icon: Calendar },
+                  { label: "Check-In", value: `${fmt(checkIn)} at ${checkInTime}`, icon: Calendar },
+                  { label: "Check-Out", value: `${fmt(checkOut)} at ${checkOutTime}`, icon: Calendar },
                   { label: "Duration", value: `${nights} night${nights !== 1 ? "s" : ""}`, icon: Clock },
                   { label: "Guests", value: `${guests} guest${guests !== 1 ? "s" : ""}`, icon: Users },
                 ].map(({ label, value, icon: Icon }) => (

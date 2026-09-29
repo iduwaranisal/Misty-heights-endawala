@@ -15,7 +15,9 @@ import {
   Camera,
 } from "lucide-react";
 
-const cabanaPhotos = [
+import { useSettings } from "@/components/SettingsProvider";
+
+const CABANA_DEFAULTS = [
   {
     src: "/images/cabana-view.jpg",
     title: "Handcrafted Two-Story Wooden Cabana",
@@ -58,6 +60,12 @@ const amenities = [
 ];
 
 export default function CabanaShowcase({ onOpenBooking }: { onOpenBooking: () => void }) {
+  const { getSetting } = useSettings();
+  
+  const cabanaPhotos = CABANA_DEFAULTS.map((photo, i) => ({
+    ...photo,
+    src: getSetting(`site.cabana.image${i + 1}`, photo.src)
+  }));
   const [activePhoto, setActivePhoto] = useState(0);
 
   const nextPhoto = () => {

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Playfair_Display } from "next/font/google";
+export const dynamic = 'force-dynamic';
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -209,11 +210,20 @@ const jsonLd = {
   ],
 };
 
-export default function RootLayout({
+import { getSettings } from "@/actions/settings";
+import { SettingsProvider } from "@/components/SettingsProvider";
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const settingsArray = await getSettings();
+  const initialSettings = settingsArray.reduce((acc, s) => {
+    acc[s.key] = s.value;
+    return acc;
+  }, {} as Record<string, string>);
+
   return (
     <html lang="en" className={`${jakarta.variable} ${playfair.variable}`}>
       <head>
@@ -223,7 +233,9 @@ export default function RootLayout({
         />
       </head>
       <body className="font-sans antialiased selection:bg-emerald-700 selection:text-white">
-        {children}
+        <SettingsProvider initialSettings={initialSettings}>
+          {children}
+        </SettingsProvider>
       </body>
     </html>
   );
