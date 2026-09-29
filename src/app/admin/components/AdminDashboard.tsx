@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Calendar, Plus, LogOut, Users, Clock,
   CheckCircle, XCircle, Loader2, Phone, Mail, Trash2,
   ChevronLeft, ChevronRight, AlertTriangle, Sparkles,
-  RefreshCw, Menu, X, Check, Ban, ClipboardList, Image as ImageIcon, Settings
+  RefreshCw, Menu, X, Check, Ban, ClipboardList, Image as ImageIcon, Settings, Search
 } from "lucide-react";
 import {
   adminLogout, adminCreateBooking, updateBookingStatus,
@@ -502,6 +502,7 @@ function BookingCard({ booking, onRefresh }: { booking: Booking; onRefresh: () =
   const [confirmModal, setConfirmModal] = useState<{type: 'delete' | 'cancel' | 'status', newStatus?: BookingStatus} | null>(null);
 
   const handleStatus = (status: BookingStatus) => {
+    if (status === booking.status) return;
     if (status === 'cancelled') {
       setConfirmModal({ type: 'cancel', newStatus: status });
     } else {
@@ -594,34 +595,29 @@ function BookingCard({ booking, onRefresh }: { booking: Booking; onRefresh: () =
       </div>
 
       {/* Actions */}
-      <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-100">
-        {booking.status === "pending" && (
-          <button
-            onClick={() => handleStatus("confirmed")}
+      <div className="flex flex-wrap items-center gap-2 pt-3 mt-1 border-t border-gray-100">
+        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mr-1">Status:</label>
+        <div className="relative">
+          <select 
+            value={booking.status}
+            onChange={(e) => handleStatus(e.target.value as BookingStatus)}
             disabled={isPending}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-colors"
+            className={`appearance-none pl-3 pr-8 py-1.5 rounded-lg text-xs font-bold border transition-colors cursor-pointer outline-none
+              ${booking.status === "confirmed" ? "bg-emerald-50 text-emerald-800 border-emerald-200" :
+                booking.status === "pending" ? "bg-yellow-50 text-yellow-800 border-yellow-200" :
+                booking.status === "cancelled" ? "bg-red-50 text-red-800 border-red-200" :
+                "bg-blue-50 text-blue-800 border-blue-200"}`}
           >
-            <Check className="w-3.5 h-3.5" /> Confirm
-          </button>
-        )}
-        {booking.status !== "cancelled" && booking.status !== "completed" && (
-          <button
-            onClick={() => handleStatus("cancelled")}
-            disabled={isPending}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-xs font-bold transition-colors"
-          >
-            <Ban className="w-3.5 h-3.5" /> Cancel
-          </button>
-        )}
-        {booking.status === "confirmed" && (
-          <button
-            onClick={() => handleStatus("completed")}
-            disabled={isPending}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-xs font-bold transition-colors"
-          >
-            <CheckCircle className="w-3.5 h-3.5" /> Complete
-          </button>
-        )}
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <ChevronRight className="w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none rotate-90" />
+        </div>
+
+        {isPending && <Loader2 className="w-4 h-4 animate-spin text-gray-400 ml-1" />}
+
         <button
           onClick={handleDelete}
           disabled={isPending}
@@ -629,7 +625,6 @@ function BookingCard({ booking, onRefresh }: { booking: Booking; onRefresh: () =
         >
           <Trash2 className="w-3.5 h-3.5" />
         </button>
-      {isPending && <Loader2 className="w-4 h-4 animate-spin text-gray-400 self-center" />}
       </div>
 
       {/* Confirmation Modal */}
@@ -681,6 +676,7 @@ export default function AdminDashboard({ stats, initialBookings, username }: Pro
   const [activeStats, setActiveStats] = useState<Stats | null>(stats);
   const [activeTab, setActiveTab] = useState<"dashboard" | "bookings" | "new" | "settings">("dashboard");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [isRefreshing, startRefresh] = useTransition();
   const [isLoggingOut, startLogout] = useTransition();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -689,7 +685,7 @@ export default function AdminDashboard({ stats, initialBookings, username }: Pro
   const refresh = useCallback(() => {
     startRefresh(async () => {
       const [b, s] = await Promise.all([
-        getAllBookings({ status: statusFilter }),
+        getAllBookings({}), // Fetch all so client-side filtering is instant
         getBookingStats(),
       ]);
       setBookings((b.bookings || []) as Booking[]);
@@ -704,9 +700,15 @@ export default function AdminDashboard({ stats, initialBookings, username }: Pro
     });
   };
 
-  const filteredBookings = statusFilter === "all"
-    ? bookings
-    : bookings.filter((b) => b.status === statusFilter);
+  const filteredBookings = bookings.filter((b) => {
+    const matchesStatus = statusFilter === "all" || b.status === statusFilter;
+    const q = searchQuery.toLowerCase();
+    const matchesSearch = !q || 
+      b.guestName.toLowerCase().includes(q) || 
+      b.guestPhone.includes(q) || 
+      (b.guestEmail && b.guestEmail.toLowerCase().includes(q));
+    return matchesStatus && matchesSearch;
+  });
 
   const navItems = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -898,24 +900,36 @@ export default function AdminDashboard({ stats, initialBookings, username }: Pro
           {activeTab === "bookings" && (
             <div className="space-y-5">
               {/* Filter bar */}
-              <div className="flex flex-wrap gap-2">
-                {["all", "pending", "confirmed", "cancelled", "completed"].map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => setStatusFilter(s)}
-                    className={`px-4 py-1.5 rounded-full text-xs font-bold border transition-colors capitalize cursor-pointer
-                      ${statusFilter === s
-                        ? s === "pending" ? "bg-yellow-500 text-white border-yellow-500"
-                          : s === "confirmed" ? "bg-emerald-600 text-white border-emerald-600"
-                          : s === "cancelled" ? "bg-red-500 text-white border-red-500"
-                          : s === "completed" ? "bg-blue-500 text-white border-blue-500"
-                          : "bg-gray-800 text-white border-gray-800"
-                        : "bg-white text-gray-600 border-gray-200 hover:border-gray-300"
-                      }`}
-                  >
-                    {s === "all" ? `All (${bookings.length})` : s}
-                  </button>
-                ))}
+              <div className="flex flex-col md:flex-row gap-4 justify-between bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+                <div className="flex flex-wrap gap-2 items-center">
+                  {["all", "pending", "confirmed", "cancelled", "completed"].map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => setStatusFilter(s)}
+                      className={`px-4 py-1.5 rounded-full text-xs font-bold border transition-colors capitalize cursor-pointer
+                        ${statusFilter === s
+                          ? s === "pending" ? "bg-yellow-500 text-white border-yellow-500"
+                            : s === "confirmed" ? "bg-emerald-600 text-white border-emerald-600"
+                            : s === "cancelled" ? "bg-red-500 text-white border-red-500"
+                            : s === "completed" ? "bg-blue-500 text-white border-blue-500"
+                            : "bg-gray-800 text-white border-gray-800"
+                          : "bg-white text-gray-600 border-gray-200 hover:border-gray-300"
+                        }`}
+                    >
+                      {s === "all" ? `All (${bookings.length})` : s}
+                    </button>
+                  ))}
+                </div>
+                <div className="relative w-full md:w-64">
+                  <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    placeholder="Search name, phone, email..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
+                  />
+                </div>
               </div>
 
               {/* Booking list */}
