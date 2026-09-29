@@ -71,8 +71,23 @@ export function addDays(str: string, days: number): string {
 }
 
 /**
+ * Returns an effective numeric range for overlap calculation.
+ * Standard bookings [in, out] occupy time from check-in (afternoon) to check-out (morning).
+ * Same-day bookings [in, in] occupy the daytime of that day.
+ */
+function getEffectiveRange(inStr: string, outStr: string) {
+  const inTime = new Date(inStr + "T00:00:00Z").getTime();
+  const outTime = new Date(outStr + "T00:00:00Z").getTime();
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  if (inStr === outStr) {
+    return { start: inTime + DAY_MS * 0.2, end: outTime + DAY_MS * 0.8 };
+  } else {
+    return { start: inTime + DAY_MS * 0.5, end: outTime + DAY_MS * 0.1 };
+  }
+}
+
+/**
  * Check if a requested date range conflicts with any existing confirmed/pending bookings.
- * Strictly day-based: bookings are inclusive of their start and end days.
  */
 export async function checkAvailability(
   range: DateRange,
@@ -105,14 +120,16 @@ export async function checkAvailability(
   }
 
   const candidateBookings = await Booking.find(query).lean();
+  const reqRange = getEffectiveRange(reqInStr, reqOutStr);
 
   for (const b of candidateBookings) {
     const bInStr = b.checkInDateStr || toDateStr(b.checkIn);
     const bOutStr = b.checkOutDateStr || toDateStr(b.checkOut);
 
-    // Exact day overlap:
-    // Two bookings overlap if and only if bIn <= reqOut && bOut >= reqIn.
-    if (bInStr <= reqOutStr && bOutStr >= reqInStr) {
+    const bRange = getEffectiveRange(bInStr, bOutStr);
+
+    // Two bookings overlap if one starts before the other ends, and ends after the other starts
+    if (reqRange.start < bRange.end && reqRange.end > bRange.start) {
       return {
         hasConflict: true,
         conflictingBooking: {
@@ -198,8 +215,10 @@ export async function suggestAlternatives(
    */
   function isRangeAvailable(candIn: string, candOut: string): boolean {
     if (candIn < todayStr) return false;
+    const candRange = getEffectiveRange(candIn, candOut);
     for (const b of bookedIntervals) {
-      if (b.inStr <= candOut && b.outStr >= candIn) {
+      const bRange = getEffectiveRange(b.inStr, b.outStr);
+      if (bRange.start < candRange.end && bRange.end > candRange.start) {
         return false;
       }
     }
@@ -209,7 +228,11 @@ export async function suggestAlternatives(
   const suggestions: AlternativeSuggestion[] = [];
 
   // Identify bookings directly conflicting with requested stay
-  const conflicts = bookedIntervals.filter((b) => b.inStr <= reqOutStr && b.outStr >= reqInStr);
+  const reqRange = getEffectiveRange(reqInStr, reqOutStr);
+  const conflicts = bookedIntervals.filter((b) => {
+    const bRange = getEffectiveRange(b.inStr, b.outStr);
+    return bRange.start < reqRange.end && bRange.end > reqRange.start;
+  });
 
   // --- Strategy 1: Immediately AFTER the conflict ends ---
   if (conflicts.length > 0) {
@@ -219,7 +242,7 @@ export async function suggestAlternatives(
       if (c.outStr > maxConflictOut) maxConflictOut = c.outStr;
     }
 
-    const candIn = addDays(maxConflictOut, 1);
+    const candIn = maxConflictOut;
     const candOut = addDays(candIn, days - 1);
 
     if (isRangeAvailable(candIn, candOut)) {
@@ -241,7 +264,7 @@ export async function suggestAlternatives(
       if (c.inStr < minConflictIn) minConflictIn = c.inStr;
     }
 
-    const candOut = addDays(minConflictIn, -1);
+    const candOut = minConflictIn;
     const candIn = addDays(candOut, -(days - 1));
 
     if (candIn >= todayStr && isRangeAvailable(candIn, candOut)) {
