@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Waves, Droplets, Compass, ArrowRight, Sparkles } from "lucide-react";
+import { Waves, Droplets, Compass, ArrowRight } from "lucide-react";
 import { useSettings } from "@/components/SettingsProvider";
 
 export default function NaturalPool() {
@@ -63,7 +63,7 @@ export default function NaturalPool() {
 
             <div className="pt-2">
               <a
-                href={`https://wa.me/${whatsapp}?text=Hello%20Misty%20Heights!%20I%20would%20like%20to%20know%20more%20about%20the%20Dellawa%20river%20swimming%20and%20kayaking.`}
+                href={`https://wa.me/${whatsapp.replace(/\D/g, "")}?text=Hello%20Misty%20Heights!%20I%20would%20like%20to%20know%20more%20about%20the%20Dellawa%20river%20swimming%20and%20kayaking.`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-teal-700 hover:text-teal-900 transition-colors group"

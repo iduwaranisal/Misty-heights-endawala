@@ -18,8 +18,12 @@ import BookingSection from "@/components/BookingSection";
 import Footer from "@/components/Footer";
 import BookingModal from "@/components/BookingModal";
 import { MessageSquare, Phone, Calendar } from "lucide-react";
+import { useSettings } from "@/components/SettingsProvider";
 
 export default function Home() {
+  const { getSetting } = useSettings();
+  const whatsapp = getSetting("site.contact.whatsapp", "94719817000");
+  const primaryPhone = getSetting("site.contact.primaryPhone", "071 981 7000");
   const [isBookingOpen, setIsBookingOpen] = useState(false);
 
   return (
@@ -89,7 +93,7 @@ export default function Home() {
 
         <div className="flex gap-2.5 justify-end">
           <a
-            href="https://wa.me/94719817000?text=Hello%20Misty%20Heights%20Endawala,%20I%20would%20like%20to%20inquire%20about%20a%20stay."
+            href={`https://wa.me/${whatsapp.replace(/\D/g, "")}?text=Hello%20Misty%20Heights%20Endawala,%20I%20would%20like%20to%20inquire%20about%20a%20stay.`}
             target="_blank"
             rel="noopener noreferrer"
             className="w-12 h-12 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white shadow-xl shadow-emerald-950/20 flex items-center justify-center transition-all hover:scale-110 active:scale-95 animate-float"
@@ -99,7 +103,7 @@ export default function Home() {
           </a>
 
           <a
-            href="tel:0719817000"
+            href={`tel:${primaryPhone.replace(/\s+/g, "")}`}
             className="w-12 h-12 rounded-full bg-white hover:bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-xl flex items-center justify-center transition-all hover:scale-110 active:scale-95"
             aria-label="Call Us Directly"
           >

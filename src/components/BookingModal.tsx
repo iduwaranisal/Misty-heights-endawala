@@ -7,6 +7,7 @@ import {
   Clock, ChevronLeft, ChevronRight, Shield
 } from "lucide-react";
 import { submitPublicBooking, checkDateAvailabilityAction } from "@/actions/bookings";
+import { useSettings } from "@/components/SettingsProvider";
 
 interface Suggestion {
   checkIn: string;
@@ -25,8 +26,22 @@ const fmt = (iso: string) => {
 
 const calcNights = (checkIn: string, checkOut: string) => {
   if (!checkIn || !checkOut) return 0;
-  const diff = new Date(checkOut).getTime() - new Date(checkIn).getTime();
-  return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+  const [inY, inM, inD] = checkIn.slice(0, 10).split("-").map(Number);
+  const [outY, outM, outD] = checkOut.slice(0, 10).split("-").map(Number);
+  const diff = new Date(outY, outM - 1, outD).getTime() - new Date(inY, inM - 1, inD).getTime();
+  return Math.max(0, Math.round(diff / (1000 * 60 * 60 * 24)));
+};
+
+const toLocalToday = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
+
+const getNextDay = (dateStr: string) => {
+  if (!dateStr) return toLocalToday();
+  const [y, m, d] = dateStr.slice(0, 10).split("-").map(Number);
+  const next = new Date(y, m - 1, d + 1);
+  return `${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, "0")}-${String(next.getDate()).padStart(2, "0")}`;
 };
 
 // ── Compact Inline Calendar ─────────────────────────────────────────────────
@@ -138,11 +153,17 @@ export default function BookingModal({
   isOpen: boolean;
   onClose: () => void;
 }) {
+  const { getSetting } = useSettings();
+  const whatsapp = getSetting("site.contact.whatsapp", "94719817000");
+  const primaryPhone = getSetting("site.contact.primaryPhone", "071 981 7000");
+  const defaultCheckInTime = getSetting("site.booking.defaultCheckInTime", "14:00");
+  const defaultCheckOutTime = getSetting("site.booking.defaultCheckOutTime", "11:00");
+
   const [step, setStep] = useState<Step>("dates");
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
-  const [checkInTime, setCheckInTime] = useState("14:00");
-  const [checkOutTime, setCheckOutTime] = useState("11:00");
+  const [checkInTime, setCheckInTime] = useState(defaultCheckInTime);
+  const [checkOutTime, setCheckOutTime] = useState(defaultCheckOutTime);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -183,36 +204,58 @@ export default function BookingModal({
   // Check availability when both dates set
   const checkDates = useCallback((ci: string, co: string, timeIn: string, timeOut: string) => {
     if (!ci || !co) return;
+    const n = calcNights(ci, co);
+    if (co <= ci || n < 1) {
+      setAvailStatus("idle");
+      setSuggestions([]);
+      setErrorMsg("");
+      return;
+    }
     setAvailStatus("checking");
     setSuggestions([]);
     setErrorMsg("");
     startCheck(async () => {
       const res = await checkDateAvailabilityAction(ci, co, timeIn, timeOut);
-      setAvailStatus(res.success ? "free" : "conflict");
-      if (!res.success && res.suggestions) setSuggestions(res.suggestions as Suggestion[]);
+      if (res.success) {
+        setAvailStatus("free");
+      } else {
+        setAvailStatus("conflict");
+        if (res.message) setErrorMsg(res.message);
+        if (res.suggestions) setSuggestions(res.suggestions as Suggestion[]);
+      }
     });
   }, []);
 
   const handleCheckInChange = (v: string) => {
     setCheckIn(v);
-    if (checkOut && v > checkOut) setCheckOut("");
     setAvailStatus("idle");
     setSuggestions([]);
-    if (checkOut && v <= checkOut) checkDates(v, checkOut, checkInTime, checkOutTime);
+    setErrorMsg("");
+    // Check-out must be at least 1 night after check-in
+    if (checkOut && checkOut <= v) {
+      setCheckOut("");
+    } else if (checkOut && checkOut > v) {
+      checkDates(v, checkOut, checkInTime, checkOutTime);
+    }
   };
 
   const handleCheckOutChange = (v: string) => {
     setCheckOut(v);
-    if (v && checkIn) checkDates(checkIn, v, checkInTime, checkOutTime);
+    setAvailStatus("idle");
+    setSuggestions([]);
+    setErrorMsg("");
+    if (checkIn && v > checkIn) {
+      checkDates(checkIn, v, checkInTime, checkOutTime);
+    }
   };
 
   const handleTimeChange = (type: 'in' | 'out', val: string) => {
     if (type === 'in') {
       setCheckInTime(val);
-      if (checkIn && checkOut) checkDates(checkIn, checkOut, val, checkOutTime);
+      if (checkIn && checkOut && checkOut > checkIn) checkDates(checkIn, checkOut, val, checkOutTime);
     } else {
       setCheckOutTime(val);
-      if (checkIn && checkOut) checkDates(checkIn, checkOut, checkInTime, val);
+      if (checkIn && checkOut && checkOut > checkIn) checkDates(checkIn, checkOut, checkInTime, val);
     }
   };
 
@@ -221,10 +264,11 @@ export default function BookingModal({
     const co = s.checkOut.slice(0, 10);
     setCheckIn(ci); setCheckOut(co);
     setAvailStatus("free"); setSuggestions([]);
+    setErrorMsg("");
   };
 
   const goToDetails = () => {
-    if (!checkIn || !checkOut || nights < 1 || availStatus === "conflict") return;
+    if (!checkIn || !checkOut || nights < 1 || availStatus !== "free" || !guests || guests < 1) return;
     setStep("details");
   };
 
@@ -235,15 +279,16 @@ export default function BookingModal({
 
   const handleSubmit = () => {
     setErrorMsg("");
+    const validGuests = Math.max(1, guests || 1);
     startTransition(async () => {
-      const res = await submitPublicBooking({ guestName: name, guestPhone: phone, guestEmail: email, checkIn, checkOut, checkInTime, checkOutTime, guests, notes });
+      const res = await submitPublicBooking({ guestName: name, guestPhone: phone, guestEmail: email, checkIn, checkOut, checkInTime, checkOutTime, guests: validGuests, notes });
       if (res.success && res.data) {
         setBookingId((res.data as { bookingId: string }).bookingId || "");
         setStep("success");
         // Open WhatsApp to notify
-        const msg = `🌿 Ayubowan Misty Heights Endawala!\n\nMy booking has been submitted:\n• Name: ${name}\n• Phone: ${phone}\n• Check-in: ${fmt(checkIn)} at ${checkInTime}\n• Check-out: ${fmt(checkOut)} at ${checkOutTime}\n• ${nights} nights · ${guests} guests\n${notes ? `• Notes: ${notes}` : ""}\n\nBooking Ref: ${(res.data as { bookingId: string }).bookingId?.slice(-6).toUpperCase()}\n\nPlease confirm my reservation. Thank you!`;
+        const msg = `🌿 Ayubowan Misty Heights Endawala!\n\nMy booking has been submitted:\n• Name: ${name}\n• Phone: ${phone}\n• Check-in: ${fmt(checkIn)} at ${checkInTime}\n• Check-out: ${fmt(checkOut)} at ${checkOutTime}\n• ${nights} night${nights !== 1 ? "s" : ""} · ${validGuests} guest${validGuests !== 1 ? "s" : ""}\n${notes ? `• Notes: ${notes}\n` : ""}• Booking Ref: #${(res.data as { bookingId: string }).bookingId?.slice(-6).toUpperCase()}\n\nPlease confirm my reservation. Thank you!`;
         setTimeout(() => {
-          window.open(`https://wa.me/94719817000?text=${encodeURIComponent(msg)}`, "_blank");
+          window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(msg)}`, "_blank");
         }, 800);
       } else {
         setErrorMsg(res.message);
@@ -315,7 +360,7 @@ export default function BookingModal({
                     label="Check-In Date"
                     value={checkIn}
                     onChange={handleCheckInChange}
-                    minDate={new Date().toISOString().slice(0, 10)}
+                    minDate={toLocalToday()}
                   />
                   <div className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-gray-50">
                     <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider w-12">Time</span>
@@ -327,7 +372,7 @@ export default function BookingModal({
                     label="Check-Out Date"
                     value={checkOut}
                     onChange={handleCheckOutChange}
-                    minDate={checkIn || new Date().toISOString().slice(0, 10)}
+                    minDate={checkIn ? getNextDay(checkIn) : getNextDay(toLocalToday())}
                   />
                   <div className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-gray-50">
                     <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider w-12">Time</span>
@@ -351,8 +396,8 @@ export default function BookingModal({
                 </div>
               )}
 
-              {/* Availability indicator */}
-              {availStatus !== "idle" && (
+              {/* Availability indicator - ONLY rendered for valid stays (nights >= 1) */}
+              {checkIn && checkOut && nights >= 1 && availStatus !== "idle" && (
                 <div className={`flex items-center gap-2.5 px-4 py-3 rounded-xl text-sm font-medium border transition-all
                   ${availStatus === "checking" ? "bg-blue-50 border-blue-200 text-blue-700" :
                     availStatus === "free" ? "bg-emerald-50 border-emerald-200 text-emerald-800" :
@@ -364,9 +409,17 @@ export default function BookingModal({
                   <span>
                     {availStatus === "checking" && "Checking availability…"}
                     {availStatus === "free" && "Great! Those dates are available ✓"}
-                    {availStatus === "conflict" && "Already booked — see alternatives below"}
+                    {availStatus === "conflict" && (errorMsg || "Already booked — see alternatives below")}
                   </span>
                   {isChecking && <Loader2 className="w-3.5 h-3.5 animate-spin ml-auto shrink-0" />}
+                </div>
+              )}
+
+              {/* Warning when dates are same day or invalid */}
+              {checkIn && checkOut && nights < 1 && (
+                <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl text-sm font-medium border bg-amber-50 border-amber-200 text-amber-800">
+                  <AlertTriangle className="w-4 h-4 shrink-0 text-amber-600" />
+                  <span>Check-out date must be at least 1 night after check-in.</span>
                 </div>
               )}
 
@@ -401,25 +454,80 @@ export default function BookingModal({
               )}
 
               {/* Guests picker */}
-              <div>
-                <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">
-                  Number of Guests
-                </label>
-                <div className="flex items-center gap-3 p-3.5 rounded-xl border border-gray-200 bg-gray-50">
-                  <Users className="w-4 h-4 text-gray-500 shrink-0" />
-                  <div className="flex-1">
-                    <input
-                      type="number"
-                      min={1}
-                      value={guests || ""}
-                      onChange={(e) => setGuests(parseInt(e.target.value) || 0)}
-                      className="w-full bg-transparent border-none text-sm font-bold text-gray-900 focus:outline-none focus:ring-0 p-0"
-                      placeholder="Enter number of guests"
-                    />
+              <div className="bg-gray-50/80 p-4 rounded-2xl border border-gray-200 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-800 uppercase tracking-wider">
+                      Number of Guests *
+                    </label>
+                    <p className="text-[11px] text-gray-500 mt-0.5">
+                      Entire wooden cabana villa reserved for your party
+                    </p>
                   </div>
-                  <span className="text-sm font-bold text-gray-900 w-20 text-right shrink-0">
-                    guest{guests !== 1 ? "s" : ""}
-                  </span>
+
+                  {/* Counter Controls */}
+                  <div className="flex items-center gap-1.5 bg-white border border-gray-200 rounded-xl p-1 shadow-xs">
+                    <button
+                      type="button"
+                      onClick={() => setGuests((g) => Math.max(1, (g || 1) - 1))}
+                      disabled={guests <= 1}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-700 transition-colors font-bold text-lg cursor-pointer"
+                      aria-label="Decrease guests"
+                    >
+                      –
+                    </button>
+
+                    <div className="flex items-center justify-center min-w-[3.5rem] px-1">
+                      <input
+                        type="number"
+                        min={1}
+                        value={guests || ""}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value, 10);
+                          setGuests(isNaN(val) ? 0 : Math.max(0, val));
+                        }}
+                        onBlur={() => {
+                          if (!guests || guests < 1) setGuests(1);
+                        }}
+                        className="w-8 text-center bg-transparent border-none text-sm font-bold text-gray-900 focus:outline-none focus:ring-0 p-0"
+                      />
+                      <span className="text-xs font-bold text-gray-600">
+                        {guests === 1 ? "guest" : "guests"}
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setGuests((g) => (g || 0) + 1)}
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors font-bold text-lg cursor-pointer"
+                      aria-label="Increase guests"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                {/* Quick selection chips */}
+                <div className="flex flex-wrap gap-2 pt-1 border-t border-gray-100">
+                  {[
+                    { label: "1 Guest", count: 1 },
+                    { label: "2 Guests (Couple)", count: 2 },
+                    { label: "4 Guests (Family)", count: 4 },
+                    { label: "6+ Guests (Group)", count: 6 },
+                  ].map((chip) => (
+                    <button
+                      key={chip.count}
+                      type="button"
+                      onClick={() => setGuests(chip.count)}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                        guests === chip.count
+                          ? "bg-emerald-700 text-white shadow-xs"
+                          : "bg-white text-gray-700 border border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/50"
+                      }`}
+                    >
+                      {chip.label}
+                    </button>
+                  ))}
                 </div>
               </div>
             </>
@@ -575,11 +683,11 @@ export default function BookingModal({
               </p>
               <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-100 text-sm text-emerald-800 font-medium space-y-2">
                 <div>{fmt(checkIn)} → {fmt(checkOut)}</div>
-                <div className="text-xs text-emerald-600">{nights} nights · {guests} guests</div>
+                <div className="text-xs text-emerald-600">{nights} night{nights !== 1 ? "s" : ""} · {guests} guest{guests !== 1 ? "s" : ""}</div>
               </div>
               <div className="flex flex-col gap-2 pt-2">
                 <a
-                  href={`https://wa.me/94719817000`}
+                  href={`https://wa.me/${whatsapp}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm transition-colors"
@@ -617,7 +725,7 @@ export default function BookingModal({
               <button
                 type="button"
                 onClick={goToDetails}
-                disabled={!checkIn || !checkOut || nights < 1 || availStatus === "conflict" || availStatus === "checking"}
+                disabled={!checkIn || !checkOut || nights < 1 || availStatus !== "free" || !guests || guests < 1}
                 className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm transition-all cursor-pointer"
               >
                 Continue to Guest Details
@@ -658,8 +766,8 @@ export default function BookingModal({
         {step !== "success" && (
           <div className="px-5 pb-4 flex items-center justify-center gap-4 text-xs text-gray-500">
             <span>Prefer to call?</span>
-            <a href="tel:0719817000" className="flex items-center gap-1 text-emerald-700 font-bold hover:underline">
-              <Phone className="w-3.5 h-3.5" /> 071 981 7000
+            <a href={`tel:${primaryPhone.replace(/\s+/g, '')}`} className="flex items-center gap-1 text-emerald-700 font-bold hover:underline">
+              <Phone className="w-3.5 h-3.5" /> {primaryPhone}
             </a>
           </div>
         )}

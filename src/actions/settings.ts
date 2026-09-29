@@ -6,10 +6,19 @@ import { verifyAdminSession } from "@/lib/auth";
 import { v2 as cloudinary } from "cloudinary";
 import { revalidatePath } from "next/cache";
 
-// Auto-configure from CLOUDINARY_URL in environment variables
-cloudinary.config({
-  secure: true
-});
+// Configure Cloudinary from credentials or CLOUDINARY_URL
+if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET) {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+    secure: true,
+  });
+} else {
+  cloudinary.config({
+    secure: true,
+  });
+}
 
 export async function getSettings() {
   await connectDB();
@@ -71,7 +80,8 @@ export async function saveMultipleSettings(
     }
 
     revalidatePath("/");
-    return { success: true, message: "Settings saved successfully" };
+    revalidatePath("/gallery");
+    return { success: true, message: "Setting saved successfully" };
   } catch (error: any) {
     console.error("saveMultipleSettings error:", error);
     return { success: false, message: error.message || "Failed to save settings" };
@@ -86,6 +96,7 @@ export async function deleteSetting(key: string) {
     await connectDB();
     await Setting.deleteOne({ key });
     revalidatePath("/");
+    revalidatePath("/gallery");
     return { success: true, message: "Setting deleted successfully" };
   } catch (error: any) {
     return { success: false, message: error.message || "Failed to delete setting" };
@@ -100,13 +111,15 @@ export async function uploadImageToCloudinary(formData: FormData) {
     const file = formData.get("file") as File;
     if (!file) return { success: false, message: "No file provided" };
 
+    const folder = (formData.get("folder") as string) || "misty-heights-website";
+
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
     // Upload using stream to Cloudinary
     const uploadResult = await new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
-        { folder: "misty-heights-website" },
+        { folder },
         (error, result) => {
           if (error) reject(error);
           else resolve(result);
@@ -127,6 +140,7 @@ export async function uploadImageToCloudinary(formData: FormData) {
         { upsert: true }
       );
       revalidatePath("/");
+      revalidatePath("/gallery");
     }
 
     return { success: true, url, message: "Image uploaded successfully" };

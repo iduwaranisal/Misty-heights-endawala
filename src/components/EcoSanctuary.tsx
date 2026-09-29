@@ -1,6 +1,6 @@
 "use client";
 
-import { Leaf, Droplets, ShieldCheck, HeartHandshake, Compass } from "lucide-react";
+import { Leaf, Droplets, ShieldCheck, HeartHandshake } from "lucide-react";
 
 export default function EcoSanctuary() {
   const commitments = [

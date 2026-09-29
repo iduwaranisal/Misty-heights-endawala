@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Playfair_Display } from "next/font/google";
-export const dynamic = 'force-dynamic';
+import { getSettings, getSettingByKey } from "@/actions/settings";
+import { SettingsProvider } from "@/components/SettingsProvider";
 import "./globals.css";
+
+export const dynamic = 'force-dynamic';
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -15,88 +18,76 @@ const playfair = Playfair_Display({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://www.mistyheightsendawala.lk"),
-  title: {
-    default: "Misty Heights Endawala | Dellawa River, Sinharaja Forest Villa & Cabana Retreat",
-    template: "%s | Misty Heights Endawala Sinharaja",
-  },
-  description:
-    "Escape to Misty Heights Endawala near Sinharaja Forest & Dellawa River (Gin Ganga tributary). Handcrafted wooden villa cabana, natural river pool, kayaking, and misty mountain views in Neluwa, Galle, Sri Lanka.",
-  keywords: [
-    // Primary User Target Keywords
-    "endawala",
-    "dellawa",
-    "dellawa river",
-    "gin ganga",
-    "dellawa endawala",
-    "dellawa ganga",
-    "dellawa sinharaja",
-    "sinharaja forest",
-    "sinharaja villa",
-    "dellawa villa",
-    "misty heights",
-    "misty heights endawala sinharaja",
-    "misty heights endawala",
+export async function generateMetadata(): Promise<Metadata> {
+  const seoTitle = await getSettingByKey(
+    "site.seo.title",
+    "Misty Heights Endawala | Dellawa River, Sinharaja Forest Villa & Cabana Retreat"
+  );
+  const seoDesc = await getSettingByKey(
+    "site.seo.description",
+    "Escape to Misty Heights Endawala near Sinharaja Forest & Dellawa River (Gin Ganga tributary). Handcrafted wooden villa cabana, natural river pool, kayaking, and misty mountain views in Neluwa, Galle, Sri Lanka."
+  );
+  const seoKeywordsRaw = await getSettingByKey(
+    "site.seo.keywords",
+    "endawala, dellawa, dellawa river, gin ganga, dellawa endawala, dellawa ganga, dellawa sinharaja, sinharaja forest, sinharaja villa, dellawa villa, misty heights, misty heights endawala sinharaja, misty heights endawala, endawala cabana, endawala nature retreat, dellawa river swimming, dellawa ganga bath, gin ganga bathing spots, edawala dola natural pool, sinharaja forest resort, sinharaja cabana stay, warukandeniya endawala, neluwa hotel, galle eco villa, wooden villa sri lanka, river kayaking sinharaja, sinharaja rainforest bird watching"
+  );
+  const canonicalUrl = await getSettingByKey(
+    "site.seo.canonical",
+    "https://www.mistyheightsendawala.lk"
+  );
+  const keywords = typeof seoKeywordsRaw === "string"
+    ? seoKeywordsRaw.split(",").map((k: string) => k.trim()).filter(Boolean)
+    : seoKeywordsRaw;
 
-    // Long-tail & Location-specific Variations
-    "endawala cabana",
-    "endawala nature retreat",
-    "dellawa river swimming",
-    "dellawa ganga bath",
-    "gin ganga bathing spots",
-    "edawala dola natural pool",
-    "sinharaja forest resort",
-    "sinharaja cabana stay",
-    "warukandeniya endawala",
-    "neluwa hotel",
-    "galle eco villa",
-    "wooden villa sri lanka",
-    "river kayaking sinharaja",
-    "sinharaja rainforest bird watching",
-  ],
-  authors: [{ name: "Misty Heights Endawala" }],
-  creator: "Misty Heights Endawala",
-  publisher: "Misty Heights Endawala",
-  alternates: {
-    canonical: "https://www.mistyheightsendawala.lk",
-  },
-  icons: {
-    icon: "/images/logo.png",
-    shortcut: "/images/logo.png",
-    apple: "/images/logo.png",
-  },
-  openGraph: {
-    title: "Misty Heights Endawala | Dellawa River & Sinharaja Forest Villa",
-    description:
-      "Handcrafted wooden villa cabana bordering Sinharaja Rainforest & Dellawa River (Gin Ganga). Natural stream swimming, kayaking, misty mountain views, and Sri Lankan village dining.",
-    url: "https://www.mistyheightsendawala.lk",
-    siteName: "Misty Heights Endawala",
-    images: [
-      {
-        url: "/images/cabana-view.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Misty Heights Endawala Sinharaja Forest Villa and Cabana Retreat",
-      },
-    ],
-    locale: "en_US",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Misty Heights Endawala | Sinharaja Forest & Dellawa River Villa",
-    description:
-      "Relax in our cozy wooden retreat near Sinharaja Rainforest & Dellawa River. Natural rock pool swimming, mountain views, and adventure in Neluwa, Sri Lanka.",
-    images: ["/images/cabana-view.jpg"],
-  },
-  other: {
-    "geo.region": "LK-31",
-    "geo.placename": "Warukandeniya, Dellawa, Endawala, Neluwa, Galle District",
-    "geo.position": "6.324313;80.452313",
-    ICBM: "6.324313, 80.452313",
-  },
-};
+  return {
+    metadataBase: new URL(canonicalUrl || "https://www.mistyheightsendawala.lk"),
+    title: {
+      default: seoTitle,
+      template: "%s | Misty Heights Endawala Sinharaja",
+    },
+    description: seoDesc,
+    keywords,
+    authors: [{ name: "Misty Heights Endawala" }],
+    creator: "Misty Heights Endawala",
+    publisher: "Misty Heights Endawala",
+    alternates: {
+      canonical: canonicalUrl || "https://www.mistyheightsendawala.lk",
+    },
+    icons: {
+      icon: "/images/logo.png",
+      shortcut: "/images/logo.png",
+      apple: "/images/logo.png",
+    },
+    openGraph: {
+      title: seoTitle,
+      description: seoDesc,
+      url: canonicalUrl || "https://www.mistyheightsendawala.lk",
+      siteName: "Misty Heights Endawala",
+      images: [
+        {
+          url: "https://www.mistyheightsendawala.lk/images/cabana-view.jpg",
+          width: 1200,
+          height: 630,
+          alt: "Misty Heights Endawala Sinharaja Forest Villa and Cabana Retreat",
+        },
+      ],
+      locale: "en_US",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: seoTitle,
+      description: seoDesc,
+      images: ["https://www.mistyheightsendawala.lk/images/cabana-view.jpg"],
+    },
+    other: {
+      "geo.region": "LK-31",
+      "geo.placename": "Warukandeniya, Dellawa, Endawala, Neluwa, Galle District",
+      "geo.position": "6.324313;80.452313",
+      ICBM: "6.324313, 80.452313",
+    },
+  };
+}
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -210,9 +201,6 @@ const jsonLd = {
   ],
 };
 
-import { getSettings } from "@/actions/settings";
-import { SettingsProvider } from "@/components/SettingsProvider";
-
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -222,7 +210,7 @@ export default async function RootLayout({
   const initialSettings = settingsArray.reduce((acc, s) => {
     acc[s.key] = s.value;
     return acc;
-  }, {} as Record<string, string>);
+  }, {} as Record<string, unknown>);
 
   return (
     <html lang="en" className={`${jakarta.variable} ${playfair.variable}`}>

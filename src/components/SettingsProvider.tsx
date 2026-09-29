@@ -1,11 +1,11 @@
 "use client";
 
-import { createContext, useContext, ReactNode, useState, useEffect } from "react";
+import { createContext, useContext, ReactNode, useState } from "react";
 
 type SettingsContextType = {
-  settings: Record<string, any>;
+  settings: Record<string, unknown>;
   getSetting: <T = string>(key: string, fallback: T) => T;
-  setSettingLocally: (key: string, value: any) => void;
+  setSettingLocally: (key: string, value: unknown) => void;
 };
 
 const SettingsContext = createContext<SettingsContextType>({
@@ -18,17 +18,17 @@ export function SettingsProvider({
   initialSettings,
   children,
 }: {
-  initialSettings: Record<string, any>;
+  initialSettings: Record<string, unknown>;
   children: ReactNode;
 }) {
-  const [settings, setSettings] = useState<Record<string, any>>(initialSettings || {});
+  const [settings, setSettings] = useState<Record<string, unknown>>(initialSettings || {});
+  const [prevInitial, setPrevInitial] = useState<Record<string, unknown>>(initialSettings);
 
-  // Update state when initialSettings changes (e.g. from server actions / revalidate)
-  useEffect(() => {
-    if (initialSettings) {
-      setSettings(initialSettings);
-    }
-  }, [initialSettings]);
+  // Sync state if initialSettings prop changes without triggering cascading effect renders
+  if (initialSettings !== prevInitial) {
+    setPrevInitial(initialSettings);
+    setSettings(initialSettings || {});
+  }
 
   const getSetting = <T = string>(key: string, fallback: T): T => {
     if (settings[key] !== undefined && settings[key] !== null && settings[key] !== "") {
@@ -37,7 +37,7 @@ export function SettingsProvider({
     return fallback;
   };
 
-  const setSettingLocally = (key: string, value: any) => {
+  const setSettingLocally = (key: string, value: unknown) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
   };
 

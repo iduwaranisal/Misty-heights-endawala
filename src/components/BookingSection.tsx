@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useTransition, useCallback, useEffect } from "react";
+import { useState, useTransition, useCallback } from "react";
 import {
   Calendar, Users, Phone, Mail, MessageSquare, ShieldCheck,
   Clock, Sparkles, ArrowRight, User, HeartHandshake,
   AlertTriangle, CheckCircle, Loader2, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { submitPublicBooking, checkDateAvailabilityAction } from "@/actions/bookings";
+import { useSettings } from "@/components/SettingsProvider";
 
 // ── Types & Helpers ─────────────────────────────────────────────────────────
 
@@ -25,7 +26,22 @@ const fmt = (iso: string) => {
 
 const calcNights = (ci: string, co: string) => {
   if (!ci || !co) return 0;
-  return Math.max(0, Math.ceil((new Date(co).getTime() - new Date(ci).getTime()) / 86400000));
+  const [inY, inM, inD] = ci.slice(0, 10).split("-").map(Number);
+  const [outY, outM, outD] = co.slice(0, 10).split("-").map(Number);
+  const diff = new Date(outY, outM - 1, outD).getTime() - new Date(inY, inM - 1, inD).getTime();
+  return Math.max(0, Math.round(diff / (1000 * 60 * 60 * 24)));
+};
+
+const toLocalToday = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
+
+const getNextDay = (dateStr: string) => {
+  if (!dateStr) return toLocalToday();
+  const [y, m, d] = dateStr.slice(0, 10).split("-").map(Number);
+  const next = new Date(y, m - 1, d + 1);
+  return `${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, "0")}-${String(next.getDate()).padStart(2, "0")}`;
 };
 
 // ── Inline Mini Calendar ─────────────────────────────────────────────────────
@@ -34,8 +50,20 @@ function MiniCalendar({
   label, value, onChange, minDate,
 }: { label: string; value: string; onChange: (v: string) => void; minDate?: string }) {
   const today = new Date();
-  const seed = value ? new Date(value) : today;
-  const [view, setView] = useState(new Date(seed.getFullYear(), seed.getMonth(), 1));
+  const [lastValue, setLastValue] = useState(value);
+  const [view, setView] = useState(() => {
+    const seed = value ? new Date(value) : today;
+    return new Date(seed.getFullYear(), seed.getMonth(), 1);
+  });
+
+  if (value !== lastValue) {
+    setLastValue(value);
+    if (value) {
+      const d = new Date(value);
+      setView(new Date(d.getFullYear(), d.getMonth(), 1));
+    }
+  }
+
   const yr = view.getFullYear();
   const mo = view.getMonth();
   const firstDay = new Date(yr, mo, 1).getDay();
@@ -43,7 +71,6 @@ function MiniCalendar({
   const min = new Date(minDate || today);
   min.setHours(0, 0, 0, 0);
 
-  const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const MONTHS_FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   const DAYS = ["S","M","T","W","T","F","S"];
 
@@ -57,13 +84,6 @@ function MiniCalendar({
     if (date < min) return;
     onChange(toLocalISO(date));
   };
-
-  useEffect(() => {
-    if (value) {
-      const d = new Date(value);
-      setView(new Date(d.getFullYear(), d.getMonth(), 1));
-    }
-  }, [value]);
 
   return (
     <div className="bg-gray-50/80 rounded-2xl border border-gray-200 p-4">
@@ -126,13 +146,22 @@ function MiniCalendar({
 // ── Main Section ─────────────────────────────────────────────────────────────
 
 export default function BookingSection() {
+  const { getSetting } = useSettings();
+  const whatsapp = getSetting("site.contact.whatsapp", "94719817000");
+  const primaryPhone = getSetting("site.contact.primaryPhone", "071 981 7000");
+  const secondaryPhone = getSetting("site.contact.secondaryPhone", "071 868 0633");
+  const emailSetting = getSetting("site.contact.email", "mistyheightsendawala@gmail.com");
+  const facebookUrl = getSetting("site.contact.facebook", "https://www.facebook.com/profile.php?id=61571649441031");
+  const defaultCheckInTime = getSetting("site.booking.defaultCheckInTime", "14:00");
+  const defaultCheckOutTime = getSetting("site.booking.defaultCheckOutTime", "11:00");
+
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
-  const [checkInTime, setCheckInTime] = useState("14:00");
-  const [checkOutTime, setCheckOutTime] = useState("11:00");
+  const [checkInTime, setCheckInTime] = useState(defaultCheckInTime);
+  const [checkOutTime, setCheckOutTime] = useState(defaultCheckOutTime);
   const [guests, setGuests] = useState(2);
   const [notes, setNotes] = useState("");
 
@@ -148,6 +177,13 @@ export default function BookingSection() {
 
   const checkDates = useCallback((ci: string, co: string, timeIn: string, timeOut: string) => {
     if (!ci || !co) return;
+    const n = calcNights(ci, co);
+    if (co <= ci || n < 1) {
+      setAvailStatus("idle");
+      setSuggestions([]);
+      setResult(null);
+      return;
+    }
     setAvailStatus("checking");
     setSuggestions([]);
     setResult(null);
@@ -160,22 +196,32 @@ export default function BookingSection() {
 
   const handleCheckIn = (v: string) => {
     setCheckIn(v);
-    if (checkOut && v > checkOut) { setCheckOut(""); setAvailStatus("idle"); setSuggestions([]); }
-    else if (checkOut && v <= checkOut) checkDates(v, checkOut, checkInTime, checkOutTime);
+    setAvailStatus("idle");
+    setSuggestions([]);
+    // checkout must be strictly after check-in
+    if (checkOut && checkOut <= v) {
+      setCheckOut("");
+    } else if (checkOut && checkOut > v) {
+      checkDates(v, checkOut, checkInTime, checkOutTime);
+    }
   };
 
   const handleCheckOut = (v: string) => {
     setCheckOut(v);
-    if (checkIn && checkIn <= v) checkDates(checkIn, v, checkInTime, checkOutTime);
+    setAvailStatus("idle");
+    setSuggestions([]);
+    if (checkIn && v > checkIn) {
+      checkDates(checkIn, v, checkInTime, checkOutTime);
+    }
   };
 
   const handleTimeChange = (type: 'in' | 'out', val: string) => {
     if (type === 'in') {
       setCheckInTime(val);
-      if (checkIn && checkOut) checkDates(checkIn, checkOut, val, checkOutTime);
+      if (checkIn && checkOut && checkOut > checkIn) checkDates(checkIn, checkOut, val, checkOutTime);
     } else {
       setCheckOutTime(val);
-      if (checkIn && checkOut) checkDates(checkIn, checkOut, checkInTime, val);
+      if (checkIn && checkOut && checkOut > checkIn) checkDates(checkIn, checkOut, checkInTime, val);
     }
   };
 
@@ -188,6 +234,7 @@ export default function BookingSection() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!guests || guests < 1) return;
     setResult(null);
     startTransition(async () => {
       const res = await submitPublicBooking({
@@ -199,8 +246,10 @@ export default function BookingSection() {
         setSubmitted(true);
         setResult({ ok: true, msg: res.message });
         const msg = `🌿 Ayubowan Misty Heights Endawala!\n\nBooking submitted via website:\n• Name: ${name}\n• Phone: ${phone}\n• Check-in: ${fmt(checkIn)} at ${checkInTime}\n• Check-out: ${fmt(checkOut)} at ${checkOutTime}\n• ${nights} nights · ${guests} guests\n${notes ? `• Notes: ${notes}` : ""}\n• Ref: #${id.slice(-6).toUpperCase()}\n\nPlease confirm availability. Thank you!`;
+        const cleanWhatsapp = whatsapp.replace(/\D/g, "");
+        const waUrl = `https://wa.me/${cleanWhatsapp}?text=${encodeURIComponent(msg)}`;
         setTimeout(() => {
-          window.open(`https://wa.me/94719817000?text=${encodeURIComponent(msg)}`, "_blank");
+          window.open(waUrl, "_blank");
         }, 600);
       } else {
         setResult({ ok: false, msg: res.message });
@@ -264,14 +313,14 @@ export default function BookingSection() {
                     WhatsApp is opening to connect you with us. We&apos;ll confirm your stay and send all arrival details shortly.
                   </p>
                   <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-100 text-sm font-semibold text-emerald-900">
-                    {fmt(checkIn)} → {fmt(checkOut)} · {nights} nights · {guests} guests
+                    {fmt(checkIn)} → {fmt(checkOut)} · {nights} nights · {guests} {guests === 1 ? "guest" : "guests"}
                   </div>
                   <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                    <a href="https://wa.me/94719817000" target="_blank" rel="noopener noreferrer"
+                    <a href={`https://wa.me/${whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer"
                       className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-bold transition-colors">
                       <MessageSquare className="w-4 h-4" /> Open WhatsApp
                     </a>
-                    <button onClick={() => { setSubmitted(false); setResult(null); setCheckIn(""); setCheckOut(""); setName(""); setPhone(""); setEmail(""); setNotes(""); setAvailStatus("idle"); setSuggestions([]); }}
+                    <button onClick={() => { setSubmitted(false); setResult(null); setCheckIn(""); setCheckOut(""); setName(""); setPhone(""); setEmail(""); setNotes(""); setGuests(2); setAvailStatus("idle"); setSuggestions([]); }}
                       className="flex-1 py-3 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 text-sm font-medium transition-colors cursor-pointer">
                       Book Another Stay
                     </button>
@@ -292,7 +341,7 @@ export default function BookingSection() {
                           label="Check-In Date"
                           value={checkIn}
                           onChange={handleCheckIn}
-                          minDate={new Date().toISOString().slice(0, 10)}
+                          minDate={toLocalToday()}
                         />
                         <div className="flex items-center gap-3 p-2.5 rounded-xl border border-gray-200 bg-gray-50 focus-within:ring-2 focus-within:ring-emerald-500 transition-all">
                           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider w-10">Time</span>
@@ -304,7 +353,7 @@ export default function BookingSection() {
                           label="Check-Out Date"
                           value={checkOut}
                           onChange={handleCheckOut}
-                          minDate={checkIn || new Date().toISOString().slice(0, 10)}
+                          minDate={checkIn ? getNextDay(checkIn) : getNextDay(toLocalToday())}
                         />
                         <div className="flex items-center gap-3 p-2.5 rounded-xl border border-gray-200 bg-gray-50 focus-within:ring-2 focus-within:ring-emerald-500 transition-all">
                           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider w-10">Time</span>
@@ -329,8 +378,8 @@ export default function BookingSection() {
                     )}
                   </div>
 
-                  {/* ── Availability Status ── */}
-                  {availStatus !== "idle" && (
+                  {/* ── Availability Status — only shown when nights >= 1 ── */}
+                  {checkIn && checkOut && nights >= 1 && availStatus !== "idle" && (
                     <div className={`flex items-center gap-2.5 px-4 py-3 rounded-xl text-sm font-medium border
                       ${availStatus === "checking" ? "bg-blue-50 border-blue-200 text-blue-700" :
                         availStatus === "free" ? "bg-emerald-50 border-emerald-200 text-emerald-800" :
@@ -343,6 +392,14 @@ export default function BookingSection() {
                         {availStatus === "free" && "Great news! Those dates are free and available."}
                         {availStatus === "conflict" && "Those dates are already taken. See smart alternatives below."}
                       </span>
+                    </div>
+                  )}
+
+                  {/* Warning when same day or checkout <= checkin */}
+                  {checkIn && checkOut && nights < 1 && (
+                    <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl text-sm font-medium border bg-amber-50 border-amber-200 text-amber-800">
+                      <AlertTriangle className="w-4 h-4 shrink-0 text-amber-600" />
+                      <span>Check-out must be at least 1 night after check-in.</span>
                     </div>
                   )}
 
@@ -372,22 +429,82 @@ export default function BookingSection() {
                     </div>
                   )}
 
-                  {/* ── Guests slider ── */}
-                  <div>
-                    <p className="text-xs font-bold text-gray-600 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                      <Users className="w-3.5 h-3.5 text-emerald-600" />
-                      Number of Guests
-                    </p>
-                    <div className="flex items-center gap-4 p-3.5 rounded-xl border border-gray-200 bg-gray-50">
-                      <input
-                        type="number" min={1} value={guests || ""}
-                        onChange={(e) => setGuests(parseInt(e.target.value) || 0)}
-                        className="flex-1 bg-transparent border-none text-sm font-bold text-gray-900 focus:outline-none focus:ring-0 p-0"
-                        placeholder="Enter number of guests"
-                      />
-                      <span className="text-sm font-extrabold text-gray-900 w-20 text-right shrink-0">
-                        guest{guests !== 1 ? "s" : ""}
-                      </span>
+                  {/* ── Guests picker ── */}
+                  <div className="bg-gray-50/80 p-4 rounded-2xl border border-gray-200 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <label className="block text-xs font-bold text-gray-800 uppercase tracking-wider flex items-center gap-1.5">
+                          <Users className="w-3.5 h-3.5 text-emerald-600" />
+                          Number of Guests *
+                        </label>
+                        <p className="text-[11px] text-gray-500 mt-0.5">
+                          Entire wooden cabana villa reserved for your party
+                        </p>
+                      </div>
+
+                      {/* Counter Controls */}
+                      <div className="flex items-center gap-1.5 bg-white border border-gray-200 rounded-xl p-1 shadow-xs">
+                        <button
+                          type="button"
+                          onClick={() => setGuests((g) => Math.max(1, (g || 1) - 1))}
+                          disabled={guests <= 1}
+                          className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-700 transition-colors font-bold text-lg cursor-pointer"
+                          aria-label="Decrease guests"
+                        >
+                          –
+                        </button>
+
+                        <div className="flex items-center justify-center min-w-[3.5rem] px-1">
+                          <input
+                            type="number"
+                            min={1}
+                            value={guests || ""}
+                            onChange={(e) => {
+                              const val = parseInt(e.target.value, 10);
+                              setGuests(isNaN(val) ? 0 : Math.max(0, val));
+                            }}
+                            onBlur={() => {
+                              if (!guests || guests < 1) setGuests(1);
+                            }}
+                            className="w-8 text-center bg-transparent border-none text-sm font-bold text-gray-900 focus:outline-none focus:ring-0 p-0"
+                          />
+                          <span className="text-xs font-bold text-gray-600">
+                            {guests === 1 ? "guest" : "guests"}
+                          </span>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => setGuests((g) => (g || 0) + 1)}
+                          className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors font-bold text-lg cursor-pointer"
+                          aria-label="Increase guests"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Quick selection chips */}
+                    <div className="flex flex-wrap gap-2 pt-1 border-t border-gray-100">
+                      {[
+                        { label: "1 Guest", count: 1 },
+                        { label: "2 Guests (Couple)", count: 2 },
+                        { label: "4 Guests (Family)", count: 4 },
+                        { label: "6+ Guests (Group)", count: 6 },
+                      ].map((chip) => (
+                        <button
+                          key={chip.count}
+                          type="button"
+                          onClick={() => setGuests(chip.count)}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                            guests === chip.count
+                              ? "bg-emerald-700 text-white shadow-xs"
+                              : "bg-white text-gray-700 border border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/50"
+                          }`}
+                        >
+                          {chip.label}
+                        </button>
+                      ))}
                     </div>
                   </div>
 
@@ -412,7 +529,7 @@ export default function BookingSection() {
                         <div className="relative">
                           <Phone className="w-3.5 h-3.5 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                           <input type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)}
-                            placeholder="071 981 7000" className={`${inputCls} pl-9`} />
+                            placeholder={primaryPhone} className={`${inputCls} pl-9`} />
                         </div>
                       </div>
                     </div>
@@ -449,7 +566,7 @@ export default function BookingSection() {
                   {/* ── Submit ── */}
                   <button
                     type="submit"
-                    disabled={isPending || !checkIn || !checkOut || nights < 1 || availStatus === "conflict" || availStatus === "checking" || !name.trim() || !phone.trim()}
+                    disabled={isPending || !checkIn || !checkOut || nights < 1 || availStatus !== "free" || !guests || guests < 1 || !name.trim() || !phone.trim()}
                     className="w-full py-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm sm:text-base shadow-xl shadow-emerald-950/15 flex items-center justify-center gap-2.5 cursor-pointer transition-all hover:shadow-emerald-950/25 border border-emerald-600/20"
                   >
                     {isPending ? (
@@ -486,50 +603,50 @@ export default function BookingSection() {
 
               <div className="space-y-2.5">
                 {/* WhatsApp */}
-                <a href="https://wa.me/94719817000" target="_blank" rel="noopener noreferrer"
+                <a href={`https://wa.me/${whatsapp.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 transition-all group">
                   <div className="w-10 h-10 rounded-xl bg-emerald-500/25 text-emerald-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                     <MessageSquare className="w-5 h-5" />
                   </div>
                   <div>
                     <span className="text-[10px] text-emerald-400 uppercase tracking-widest font-bold block">WhatsApp</span>
-                    <strong className="text-base text-white">071 981 7000</strong>
+                    <strong className="text-base text-white">{whatsapp}</strong>
                   </div>
                 </a>
 
                 {/* Phone 1 */}
-                <a href="tel:0719817000"
+                <a href={`tel:${primaryPhone.replace(/\s+/g, "")}`}
                   className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 transition-all group">
                   <div className="w-10 h-10 rounded-xl bg-emerald-500/25 text-emerald-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                     <Phone className="w-5 h-5" />
                   </div>
                   <div>
                     <span className="text-[10px] text-emerald-400 uppercase tracking-widest font-bold block">Primary Line</span>
-                    <strong className="text-base text-white">071 981 7000</strong>
+                    <strong className="text-base text-white">{primaryPhone}</strong>
                   </div>
                 </a>
 
                 {/* Phone 2 */}
-                <a href="tel:0718680633"
+                <a href={`tel:${secondaryPhone.replace(/\s+/g, "")}`}
                   className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 transition-all group">
                   <div className="w-10 h-10 rounded-xl bg-teal-500/25 text-teal-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                     <Phone className="w-5 h-5" />
                   </div>
                   <div>
                     <span className="text-[10px] text-emerald-400 uppercase tracking-widest font-bold block">Secondary Line</span>
-                    <strong className="text-base text-white">071 868 0633</strong>
+                    <strong className="text-base text-white">{secondaryPhone}</strong>
                   </div>
                 </a>
 
                 {/* Email */}
-                <a href="mailto:mistyheightsendawala@gmail.com"
+                <a href={`mailto:${emailSetting}`}
                   className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 transition-all group">
                   <div className="w-10 h-10 rounded-xl bg-emerald-500/25 text-emerald-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                     <Mail className="w-5 h-5" />
                   </div>
                   <div className="overflow-hidden">
                     <span className="text-[10px] text-emerald-400 uppercase tracking-widest font-bold block">Email</span>
-                    <span className="text-xs text-white truncate block">mistyheightsendawala@gmail.com</span>
+                    <span className="text-xs text-white truncate block">{emailSetting}</span>
                   </div>
                 </a>
               </div>
@@ -573,7 +690,7 @@ export default function BookingSection() {
                 <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest block">Official Facebook Page</span>
                 <span className="text-sm font-bold text-gray-900">Misty Heights Endawala</span>
               </div>
-              <a href="https://www.facebook.com/profile.php?id=61571649441031" target="_blank" rel="noopener noreferrer"
+              <a href={facebookUrl} target="_blank" rel="noopener noreferrer"
                 className="px-4 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold border border-emerald-200 transition-colors shrink-0">
                 Visit →
               </a>

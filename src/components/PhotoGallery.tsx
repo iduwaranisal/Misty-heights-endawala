@@ -5,67 +5,21 @@ import Image from "next/image";
 import Link from "next/link";
 import { Camera, X, ChevronLeft, ChevronRight, Eye, ArrowRight } from "lucide-react";
 
-type GalleryItem = {
-  src: string;
-  title: string;
-  category: "cabana" | "nature" | "water";
-  desc: string;
-};
+import { useSettings } from "@/components/SettingsProvider";
+import { DEFAULT_GALLERY_IMAGES, GalleryItem } from "@/lib/galleryDefaults";
 
 export default function PhotoGallery() {
+  const { getSetting } = useSettings();
   const [activeImageIndex, setActiveImageIndex] = useState<number | null>(null);
 
-  // Exactly 8 high-impact real photographs for the homepage
-  const homepageImages: GalleryItem[] = [
-    {
-      src: "/images/cabana-view.jpg",
-      title: "Misty Heights Cabana Overlook",
-      category: "cabana",
-      desc: "Our two-story wooden cabana resting peacefully above the Sinharaja rainforest canopy.",
-    },
-    {
-      src: "/images/natural-stream.jpg",
-      title: "Edawala Dola Natural River Pool",
-      category: "water",
-      desc: "Fresh, unpolluted mountain stream water flowing over smooth river stones.",
-    },
-    {
-      src: "/images/bedroom.jpg",
-      title: "Handcrafted Timber King Bedroom",
-      category: "cabana",
-      desc: "Solid wood bed with fresh linens and breeze-welcoming shutter windows.",
-    },
-    {
-      src: "/images/kayak.jpg",
-      title: "River Kayaking Adventures",
-      category: "water",
-      desc: "Paddling through tranquil emerald-green rainforest waters.",
-    },
-    {
-      src: "/images/cabana-balcony.jpg",
-      title: "Upper Wooden Viewing Deck",
-      category: "cabana",
-      desc: "Open observation platform for sunrise mist watching and night stargazing.",
-    },
-    {
-      src: "/images/mountain-panoramic.jpg",
-      title: "Sinharaja Rainforest Ridge",
-      category: "nature",
-      desc: "Sweeping views of the virgin tropical forest mountains from our hillside.",
-    },
-    {
-      src: "/images/misty-hills.jpg",
-      title: "Morning Mist Rolling Over Hills",
-      category: "nature",
-      desc: "The gentle mountain clouds that give Misty Heights its name.",
-    },
-    {
-      src: "/images/aerial-river.jpg",
-      title: "Aerial View of Edawala River",
-      category: "water",
-      desc: "Drone perspective of the river swimming spot and footbridge.",
-    },
-  ];
+  const allImages = getSetting<GalleryItem[]>("site.gallery.images", DEFAULT_GALLERY_IMAGES);
+
+  // Pick up to 8 images for homepage: prioritize those marked featuredOnHome
+  const featured = allImages.filter((img) => img.featuredOnHome);
+  const homepageImages: GalleryItem[] =
+    featured.length >= 4
+      ? featured.slice(0, 8)
+      : allImages.slice(0, 8);
 
   const openLightbox = (index: number) => {
     setActiveImageIndex(index);

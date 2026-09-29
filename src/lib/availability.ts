@@ -23,6 +23,8 @@ export interface AlternativeSuggestion {
   type: "before" | "after" | "split";
   checkIn: Date;
   checkOut: Date;
+  checkInStr: string;
+  checkOutStr: string;
   nights: number;
   description: string;
 }
@@ -100,9 +102,25 @@ export async function suggestAlternatives(
 ): Promise<AlternativeSuggestion[]> {
   await connectDB();
 
-  const nights = Math.ceil(
-    (requestedRange.checkOut.getTime() - requestedRange.checkIn.getTime()) /
-      (1000 * 60 * 60 * 24)
+  const toLocalISO = (d: Date) => {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  };
+
+  const nights = Math.max(
+    1,
+    Math.round(
+      (new Date(
+        requestedRange.checkOut.getFullYear(),
+        requestedRange.checkOut.getMonth(),
+        requestedRange.checkOut.getDate()
+      ).getTime() -
+        new Date(
+          requestedRange.checkIn.getFullYear(),
+          requestedRange.checkIn.getMonth(),
+          requestedRange.checkIn.getDate()
+        ).getTime()) /
+        (1000 * 60 * 60 * 24)
+    )
   );
 
   // Fetch all bookings in the next 90 days
@@ -144,13 +162,14 @@ export async function suggestAlternatives(
       type: "before",
       checkIn: new Date(beforeStart),
       checkOut: new Date(beforeEnd),
+      checkInStr: toLocalISO(beforeStart),
+      checkOutStr: toLocalISO(beforeEnd),
       nights,
       description: `${nights} night${nights > 1 ? "s" : ""} just before your requested dates`,
     });
   }
 
   // --- Strategy 2: try AFTER the conflict ends ---
-  // We need to find when the conflict ends
   const conflictCheck = await Booking.findOne({
     status: { $in: ["pending", "confirmed"] },
     checkIn: { $lt: requestedRange.checkOut },
@@ -171,6 +190,8 @@ export async function suggestAlternatives(
         type: "after",
         checkIn: new Date(afterStart),
         checkOut: new Date(afterEnd),
+        checkInStr: toLocalISO(afterStart),
+        checkOutStr: toLocalISO(afterEnd),
         nights,
         description: `${nights} night${nights > 1 ? "s" : ""} immediately after current booking`,
       });
@@ -198,6 +219,8 @@ export async function suggestAlternatives(
             type: "after",
             checkIn: new Date(scanStart),
             checkOut: new Date(candidateEnd),
+            checkInStr: toLocalISO(scanStart),
+            checkOutStr: toLocalISO(candidateEnd),
             nights,
             description: `Next available ${nights}-night window`,
           });

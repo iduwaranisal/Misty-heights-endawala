@@ -9,6 +9,8 @@ import { useSettings } from "@/components/SettingsProvider";
 export default function Header({ onOpenBooking }: { onOpenBooking: () => void }) {
   const { getSetting } = useSettings();
   const whatsapp = getSetting("site.contact.whatsapp", "94719817000");
+  const primaryPhone = getSetting("site.contact.primaryPhone", "071 981 7000");
+  const cleanWhatsapp = whatsapp.replace(/\D/g, "");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -79,7 +81,7 @@ export default function Header({ onOpenBooking }: { onOpenBooking: () => void })
           {/* Desktop Actions */}
           <div className="hidden lg:flex items-center gap-3">
             <a
-              href={`https://wa.me/${whatsapp}?text=Hello%20Misty%20Heights%20Endawala,%20I%20would%20like%20to%20inquire%20about%20booking%20a%20stay.`}
+              href={`https://wa.me/${cleanWhatsapp}?text=Hello%20Misty%20Heights%20Endawala,%20I%20would%20like%20to%20inquire%20about%20booking%20a%20stay.`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 transition-colors"
@@ -107,7 +109,7 @@ export default function Header({ onOpenBooking }: { onOpenBooking: () => void })
             </button>
 
             <a
-              href={`https://wa.me/${whatsapp}`}
+              href={`https://wa.me/${cleanWhatsapp}`}
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-colors"
@@ -160,14 +162,14 @@ export default function Header({ onOpenBooking }: { onOpenBooking: () => void })
 
             <div className="grid grid-cols-2 gap-2.5">
               <a
-                href="tel:0719817000"
+                href={`tel:${primaryPhone.replace(/\s+/g, "")}`}
                 className="py-3 text-center text-xs font-bold rounded-xl bg-gray-50 border border-gray-200 text-gray-800 hover:bg-gray-100 flex items-center justify-center gap-1.5"
               >
                 <Phone className="w-3.5 h-3.5 text-emerald-700" />
                 Call Us
               </a>
               <a
-                href="https://wa.me/94719817000?text=Hello%20Misty%20Heights%20Endawala!"
+                href={`https://wa.me/${cleanWhatsapp}?text=Hello%20Misty%20Heights%20Endawala!`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="py-3 text-center text-xs font-bold rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 hover:bg-emerald-100 flex items-center justify-center gap-1.5"

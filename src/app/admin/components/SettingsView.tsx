@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect } from "react";
 import { uploadImageToCloudinary, getSettings, saveSetting } from "@/actions/settings";
-import { Loader2, Image as ImageIcon, Save, Check } from "lucide-react";
+import { Loader2, Image as ImageIcon, Check } from "lucide-react";
 
 const IMAGE_KEYS = [
   { key: "site.hero.bg", label: "Hero Background", desc: "The main background image on the landing page." },
@@ -20,7 +20,7 @@ export default function SettingsView() {
   useEffect(() => {
     getSettings().then((data) => {
       const map: Record<string, string> = {};
-      data.forEach(s => { map[s.key] = s.value; });
+      data.forEach(s => { map[s.key] = String(s.value ?? ""); });
       setSettings(map);
       setLoading(false);
     });

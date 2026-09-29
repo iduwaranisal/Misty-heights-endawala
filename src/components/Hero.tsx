@@ -13,7 +13,6 @@ import {
   ArrowRight,
   ChevronLeft,
   ChevronRight,
-  Sparkles,
 } from "lucide-react";
 
 import { useSettings } from "@/components/SettingsProvider";
@@ -136,7 +135,7 @@ export default function Hero({ onOpenBooking }: { onOpenBooking: () => void }) {
               </button>
 
               <a
-                href={`https://wa.me/${getSetting("site.contact.whatsapp", "94719817000")}?text=Hello%20Misty%20Heights%20Endawala,%20I%20would%20like%20to%20inquire%20about%20booking%20a%20stay.`}
+                href={`https://wa.me/${getSetting("site.contact.whatsapp", "94719817000").replace(/\D/g, "")}?text=Hello%20Misty%20Heights%20Endawala,%20I%20would%20like%20to%20inquire%20about%20booking%20a%20stay.`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="py-3.5 px-6 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/25 font-bold text-sm flex items-center justify-center gap-2 transition-all backdrop-blur"

@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useTransition, useCallback, useEffect } from "react";
+import { useState, useTransition, useCallback } from "react";
 import {
   LayoutDashboard, Calendar, Plus, LogOut, Users, Clock,
   CheckCircle, XCircle, Loader2, Phone, Mail, Trash2,
   ChevronLeft, ChevronRight, AlertTriangle, Sparkles,
-  RefreshCw, Menu, X, Check, Ban, ClipboardList, Image as ImageIcon, Settings, Search,
-  Globe, Home, Waves, Utensils, Compass, Star, HelpCircle, Download, ExternalLink
+  RefreshCw, Menu, ClipboardList, Image as ImageIcon, Search,
+  Globe, Home, Waves, Utensils, Compass, Star, HelpCircle, Download, ExternalLink, Camera
 } from "lucide-react";
 import {
   adminLogout, adminCreateBooking, updateBookingStatus,
@@ -24,7 +24,7 @@ import TestimonialsCMS from "./cms/TestimonialsCMS";
 import FaqCMS from "./cms/FaqCMS";
 import SeoCMS from "./cms/SeoCMS";
 import MediaLibraryCMS from "./cms/MediaLibraryCMS";
-import SettingsView from "./SettingsView";
+import GalleryCMS from "./cms/GalleryCMS";
 import { useRouter } from "next/navigation";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -66,6 +66,7 @@ interface Suggestion {
 interface Props {
   stats: Stats | null;
   initialBookings: Booking[];
+  initialSettings?: Record<string, unknown>;
   username: string;
 }
 
@@ -124,18 +125,20 @@ function BookingCalendar({ bookings }: { bookings: Booking[] }) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Build a map of date → bookings
+  // Build a map of date → bookings (nights-based: check-in day is booked, check-out day is free)
+  const toLocalKey = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+
   const dateBookingMap: Record<string, Booking[]> = {};
   bookings.forEach((b) => {
     if (b.status === "cancelled") return;
-    const start = new Date(b.checkIn);
-    const end = new Date(b.checkOut);
-    let cur = new Date(start);
-    cur.setHours(0, 0, 0, 0);
-    const endDay = new Date(end);
-    endDay.setHours(0, 0, 0, 0);
-    while (cur <= endDay) {
-      const key = cur.toISOString().slice(0, 10);
+    // Parse as local dates to avoid UTC timezone shift
+    const [sY, sM, sD] = b.checkIn.slice(0, 10).split("-").map(Number);
+    const [eY, eM, eD] = b.checkOut.slice(0, 10).split("-").map(Number);
+    const cur = new Date(sY, sM - 1, sD);
+    const end = new Date(eY, eM - 1, eD);
+    while (cur < end) {
+      const key = toLocalKey(cur);
       if (!dateBookingMap[key]) dateBookingMap[key] = [];
       dateBookingMap[key].push(b);
       cur.setDate(cur.getDate() + 1);
@@ -430,7 +433,7 @@ function NewBookingForm({ onSuccess }: { onSuccess: () => void }) {
                   {fmt(s.checkIn)} → {fmt(s.checkOut)}
                 </p>
                 <p className="text-xs text-emerald-700 mt-0.5">
-                  {s.nights} night{s.nights > 1 ? "s" : ""} · {s.description}
+                  {s.nights} night{s.nights !== 1 ? "s" : ""} · {s.description}
                 </p>
               </div>
               <span className="text-xs font-bold text-emerald-700 bg-emerald-200 px-2 py-1 rounded-lg group-hover:bg-emerald-300">
@@ -562,7 +565,7 @@ function BookingCard({ booking, onRefresh }: { booking: Booking; onRefresh: () =
               </span>
             )}
             <span className="flex items-center gap-1">
-              <Users className="w-3 h-3" />{booking.guests} guest{booking.guests > 1 ? "s" : ""}
+              <Users className="w-3 h-3" />{booking.guests} guest{booking.guests !== 1 ? "s" : ""}
             </span>
           </div>
         </div>
@@ -585,7 +588,7 @@ function BookingCard({ booking, onRefresh }: { booking: Booking; onRefresh: () =
             {fmt(booking.checkOut)} {booking.checkOutTime}
           </span>
           <span className="ml-2 text-gray-500">
-            · {booking.totalNights} night{booking.totalNights > 1 ? "s" : ""}
+            · {booking.totalNights} night{booking.totalNights !== 1 ? "s" : ""}
           </span>
         </div>
       </div>
@@ -695,9 +698,10 @@ type TabType =
   | "cms_reviews"
   | "cms_faq"
   | "cms_seo"
+  | "cms_gallery"
   | "cms_media";
 
-export default function AdminDashboard({ stats, initialBookings, username }: Props) {
+export default function AdminDashboard({ stats, initialBookings, initialSettings, username }: Props) {
   const [bookings, setBookings] = useState<Booking[]>(initialBookings);
   const [activeStats, setActiveStats] = useState<Stats | null>(stats);
   const [activeTab, setActiveTab] = useState<TabType>("dashboard");
@@ -706,23 +710,19 @@ export default function AdminDashboard({ stats, initialBookings, username }: Pro
   const [isRefreshing, startRefresh] = useTransition();
   const [isLoggingOut, startLogout] = useTransition();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [settings, setSettings] = useState<Record<string, any>>({});
+  const [settings, setSettings] = useState<Record<string, unknown>>(initialSettings || {});
   const router = useRouter();
 
   const loadSettings = useCallback(async () => {
     try {
       const list = await getSettings();
-      const map: Record<string, any> = {};
+      const map: Record<string, unknown> = {};
       list.forEach((s) => { map[s.key] = s.value; });
       setSettings(map);
     } catch (e) {
       console.error("loadSettings error:", e);
     }
   }, []);
-
-  useEffect(() => {
-    loadSettings();
-  }, [loadSettings]);
 
   const refresh = useCallback(() => {
     startRefresh(async () => {
@@ -796,6 +796,9 @@ export default function AdminDashboard({ stats, initialBookings, username }: Pro
     { id: "cms_experiences" as TabType, label: "Activities & Pillars", icon: Compass },
     { id: "cms_reviews" as TabType, label: "Guest Reviews", icon: Star },
     { id: "cms_faq" as TabType, label: "FAQ Questions", icon: HelpCircle },
+    { id: "cms_seo" as TabType, label: "SEO & Search", icon: Search },
+    { id: "cms_gallery" as TabType, label: "Photo Gallery", icon: Camera },
+    { id: "cms_media" as TabType, label: "Media Library", icon: ImageIcon },
   ];
 
   const getTabTitle = () => {
@@ -812,12 +815,13 @@ export default function AdminDashboard({ stats, initialBookings, username }: Pro
       case "cms_reviews": return "Guest Reviews & Stories";
       case "cms_faq": return "Frequently Asked Questions";
       case "cms_seo": return "SEO & Search Engine";
+      case "cms_gallery": return "Photo Gallery Management";
       case "cms_media": return "Media Library & Uploader";
       default: return "Admin Dashboard";
     }
   };
 
-  const Sidebar = () => (
+  const sidebarContent = (
     <div className="flex flex-col h-full bg-[#0b2416] text-white w-64 p-4 overflow-y-auto">
       {/* Brand */}
       <div className="flex items-center gap-3 px-2 py-3 mb-2 border-b border-emerald-900/60 shrink-0">
@@ -914,7 +918,7 @@ export default function AdminDashboard({ stats, initialBookings, username }: Pro
         fixed inset-y-0 left-0 z-40 lg:relative lg:z-auto transform transition-transform duration-200 shrink-0
         ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
       `}>
-        <Sidebar />
+        {sidebarContent}
       </div>
 
       {/* Main Content Area */}
@@ -1132,6 +1136,9 @@ export default function AdminDashboard({ stats, initialBookings, username }: Pro
             )}
             {activeTab === "cms_seo" && (
               <SeoCMS settings={settings} onRefresh={loadSettings} />
+            )}
+            {activeTab === "cms_gallery" && (
+              <GalleryCMS settings={settings} onRefresh={loadSettings} />
             )}
             {activeTab === "cms_media" && (
               <MediaLibraryCMS />

@@ -1,11 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { Phone, Mail, MapPin, Clock, Heart } from "lucide-react";
+import { Phone, Mail, MapPin, Clock } from "lucide-react";
 import { useSettings } from "@/components/SettingsProvider";
 
-export default function Footer({ onOpenBooking }: { onOpenBooking: () => void }) {
+export default function Footer({ onOpenBooking }: { onOpenBooking?: () => void }) {
   const { getSetting } = useSettings();
   const brandName = getSetting("site.general.name", "MISTY HEIGHTS");
   const tagline = getSetting("site.general.tagline", "Endawala · Dellawa · Sinharaja Forest");
@@ -65,6 +64,17 @@ export default function Footer({ onOpenBooking }: { onOpenBooking: () => void })
               Quick Links
             </h4>
             <ul className="space-y-2 text-xs font-medium text-emerald-100/70">
+              {onOpenBooking && (
+                <li>
+                  <button
+                    type="button"
+                    onClick={onOpenBooking}
+                    className="hover:text-white transition-colors cursor-pointer text-left text-emerald-300 font-semibold"
+                  >
+                    Book Your Stay →
+                  </button>
+                </li>
+              )}
               <li>
                 <a href="#overview" className="hover:text-white transition-colors">
                   Overview &amp; Experiences
