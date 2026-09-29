@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://mistyheightsendawala.hotel.lk";
+  const baseUrl = "https://www.mistyheightsendawala.lk";
   const currentDate = new Date().toISOString();
 
   return [
@@ -19,3 +19,4 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 }
+

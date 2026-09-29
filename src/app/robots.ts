@@ -6,6 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://mistyheightsendawala.hotel.lk/sitemap.xml",
+    sitemap: "https://www.mistyheightsendawala.lk/sitemap.xml",
   };
 }
+

@@ -13,7 +13,7 @@ const DEFAULT_SEO = {
   title: "Misty Heights Endawala | Dellawa River, Sinharaja Forest Villa & Cabana Retreat",
   description: "Escape to Misty Heights Endawala near Sinharaja Forest & Dellawa River (Gin Ganga tributary). Handcrafted wooden villa cabana, natural river pool, kayaking, and misty mountain views in Neluwa, Galle, Sri Lanka.",
   keywords: "endawala, dellawa, dellawa river, gin ganga, dellawa endawala, dellawa ganga, dellawa sinharaja, sinharaja forest, sinharaja villa, dellawa villa, misty heights, misty heights endawala sinharaja, misty heights endawala",
-  canonical: "https://mistyheightsendawala.hotel.lk",
+  canonical: "https://www.mistyheightsendawala.lk",
 };
 
 export default function SeoCMS({ settings, onRefresh }: SeoCMSProps) {
@@ -174,3 +174,4 @@ export default function SeoCMS({ settings, onRefresh }: SeoCMSProps) {
     </form>
   );
 }
+

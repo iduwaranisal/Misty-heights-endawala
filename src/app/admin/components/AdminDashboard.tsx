@@ -796,8 +796,6 @@ export default function AdminDashboard({ stats, initialBookings, username }: Pro
     { id: "cms_experiences" as TabType, label: "Activities & Pillars", icon: Compass },
     { id: "cms_reviews" as TabType, label: "Guest Reviews", icon: Star },
     { id: "cms_faq" as TabType, label: "FAQ Questions", icon: HelpCircle },
-    { id: "cms_seo" as TabType, label: "SEO & Google Search", icon: Search },
-    { id: "cms_media" as TabType, label: "Cloudinary Media", icon: ImageIcon },
   ];
 
   const getTabTitle = () => {

@@ -16,7 +16,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://mistyheightsendawala.hotel.lk"),
+  metadataBase: new URL("https://www.mistyheightsendawala.lk"),
   title: {
     default: "Misty Heights Endawala | Dellawa River, Sinharaja Forest Villa & Cabana Retreat",
     template: "%s | Misty Heights Endawala Sinharaja",
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
   creator: "Misty Heights Endawala",
   publisher: "Misty Heights Endawala",
   alternates: {
-    canonical: "https://mistyheightsendawala.hotel.lk",
+    canonical: "https://www.mistyheightsendawala.lk",
   },
   icons: {
     icon: "/images/logo.png",
@@ -70,7 +70,7 @@ export const metadata: Metadata = {
     title: "Misty Heights Endawala | Dellawa River & Sinharaja Forest Villa",
     description:
       "Handcrafted wooden villa cabana bordering Sinharaja Rainforest & Dellawa River (Gin Ganga). Natural stream swimming, kayaking, misty mountain views, and Sri Lankan village dining.",
-    url: "https://mistyheightsendawala.hotel.lk",
+    url: "https://www.mistyheightsendawala.lk",
     siteName: "Misty Heights Endawala",
     images: [
       {
@@ -103,7 +103,7 @@ const jsonLd = {
   "@graph": [
     {
       "@type": ["LodgingBusiness", "Resort", "BedAndBreakfast"],
-      "@id": "https://mistyheightsendawala.hotel.lk/#lodging",
+      "@id": "https://www.mistyheightsendawala.lk/#lodging",
       name: "Misty Heights Endawala",
       alternateName: [
         "Misty Heights Dellawa",
@@ -113,11 +113,11 @@ const jsonLd = {
       ],
       description:
         "Handcrafted wooden villa and cabana retreat situated in Warukandeniya, Endawala near Dellawa, bordering the UNESCO World Heritage Sinharaja Rainforest. Features fresh river pool bathing in the Dellawa river / Edawala Dola (Gin Ganga basin), kayaking, mountain observation deck, and traditional village meals.",
-      url: "https://mistyheightsendawala.hotel.lk",
+      url: "https://www.mistyheightsendawala.lk",
       telephone: "+94719817000",
       email: "mistyheightsendawala@gmail.com",
-      image: "https://mistyheightsendawala.hotel.lk/images/cabana-view.jpg",
-      logo: "https://mistyheightsendawala.hotel.lk/images/logo.png",
+      image: "https://www.mistyheightsendawala.lk/images/cabana-view.jpg",
+      logo: "https://www.mistyheightsendawala.lk/images/logo.png",
       priceRange: "$$",
       address: {
         "@type": "PostalAddress",
@@ -171,7 +171,7 @@ const jsonLd = {
     },
     {
       "@type": "FAQPage",
-      "@id": "https://mistyheightsendawala.hotel.lk/#faq",
+      "@id": "https://www.mistyheightsendawala.lk/#faq",
       mainEntity: [
         {
           "@type": "Question",
@@ -240,3 +240,4 @@ export default async function RootLayout({
     </html>
   );
 }
+
