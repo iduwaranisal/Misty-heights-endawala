@@ -25,15 +25,15 @@ export default function Footer({ onOpenBooking }: { onOpenBooking: () => void })
                   MISTY HEIGHTS
                 </span>
                 <span className="text-xs font-semibold tracking-wider text-emerald-400 uppercase block">
-                  Endawala · Sinharaja
+                  Endawala · Dellawa · Sinharaja Forest
                 </span>
               </div>
             </div>
 
             <p className="text-xs sm:text-sm text-emerald-100/70 leading-relaxed max-w-sm">
-              Escape to Misty Heights Cabana 🌿✨ Relax in our cozy wooden retreat near Sinharaja
-              Rainforest. Enjoy breathtaking views, a natural pool, and serene mountain vibes.
-              Perfect for holidays filled with nature and adventure! 🏞️
+              Escape to Misty Heights Endawala 🌿✨ Handcrafted wooden villa &amp; cabana retreat in Dellawa
+              bordering Sinharaja Forest. Enjoy breathtaking mountain views, Dellawa River swimming
+              (Gin Ganga basin), and peaceful nature holidays! 🏞️
             </p>
 
             <div className="pt-1 flex items-center gap-3">
@@ -98,7 +98,7 @@ export default function Footer({ onOpenBooking }: { onOpenBooking: () => void })
             <div className="space-y-2.5 text-xs text-emerald-100/80">
               <div className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                <span>Warukandeniya, Neluwa, Galle District, Sri Lanka</span>
+                <span>Warukandeniya, Endawala, Dellawa, Neluwa, Galle District, Sri Lanka</span>
               </div>
 
               <div className="flex items-center gap-2.5">

@@ -142,20 +142,21 @@ export default function CabanaShowcase({ onOpenBooking }: { onOpenBooking: () =>
           <div className="lg:col-span-6 space-y-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-emerald-50 to-teal-50 text-emerald-900 text-xs font-semibold uppercase tracking-wider border border-emerald-200 badge-glow">
               <Camera className="w-3.5 h-3.5 text-emerald-600" />
-              Holiday Home &amp; Retreat
+              Sinharaja Forest Villa &amp; Wooden Cabana
             </div>
 
             <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#0a1f12] tracking-tight">
-              A Warm, Handcrafted{" "}
+              A Handcrafted Wooden{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-800 via-emerald-600 to-teal-700">
-                Wooden Retreat
+                Villa &amp; Cabana Retreat
               </span>
             </h2>
 
             <p className="text-base text-gray-600 leading-relaxed">
-              Built with genuine Sri Lankan timber and traditional clay roofing tiles, the cabana
-              blends naturally into the Sinharaja mountain ridge. Designed for travelers who cherish
-              quiet mornings, clean air, and cozy evenings.
+              Built with genuine Sri Lankan timber and traditional clay roofing tiles, this private
+              wooden retreat blends seamlessly into the Sinharaja Forest ridge near Dellawa and Endawala.
+              Designed for travelers seeking an authentic nature villa stay with panoramic observation views,
+              clean air, and cozy comfort.
             </p>
 
             {/* Clean 2-column checklist with card-lift */}
@@ -176,11 +177,11 @@ export default function CabanaShowcase({ onOpenBooking }: { onOpenBooking: () =>
             <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-50 to-teal-50/50 border border-emerald-100 text-xs text-emerald-950 space-y-1.5 shadow-xs">
               <div className="flex items-center justify-between font-semibold">
                 <span>Ideal For:</span>
-                <span className="text-emerald-800">Couples, Families &amp; Groups of Friends</span>
+                <span className="text-emerald-800">Couples, Families &amp; Private Group Villa Stays</span>
               </div>
               <div className="flex items-center justify-between text-gray-600">
                 <span>Location:</span>
-                <span className="font-medium text-gray-800">Warukandeniya, Neluwa, Galle District</span>
+                <span className="font-medium text-gray-800">Warukandeniya, Endawala, Dellawa (Neluwa)</span>
               </div>
             </div>
 

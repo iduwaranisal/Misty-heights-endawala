@@ -258,8 +258,8 @@ export default function GalleryPage() {
               </span>
             </h1>
             <p className="mt-4 text-sm sm:text-base text-gray-600 leading-relaxed">
-              Explore authentic views of our wooden cabana retreat, peaceful bedrooms, the pristine
-              river waters of Edawala Dola, and the rolling mist of the Sinharaja Rainforest.
+              Explore authentic views of our wooden villa &amp; cabana retreat in Dellawa Endawala, comfortable bedrooms,
+              the pristine Dellawa River waters of Edawala Dola (Gin Ganga basin), and the rolling mist of the Sinharaja Forest.
             </p>
 
             {/* Category Filter Chips */}

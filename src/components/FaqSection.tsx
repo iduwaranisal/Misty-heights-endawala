@@ -8,28 +8,32 @@ export default function FaqSection() {
 
   const faqs = [
     {
-      q: "What makes Misty Heights Endawala a unique nature retreat?",
-      a: "Our retreat borders the world-famous Sinharaja Rainforest. You stay in a handcrafted two-story wooden cabana with an observation deck overlooking the misty mountain canopy, with direct access to natural rock bathing pools at Edawala Dola and warm village hospitality.",
+      q: "Where is Misty Heights Endawala located relative to Dellawa and Sinharaja Forest?",
+      a: "Misty Heights Endawala is located in Warukandeniya, Endawala near Dellawa, Neluwa in the Galle District of Sri Lanka. We border the world-renowned UNESCO Sinharaja Forest Reserve and the pristine Dellawa River system (Edawala Dola, part of the Gin Ganga river basin).",
     },
     {
-      q: "Is swimming in the Edawala Dola natural pool safe?",
-      a: "Yes! Edawala Dola is a gentle mountain stream with clear, clean rock pools and shallow wading spots that are safe for both kids and adults. We also provide river kayaks and safety life vests for peaceful boating.",
+      q: "Can we swim and kayak in the Dellawa River (Edawala Dola / Gin Ganga)?",
+      a: "Yes! Edawala Dola is a natural freshwater stream flowing directly from the Sinharaja mountain ridge into the Dellawa River and Gin Ganga basin. It features clean rock pools and safe shallow bathing spots, with complimentary kayaks and safety life vests provided for guests.",
+    },
+    {
+      q: "What accommodation is offered at Misty Heights Sinharaja Villa?",
+      a: "We offer a cozy two-story handcrafted wooden villa and cabana retreat with a timber king bedroom, upper 360-degree mountain observation balcony deck, outdoor veranda, and tranquil rainforest views. Ideal for couples, families, and private Dellawa villa group getaways.",
     },
     {
       q: "Can we have an evening campfire and barbecue?",
-      a: "Yes, evening campfires under the starry skies are one of our guests' most memorable experiences. We arrange the outdoor fire pit and can prepare barbecue chicken, sausages, and roasted spiced sweet corn upon request.",
+      a: "Yes, evening campfires under the clear mountain skies are a guest favorite. We set up the outdoor fire pit and prepare barbecue chicken, sausages, and roasted spiced sweet corn by the fireside upon request.",
     },
     {
       q: "What meals are available during our stay?",
       a: "We serve wholesome, freshly cooked traditional Sri Lankan meals prepared in clay pots — including hot hoppers with coconut sambol for breakfast, organic herbal porridge (kola kanda), country rice and village curries, and Ceylon black tea from local hillside tea gardens.",
     },
     {
-      q: "How can I book or check available dates?",
-      a: "You can book directly by sending a WhatsApp message or calling us at 071 981 7000 or 071 868 0633. We are always open to help you plan your visit.",
+      q: "How do we reach Misty Heights Endawala from Colombo or Galle?",
+      a: "From Colombo, take the Southern Expressway (E01) to Kurundugahahetekma or Baddegama exit, then travel through Neluwa towards Dellawa & Endawala (approx. 2.5 - 3 hours). From Galle Coast, travel inland via Baddegama and Neluwa (approx. 1.5 - 2 hours). The road is paved and accessible by all vehicles.",
     },
     {
-      q: "How do we reach Misty Heights from Colombo or Galle?",
-      a: "From Colombo, take the Southern Expressway (E01) to Kurundugahahetekma or Baddegama exit, then travel through Neluwa to Warukandeniya (approx. 2.5 - 3 hours). The road is paved and accessible by all standard vehicles.",
+      q: "How can I book or check available dates?",
+      a: "You can book directly by sending a WhatsApp message or calling us at 071 981 7000 or 071 868 0633. We are always open to help you plan your visit.",
     },
   ];
 

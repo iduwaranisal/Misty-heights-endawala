@@ -75,22 +75,25 @@ export default function Hero({ onOpenBooking }: { onOpenBooking: () => void }) {
             <div className="inline-flex items-center gap-1.5 sm:gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full bg-white/10 backdrop-blur border border-white/20 text-emerald-100 text-xs font-medium max-w-full badge-glow animate-float">
               <span className="text-emerald-300 font-serif font-bold shrink-0">ආයුබෝවන්</span>
               <span className="text-white/40 shrink-0">·</span>
-              <span className="sm:hidden font-medium">Welcome to Sinharaja</span>
-              <span className="hidden sm:inline font-medium">Ayubowan · Welcome to Sinharaja, Sri Lanka</span>
+              <span className="sm:hidden font-medium">Dellawa · Endawala · Sinharaja</span>
+              <span className="hidden sm:inline font-medium">Ayubowan · Welcome to Dellawa, Endawala &amp; Sinharaja Forest</span>
             </div>
 
             {/* Main Headline */}
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-bold tracking-tight leading-[1.15]">
               <span className="text-white">Escape to{" "}</span>
               <span className="text-gradient-animate">
-                Misty Heights Cabana
+                Misty Heights Endawala
+              </span>
+              <span className="block text-xl sm:text-2xl text-emerald-200/90 font-sans font-normal mt-2.5">
+                Sinharaja Forest Villa &amp; Dellawa River Retreat
               </span>
             </h1>
 
             <p className="text-base sm:text-lg text-emerald-100/80 leading-relaxed max-w-xl">
-              Relax in our cozy wooden retreat near Sinharaja Rainforest. Enjoy breathtaking views,
-              a natural pool, and serene mountain vibes. Perfect for holidays filled with nature and
-              adventure!
+              Relax in our handcrafted wooden villa retreat in Endawala, Dellawa bordering the Sinharaja
+              Forest. Enjoy breathtaking mountain views, natural river pool swimming (Gin Ganga basin),
+              and serene nature holidays filled with adventure.
             </p>
 
             {/* Feature Badges with hover lift */}

@@ -12,20 +12,21 @@ export default function NaturalPool() {
           <div className="lg:col-span-6 space-y-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-teal-50 to-cyan-50 text-teal-900 text-xs font-semibold uppercase tracking-wider border border-teal-200 badge-glow">
               <Droplets className="w-3.5 h-3.5 text-teal-600" />
-              Edawala Dola River Pool
+              Dellawa River &amp; Edawala Dola (Gin Ganga Basin)
             </div>
 
             <h2 className="text-3xl sm:text-4xl font-serif font-bold text-[#0a1f12] tracking-tight">
               Swim in Pure Natural{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-700 via-cyan-600 to-emerald-600">
-                Rainforest Waters
+                Dellawa River Waters
               </span>
             </h2>
 
             <p className="text-base text-gray-600 leading-relaxed">
-              Step directly into the unpolluted waters of Edawala Dola. Flowing straight from the protected
-              Sinharaja hills, this freshwater river offers crystal natural rock pools, gentle shallows,
-              and open waters perfect for kayaking and rafting thrills.
+              Step directly into the unpolluted waters of the Dellawa River system and Edawala Dola stream.
+              Flowing straight from the protected Sinharaja Forest ridge towards the Gin Ganga basin, this
+              freshwater river offers pristine natural rock bathing pools, gentle shallows, and calm stretches
+              perfect for kayaking and rafting thrills.
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
@@ -34,10 +35,10 @@ export default function NaturalPool() {
                   <div className="w-7 h-7 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center shrink-0">
                     <Waves className="w-4 h-4" />
                   </div>
-                  <span>Crystal Clear Waters</span>
+                  <span>Crystal River Rock Pools</span>
                 </div>
                 <p className="text-xs text-gray-500 leading-relaxed">
-                  Pure mountain spring water with smooth river stones and wild ferns along the bank.
+                  Pure mountain spring water with smooth river stones and wild forest ferns along the Dellawa river bank.
                 </p>
               </div>
 
@@ -46,22 +47,22 @@ export default function NaturalPool() {
                   <div className="w-7 h-7 rounded-lg bg-cyan-50 text-cyan-700 flex items-center justify-center shrink-0">
                     <Compass className="w-4 h-4" />
                   </div>
-                  <span>Kayaking & Rafting</span>
+                  <span>River Kayaking &amp; Rafting</span>
                 </div>
                 <p className="text-xs text-gray-500 leading-relaxed">
-                  Paddle through lush forest bends with kayaks, inflatable boats, and life vests ready for you.
+                  Paddle gently beneath lush Sinharaja canopy bends with kayaks, inflatable boats, and life vests ready.
                 </p>
               </div>
             </div>
 
             <div className="pt-2">
               <a
-                href="https://wa.me/94719817000?text=Hello%20Misty%20Heights!%20I%20would%20like%20to%20know%20more%20about%20the%20Edawala%20Dola%20river%20pool%20and%20kayaking."
+                href="https://wa.me/94719817000?text=Hello%20Misty%20Heights!%20I%20would%20like%20to%20know%20more%20about%20the%20Dellawa%20river%20swimming%20and%20kayaking."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-teal-700 hover:text-teal-900 transition-colors group"
               >
-                <span>Inquire about river bathing times &amp; kayaks</span>
+                <span>Inquire about Dellawa river bathing times &amp; kayaks</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </a>
             </div>
