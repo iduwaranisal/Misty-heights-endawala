@@ -79,7 +79,7 @@ export default function Header({ onOpenBooking }: { onOpenBooking: () => void })
           </nav>
 
           {/* Desktop Actions */}
-          <div className="hidden lg:flex items-center gap-3">
+          <div className="hidden xl:flex items-center gap-3">
             <a
               href={`https://wa.me/${cleanWhatsapp}?text=Hello%20Misty%20Heights%20Endawala,%20I%20would%20like%20to%20inquire%20about%20booking%20a%20stay.`}
               target="_blank"
@@ -99,7 +99,7 @@ export default function Header({ onOpenBooking }: { onOpenBooking: () => void })
           </div>
 
           {/* Mobile & Tablet Controls */}
-          <div className="flex items-center gap-2 lg:hidden">
+          <div className="flex items-center gap-2 xl:hidden">
             <button
               onClick={onOpenBooking}
               className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white shadow-xs cursor-pointer transition-all"
@@ -131,7 +131,7 @@ export default function Header({ onOpenBooking }: { onOpenBooking: () => void })
 
       {/* Clean Mobile Full-Screen/Drop Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-white border-b border-gray-200 px-5 pt-3 pb-6 space-y-4 shadow-lg animate-fadeIn">
+        <div className="xl:hidden bg-white border-b border-gray-200 px-5 pt-3 pb-6 space-y-4 shadow-lg animate-fadeIn">
           {/* Vertical Link List */}
           <div className="divide-y divide-gray-100">
             {navLinks.map((link) => (

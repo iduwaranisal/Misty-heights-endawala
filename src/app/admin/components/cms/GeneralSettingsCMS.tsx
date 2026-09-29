@@ -47,8 +47,6 @@ export default function GeneralSettingsCMS({ settings, onRefresh }: GeneralSetti
         "site.contact.address": form.address,
         "site.contact.mapUrl": form.mapUrl,
         "site.contact.facebookUrl": form.facebookUrl,
-        "site.booking.defaultCheckInTime": form.defaultCheckInTime,
-        "site.booking.defaultCheckOutTime": form.defaultCheckOutTime,
       };
 
       const res = await saveMultipleSettings(payload);
@@ -254,39 +252,7 @@ export default function GeneralSettingsCMS({ settings, onRefresh }: GeneralSetti
         </div>
       </div>
 
-      {/* Default Check-in / Check-out Times */}
-      <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-xs space-y-4">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
-          <Clock className="w-4 h-4" />
-          Default Check-In & Check-Out Times
-        </h3>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1">
-              Standard Check-In Time
-            </label>
-            <input
-              type="time"
-              value={form.defaultCheckInTime}
-              onChange={(e) => setForm({ ...form, defaultCheckInTime: e.target.value })}
-              className={inputCls}
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-gray-700 mb-1">
-              Standard Check-Out Time
-            </label>
-            <input
-              type="time"
-              value={form.defaultCheckOutTime}
-              onChange={(e) => setForm({ ...form, defaultCheckOutTime: e.target.value })}
-              className={inputCls}
-            />
-          </div>
-        </div>
-      </div>
     </form>
   );
 }

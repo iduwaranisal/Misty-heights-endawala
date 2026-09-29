@@ -557,24 +557,24 @@ function BookingCard({ booking, onRefresh }: { booking: Booking; onRefresh: () =
         "border-blue-100"}`}
     >
       {/* Header */}
-      <div className="flex items-start justify-between mb-3">
-        <div>
-          <h4 className="font-bold text-gray-900">{booking.guestName}</h4>
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <div className="min-w-0">
+          <h4 className="font-bold text-gray-900 truncate">{booking.guestName}</h4>
           <div className="flex flex-wrap items-center gap-3 mt-1 text-xs text-gray-500">
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-1 shrink-0">
               <Phone className="w-3 h-3" />{booking.guestPhone}
             </span>
             {booking.guestEmail && (
-              <span className="flex items-center gap-1">
-                <Mail className="w-3 h-3" />{booking.guestEmail}
+              <span className="flex items-center gap-1 truncate">
+                <Mail className="w-3 h-3 shrink-0" /><span className="truncate">{booking.guestEmail}</span>
               </span>
             )}
-            <span className="flex items-center gap-1">
+            <span className="flex items-center gap-1 shrink-0">
               <Users className="w-3 h-3" />{booking.guests} guest{booking.guests !== 1 ? "s" : ""}
             </span>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0 mt-0.5">
           <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold border capitalize ${statusColor[booking.status]}`}>
             {booking.status}
           </span>
@@ -582,21 +582,21 @@ function BookingCard({ booking, onRefresh }: { booking: Booking; onRefresh: () =
       </div>
 
       {/* Dates */}
-      <div className="flex items-center gap-2 p-3 rounded-xl bg-gray-50 border border-gray-100 mb-3">
-        <Calendar className="w-4 h-4 text-emerald-600 shrink-0" />
-        <div className="text-xs">
-          <span className="font-semibold text-gray-800">
+      <div className="flex items-start gap-2.5 p-3 rounded-xl bg-gray-50 border border-gray-100 mb-3">
+        <Calendar className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+        <div className="text-xs flex flex-wrap items-center gap-1.5">
+          <span className="font-semibold text-gray-800 shrink-0">
             {fmt(booking.checkIn)}
           </span>
           {booking.checkIn !== booking.checkOut && (
             <>
-              <span className="text-gray-400 mx-2">→</span>
-              <span className="font-semibold text-gray-800">
+              <span className="text-gray-400 shrink-0">→</span>
+              <span className="font-semibold text-gray-800 shrink-0">
                 {fmt(booking.checkOut)}
               </span>
             </>
           )}
-          <span className="ml-2 font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+          <span className="font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 shrink-0">
             {days} day{days !== 1 ? "s" : ""}
           </span>
         </div>
@@ -981,7 +981,7 @@ export default function AdminDashboard({ stats, initialBookings, initialSettings
           {activeTab === "dashboard" && (
             <div className="space-y-6 max-w-7xl mx-auto">
               {/* Stat Cards */}
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard label="Total Bookings" value={activeStats?.total ?? 0} icon={ClipboardList} color="bg-gray-100 text-gray-600" />
                 <StatCard label="Pending" value={activeStats?.pending ?? 0} icon={Clock} color="bg-yellow-100 text-yellow-600" />
                 <StatCard label="Confirmed" value={activeStats?.confirmed ?? 0} icon={CheckCircle} color="bg-emerald-100 text-emerald-600" />
