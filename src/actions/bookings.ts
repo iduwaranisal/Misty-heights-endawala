@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { connectDB } from "@/lib/db";
 import Booking, { BookingSource, BookingStatus } from "@/models/Booking";
-import { checkAvailability, suggestAlternatives, calcNightsBetween, getTodayStr } from "@/lib/availability";
+import { checkAvailability, suggestAlternatives, calcDaysBetween, getTodayStr } from "@/lib/availability";
 import { verifyAdminSession, createAdminSession, setSessionCookie, clearSessionCookie } from "@/lib/auth";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -29,7 +29,7 @@ export interface ActionResult<T = unknown> {
   suggestions?: Array<{
     checkIn: string;
     checkOut: string;
-    nights: number;
+    days: number;
     description: string;
   }>;
 }
@@ -80,8 +80,8 @@ export async function submitPublicBooking(
     const ci = data.checkIn.slice(0, 10);
     const co = data.checkOut.slice(0, 10);
 
-    if (co <= ci) {
-      return { success: false, message: "Check-out date must be after check-in date" };
+    if (co < ci) {
+      return { success: false, message: "Check-out date must be the same as or after check-in date" };
     }
     
     const todayStr = getTodayStr();
@@ -89,9 +89,9 @@ export async function submitPublicBooking(
       return { success: false, message: "Check-in date cannot be in the past" };
     }
 
-    const nights = calcNightsBetween(ci, co);
-    if (nights < 1) {
-      return { success: false, message: "Stay must be at least 1 night" };
+    const days = calcDaysBetween(ci, co);
+    if (days < 1) {
+      return { success: false, message: "Stay must be at least 1 day" };
     }
 
     // Check availability strictly by days
@@ -106,11 +106,11 @@ export async function submitPublicBooking(
 
       return {
         success: false,
-        message: `Sorry, those dates are already booked. We found ${alternatives.length} smart alternative date(s) for your ${nights}-night stay!`,
+        message: `Sorry, those dates are already booked. We found ${alternatives.length} smart alternative date(s) for your ${days}-day stay!`,
         suggestions: alternatives.map((a) => ({
           checkIn: a.checkIn,
           checkOut: a.checkOut,
-          nights: a.nights,
+          days: a.nights,
           description: a.description,
         })),
       };
@@ -135,7 +135,7 @@ export async function submitPublicBooking(
       notes: data.notes?.trim(),
       status: "pending",
       source: data.source || "website",
-      totalNights: nights,
+      totalNights: days,
     });
 
     await booking.save();
@@ -174,13 +174,13 @@ export async function adminCreateBooking(
     const ci = data.checkIn.slice(0, 10);
     const co = data.checkOut.slice(0, 10);
 
-    if (co <= ci) {
-      return { success: false, message: "Check-out date must be after check-in date" };
+    if (co < ci) {
+      return { success: false, message: "Check-out date must be the same as or after check-in date" };
     }
 
-    const nights = calcNightsBetween(ci, co);
-    if (nights < 1) {
-      return { success: false, message: "Stay must be at least 1 night" };
+    const days = calcDaysBetween(ci, co);
+    if (days < 1) {
+      return { success: false, message: "Stay must be at least 1 day" };
     }
 
     const conflict = await checkAvailability({ checkIn: ci, checkOut: co });
@@ -192,7 +192,7 @@ export async function adminCreateBooking(
         suggestions: alternatives.map((a) => ({
           checkIn: a.checkIn,
           checkOut: a.checkOut,
-          nights: a.nights,
+          days: a.nights,
           description: a.description,
         })),
       };
@@ -215,7 +215,7 @@ export async function adminCreateBooking(
       notes: data.notes?.trim(),
       status: "confirmed",  // Admin-created bookings are auto-confirmed
       source: data.source || "manual",
-      totalNights: nights,
+      totalNights: days,
     });
 
     await booking.save();
@@ -361,18 +361,18 @@ export async function checkDateAvailabilityAction(
     const ci = checkIn.slice(0, 10);
     const co = checkOut.slice(0, 10);
 
-    if (co <= ci) {
+    if (co < ci) {
       return {
         success: false,
-        message: "Check-out date must be after check-in date.",
+        message: "Check-out date must be the same as or after check-in date.",
       };
     }
 
-    const nights = calcNightsBetween(ci, co);
-    if (nights < 1) {
+    const days = calcDaysBetween(ci, co);
+    if (days < 1) {
       return {
         success: false,
-        message: "Stay must be at least 1 night. Check-out date must be after check-in date.",
+        message: "Stay must be at least 1 day. Check-out date must be the same as or after check-in date.",
       };
     }
 
@@ -395,7 +395,7 @@ export async function checkDateAvailabilityAction(
       suggestions: alternatives.map((a) => ({
         checkIn: a.checkIn,
         checkOut: a.checkOut,
-        nights: a.nights,
+        days: a.nights,
         description: a.description,
       })),
     };

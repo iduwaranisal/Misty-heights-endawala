@@ -59,7 +59,7 @@ interface Stats {
 interface Suggestion {
   checkIn: string;
   checkOut: string;
-  nights: number;
+  days: number;
   description: string;
 }
 
@@ -125,7 +125,7 @@ function BookingCalendar({ bookings }: { bookings: Booking[] }) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Build a map of date → bookings (nights-based: check-in day is booked, check-out day is free)
+  // Build a map of date -> bookings (inclusive days: check-in and check-out days are booked)
   const toLocalKey = (d: Date) =>
     `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 
@@ -137,7 +137,7 @@ function BookingCalendar({ bookings }: { bookings: Booking[] }) {
     const [eY, eM, eD] = b.checkOut.slice(0, 10).split("-").map(Number);
     const cur = new Date(sY, sM - 1, sD);
     const end = new Date(eY, eM - 1, eD);
-    while (cur < end) {
+    while (cur <= end) {
       const key = toLocalKey(cur);
       if (!dateBookingMap[key]) dateBookingMap[key] = [];
       dateBookingMap[key].push(b);
@@ -265,7 +265,7 @@ function NewBookingForm({ onSuccess }: { onSuccess: () => void }) {
 
   const handleDateBlur = useCallback(() => {
     if (!form.checkIn || !form.checkOut) return;
-    if (form.checkOut <= form.checkIn) {
+    if (form.checkOut < form.checkIn) {
       setAvailabilityStatus("idle");
       return;
     }
@@ -372,7 +372,7 @@ function NewBookingForm({ onSuccess }: { onSuccess: () => void }) {
               setForm((f) => ({
                 ...f,
                 checkIn: val,
-                checkOut: f.checkOut && f.checkOut <= val ? "" : f.checkOut,
+                checkOut: f.checkOut && f.checkOut < val ? "" : f.checkOut,
               }));
               setAvailabilityStatus("idle");
             }}
@@ -386,26 +386,13 @@ function NewBookingForm({ onSuccess }: { onSuccess: () => void }) {
           <input
             className={inputCls} type="date" required
             value={form.checkOut}
-            min={form.checkIn ? getNextDay(form.checkIn) : getNextDay(new Date().toISOString().slice(0, 10))}
+            min={form.checkIn ? form.checkIn : new Date().toISOString().slice(0, 10)}
             onChange={(e) => {
               setForm((f) => ({ ...f, checkOut: e.target.value }));
               setAvailabilityStatus("idle");
             }}
             onBlur={handleDateBlur}
           />
-        </div>
-      </div>
-
-      {/* Villa Policy Note */}
-      <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs text-gray-600">
-        <div className="flex items-center gap-1.5">
-          <Clock className="w-3.5 h-3.5 text-emerald-600" />
-          <span>Check-in: <strong>From 2:00 PM</strong></span>
-        </div>
-        <span className="text-gray-300">•</span>
-        <div className="flex items-center gap-1.5">
-          <Clock className="w-3.5 h-3.5 text-emerald-600" />
-          <span>Check-out: <strong>By 11:00 AM</strong></span>
         </div>
       </div>
 
@@ -443,10 +430,10 @@ function NewBookingForm({ onSuccess }: { onSuccess: () => void }) {
             >
               <div>
                 <p className="text-sm font-semibold text-emerald-900">
-                  {fmt(s.checkIn)} → {fmt(s.checkOut)}
+                  {fmt(s.checkIn)} {s.checkIn !== s.checkOut && `→ ${fmt(s.checkOut)}`}
                 </p>
                 <p className="text-xs text-emerald-700 mt-0.5">
-                  {s.nights} night{s.nights !== 1 ? "s" : ""} · {s.description}
+                  {s.days} day{s.days !== 1 ? "s" : ""} · {s.description}
                 </p>
               </div>
               <span className="text-xs font-bold text-emerald-700 bg-emerald-200 px-2 py-1 rounded-lg group-hover:bg-emerald-300">
@@ -557,6 +544,11 @@ function BookingCard({ booking, onRefresh }: { booking: Booking; onRefresh: () =
     setConfirmModal(null);
   };
 
+  const [inY, inM, inD] = booking.checkIn.slice(0, 10).split("-").map(Number);
+  const [outY, outM, outD] = booking.checkOut.slice(0, 10).split("-").map(Number);
+  const diff = new Date(outY, outM - 1, outD).getTime() - new Date(inY, inM - 1, inD).getTime();
+  const days = Math.max(0, Math.round(diff / (1000 * 60 * 60 * 24))) + 1;
+
   return (
     <div className={`bg-white rounded-2xl border shadow-sm p-5 transition-all
       ${booking.status === "confirmed" ? "border-emerald-200" :
@@ -596,12 +588,16 @@ function BookingCard({ booking, onRefresh }: { booking: Booking; onRefresh: () =
           <span className="font-semibold text-gray-800">
             {fmt(booking.checkIn)}
           </span>
-          <span className="text-gray-400 mx-2">→</span>
-          <span className="font-semibold text-gray-800">
-            {fmt(booking.checkOut)}
-          </span>
+          {booking.checkIn !== booking.checkOut && (
+            <>
+              <span className="text-gray-400 mx-2">→</span>
+              <span className="font-semibold text-gray-800">
+                {fmt(booking.checkOut)}
+              </span>
+            </>
+          )}
           <span className="ml-2 font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
-            {booking.totalNights} night{booking.totalNights !== 1 ? "s" : ""}
+            {days} day{days !== 1 ? "s" : ""}
           </span>
         </div>
       </div>
@@ -767,23 +763,24 @@ export default function AdminDashboard({ stats, initialBookings, initialSettings
   });
 
   const exportBookingsToCSV = () => {
-    const headers = ["Booking ID", "Guest Name", "Phone", "Email", "Check-In", "Time In", "Check-Out", "Time Out", "Nights", "Guests", "Status", "Source", "Notes", "Created At"];
-    const rows = filteredBookings.map(b => [
-      b.id,
-      `"${(b.guestName || "").replace(/"/g, '""')}"`,
-      `"${b.guestPhone}"`,
-      `"${b.guestEmail || ""}"`,
-      b.checkIn.slice(0, 10),
-      b.checkInTime || "14:00",
-      b.checkOut.slice(0, 10),
-      b.checkOutTime || "11:00",
-      b.totalNights,
-      b.guests,
-      b.status,
-      b.source,
-      `"${(b.notes || "").replace(/"/g, '""')}"`,
-      b.createdAt.slice(0, 10)
-    ]);
+    const headers = ["Booking ID", "Guest Name", "Phone", "Email", "Check-In", "Check-Out", "Days", "Guests", "Status", "Source", "Notes", "Created At"];
+    const rows = filteredBookings.map(b => {
+      const days = Math.max(0, Math.round((new Date(b.checkOut.slice(0, 10)).getTime() - new Date(b.checkIn.slice(0, 10)).getTime()) / (1000 * 60 * 60 * 24))) + 1;
+      return [
+        b.id,
+        `"${(b.guestName || "").replace(/"/g, '""')}"`,
+        `"${b.guestPhone}"`,
+        `"${b.guestEmail || ""}"`,
+        b.checkIn.slice(0, 10),
+        b.checkOut.slice(0, 10),
+        days,
+        b.guests,
+        b.status,
+        b.source,
+        `"${(b.notes || "").replace(/"/g, '""')}"`,
+        b.createdAt.slice(0, 10)
+      ];
+    });
     const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");

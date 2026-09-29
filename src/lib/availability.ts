@@ -51,14 +51,14 @@ export function getTodayStr(): string {
 }
 
 /**
- * Calculate the number of calendar nights between two "YYYY-MM-DD" dates
+ * Calculate the number of calendar days between two "YYYY-MM-DD" dates (inclusive)
  */
-export function calcNightsBetween(inStr: string, outStr: string): number {
+export function calcDaysBetween(inStr: string, outStr: string): number {
   if (!inStr || !outStr) return 0;
   const [inY, inM, inD] = inStr.slice(0, 10).split("-").map(Number);
   const [outY, outM, outD] = outStr.slice(0, 10).split("-").map(Number);
   const diff = new Date(outY, outM - 1, outD).getTime() - new Date(inY, inM - 1, inD).getTime();
-  return Math.max(0, Math.round(diff / (1000 * 60 * 60 * 24)));
+  return Math.max(0, Math.round(diff / (1000 * 60 * 60 * 24))) + 1;
 }
 
 /**
@@ -72,7 +72,7 @@ export function addDays(str: string, days: number): string {
 
 /**
  * Check if a requested date range conflicts with any existing confirmed/pending bookings.
- * Strictly day/night based: Check-out date is free for incoming guests on the same day.
+ * Strictly day-based: bookings are inclusive of their start and end days.
  */
 export async function checkAvailability(
   range: DateRange,
@@ -83,7 +83,7 @@ export async function checkAvailability(
   const reqInStr = toDateStr(range.checkIn);
   const reqOutStr = toDateStr(range.checkOut);
 
-  if (!reqInStr || !reqOutStr || reqOutStr <= reqInStr) {
+  if (!reqInStr || !reqOutStr || reqOutStr < reqInStr) {
     return { hasConflict: false };
   }
 
@@ -110,11 +110,9 @@ export async function checkAvailability(
     const bInStr = b.checkInDateStr || toDateStr(b.checkIn);
     const bOutStr = b.checkOutDateStr || toDateStr(b.checkOut);
 
-    // Exact night overlap:
-    // Two bookings overlap if and only if bIn < reqOut && bOut > reqIn.
-    // If bOut === reqIn (existing checks out on requested check-in day): NO CONFLICT.
-    // If bIn === reqOut (existing checks in on requested check-out day): NO CONFLICT.
-    if (bInStr < reqOutStr && bOutStr > reqInStr) {
+    // Exact day overlap:
+    // Two bookings overlap if and only if bIn <= reqOut && bOut >= reqIn.
+    if (bInStr <= reqOutStr && bOutStr >= reqInStr) {
       return {
         hasConflict: true,
         conflictingBooking: {
@@ -157,12 +155,7 @@ export async function getBookedRanges(): Promise<
 
 /**
  * Smart day-based alternative suggestion algorithm.
- * Generates alternative available windows with the exact same number of nights.
- *
- * Strategies:
- * 1. Check immediately after the conflicting booking(s) end
- * 2. Check immediately before the conflicting booking(s) start (if not in the past)
- * 3. Scan forward day by day for the next free window
+ * Generates alternative available windows with the exact same number of days.
  */
 export async function suggestAlternatives(
   requestedRange: DateRange
@@ -171,7 +164,7 @@ export async function suggestAlternatives(
 
   const reqInStr = toDateStr(requestedRange.checkIn);
   const reqOutStr = toDateStr(requestedRange.checkOut);
-  const nights = Math.max(1, calcNightsBetween(reqInStr, reqOutStr));
+  const days = Math.max(1, calcDaysBetween(reqInStr, reqOutStr));
   const todayStr = getTodayStr();
 
   // Scan up to 90 days forward from today
@@ -201,12 +194,12 @@ export async function suggestAlternatives(
   }));
 
   /**
-   * Helper: Is a candidate [candIn, candOut) free from any overlapping bookings?
+   * Helper: Is a candidate [candIn, candOut] free from any overlapping bookings?
    */
   function isRangeAvailable(candIn: string, candOut: string): boolean {
     if (candIn < todayStr) return false;
     for (const b of bookedIntervals) {
-      if (b.inStr < candOut && b.outStr > candIn) {
+      if (b.inStr <= candOut && b.outStr >= candIn) {
         return false;
       }
     }
@@ -216,7 +209,7 @@ export async function suggestAlternatives(
   const suggestions: AlternativeSuggestion[] = [];
 
   // Identify bookings directly conflicting with requested stay
-  const conflicts = bookedIntervals.filter((b) => b.inStr < reqOutStr && b.outStr > reqInStr);
+  const conflicts = bookedIntervals.filter((b) => b.inStr <= reqOutStr && b.outStr >= reqInStr);
 
   // --- Strategy 1: Immediately AFTER the conflict ends ---
   if (conflicts.length > 0) {
@@ -226,16 +219,16 @@ export async function suggestAlternatives(
       if (c.outStr > maxConflictOut) maxConflictOut = c.outStr;
     }
 
-    const candIn = maxConflictOut;
-    const candOut = addDays(candIn, nights);
+    const candIn = addDays(maxConflictOut, 1);
+    const candOut = addDays(candIn, days - 1);
 
     if (isRangeAvailable(candIn, candOut)) {
       suggestions.push({
         type: "after",
         checkIn: candIn,
         checkOut: candOut,
-        nights,
-        description: `${nights} night${nights !== 1 ? "s" : ""} right after the current booking`,
+        nights: days,
+        description: `${days} day${days !== 1 ? "s" : ""} right after the current booking`,
       });
     }
   }
@@ -248,16 +241,16 @@ export async function suggestAlternatives(
       if (c.inStr < minConflictIn) minConflictIn = c.inStr;
     }
 
-    const candOut = minConflictIn;
-    const candIn = addDays(candOut, -nights);
+    const candOut = addDays(minConflictIn, -1);
+    const candIn = addDays(candOut, -(days - 1));
 
     if (candIn >= todayStr && isRangeAvailable(candIn, candOut)) {
       suggestions.push({
         type: "before",
         checkIn: candIn,
         checkOut: candOut,
-        nights,
-        description: `${nights} night${nights !== 1 ? "s" : ""} right before the booked dates`,
+        nights: days,
+        description: `${days} day${days !== 1 ? "s" : ""} right before the booked dates`,
       });
     }
   }
@@ -268,7 +261,7 @@ export async function suggestAlternatives(
 
     for (let dayOffset = 1; dayOffset <= 60; dayOffset++) {
       const candIn = addDays(baseDate, dayOffset);
-      const candOut = addDays(candIn, nights);
+      const candOut = addDays(candIn, days - 1);
 
       if (isRangeAvailable(candIn, candOut)) {
         // Ensure not duplicate
@@ -278,8 +271,8 @@ export async function suggestAlternatives(
             type: "next",
             checkIn: candIn,
             checkOut: candOut,
-            nights,
-            description: `Next available ${nights}-night stay`,
+            nights: days,
+            description: `Next available ${days}-day stay`,
           });
         }
       }

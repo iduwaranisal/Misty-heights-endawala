@@ -12,7 +12,7 @@ import { useSettings } from "@/components/SettingsProvider";
 interface Suggestion {
   checkIn: string;
   checkOut: string;
-  nights: number;
+  days: number;
   description: string;
 }
 
@@ -24,12 +24,12 @@ const fmt = (iso: string) => {
   return new Date(y, m - 1, d).toLocaleDateString("en-LK", { day: "2-digit", month: "long", year: "numeric" });
 };
 
-const calcNights = (checkIn: string, checkOut: string) => {
+const calcDays = (checkIn: string, checkOut: string) => {
   if (!checkIn || !checkOut) return 0;
   const [inY, inM, inD] = checkIn.slice(0, 10).split("-").map(Number);
   const [outY, outM, outD] = checkOut.slice(0, 10).split("-").map(Number);
   const diff = new Date(outY, outM - 1, outD).getTime() - new Date(inY, inM - 1, inD).getTime();
-  return Math.max(0, Math.round(diff / (1000 * 60 * 60 * 24)));
+  return Math.max(0, Math.round(diff / (1000 * 60 * 60 * 24))) + 1;
 };
 
 const toLocalToday = () => {
@@ -171,7 +171,7 @@ export default function BookingModal({
   const [errorMsg, setErrorMsg] = useState("");
   const [bookingId, setBookingId] = useState("");
 
-  const nights = calcNights(checkIn, checkOut);
+  const days = calcDays(checkIn, checkOut);
 
   // Close on ESC
   useEffect(() => {
@@ -199,8 +199,8 @@ export default function BookingModal({
   // Check availability strictly by dates
   const checkDates = useCallback((ci: string, co: string) => {
     if (!ci || !co) return;
-    const n = calcNights(ci, co);
-    if (co <= ci || n < 1) {
+    const n = calcDays(ci, co);
+    if (co < ci || n < 1) {
       setAvailStatus("idle");
       setSuggestions([]);
       setErrorMsg("");
@@ -226,10 +226,10 @@ export default function BookingModal({
     setAvailStatus("idle");
     setSuggestions([]);
     setErrorMsg("");
-    // Check-out must be at least 1 night after check-in
-    if (checkOut && checkOut <= v) {
+    // Check-out must be at least the same day as check-in
+    if (checkOut && checkOut < v) {
       setCheckOut("");
-    } else if (checkOut && checkOut > v) {
+    } else if (checkOut && checkOut >= v) {
       checkDates(v, checkOut);
     }
   };
@@ -239,7 +239,7 @@ export default function BookingModal({
     setAvailStatus("idle");
     setSuggestions([]);
     setErrorMsg("");
-    if (checkIn && v > checkIn) {
+    if (checkIn && v >= checkIn) {
       checkDates(checkIn, v);
     }
   };
@@ -253,7 +253,7 @@ export default function BookingModal({
   };
 
   const goToDetails = () => {
-    if (!checkIn || !checkOut || nights < 1 || availStatus !== "free" || !guests || guests < 1) return;
+    if (!checkIn || !checkOut || days < 1 || availStatus !== "free" || !guests || guests < 1) return;
     setStep("details");
   };
 
@@ -272,7 +272,7 @@ export default function BookingModal({
         setStep("success");
         // Open WhatsApp to notify
         const cleanWa = whatsapp.replace(/\D/g, "");
-        const msg = `🌿 Ayubowan Misty Heights Endawala!\n\nMy booking has been submitted:\n• Name: ${name}\n• Phone: ${phone}\n• Check-in: ${fmt(checkIn)} (from 2:00 PM)\n• Check-out: ${fmt(checkOut)} (by 11:00 AM)\n• Duration: ${nights} night${nights !== 1 ? "s" : ""} · ${validGuests} guest${validGuests !== 1 ? "s" : ""}\n${notes ? `• Special Notes: ${notes}\n` : ""}• Booking Ref: #${(res.data as { bookingId: string }).bookingId?.slice(-6).toUpperCase()}\n\nPlease confirm my reservation. Thank you!`;
+        const msg = `🌿 Ayubowan Misty Heights Endawala!\n\nMy booking has been submitted:\n• Name: ${name}\n• Phone: ${phone}\n• Check-in: ${fmt(checkIn)}\n• Check-out: ${fmt(checkOut)}\n• Duration: ${days} day${days !== 1 ? "s" : ""} · ${validGuests} guest${validGuests !== 1 ? "s" : ""}\n${notes ? `• Special Notes: ${notes}\n` : ""}• Booking Ref: #${(res.data as { bookingId: string }).bookingId?.slice(-6).toUpperCase()}\n\nPlease confirm my reservation. Thank you!`;
         setTimeout(() => {
           window.open(`https://wa.me/${cleanWa}?text=${encodeURIComponent(msg)}`, "_blank");
         }, 800);
@@ -351,40 +351,31 @@ export default function BookingModal({
                   label="Check-Out Date"
                   value={checkOut}
                   onChange={handleCheckOutChange}
-                  minDate={checkIn ? getNextDay(checkIn) : getNextDay(toLocalToday())}
+                  minDate={checkIn ? checkIn : toLocalToday()}
                 />
               </div>
 
-              {/* Standard Hotel Hours Info */}
-              <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-[11px] text-gray-600">
-                <div className="flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Check-in: <strong>From 2:00 PM</strong></span>
-                </div>
-                <span className="text-gray-300">•</span>
-                <div className="flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Check-out: <strong>By 11:00 AM</strong></span>
-                </div>
-              </div>
-
               {/* Selected dates summary */}
-              {checkIn && checkOut && nights > 0 && (
+              {checkIn && checkOut && days > 0 && (
                 <div className="flex items-center justify-between p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200">
                   <div className="flex items-center gap-2.5 text-sm">
                     <Calendar className="w-4 h-4 text-emerald-600 shrink-0" />
                     <span className="font-semibold text-emerald-900">{fmt(checkIn)}</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-emerald-400" />
-                    <span className="font-semibold text-emerald-900">{fmt(checkOut)}</span>
+                    {checkIn !== checkOut && (
+                      <>
+                        <ArrowRight className="w-3.5 h-3.5 text-emerald-400" />
+                        <span className="font-semibold text-emerald-900">{fmt(checkOut)}</span>
+                      </>
+                    )}
                   </div>
                   <span className="text-xs font-bold bg-emerald-600 text-white px-2.5 py-1 rounded-full">
-                    {nights} night{nights !== 1 ? "s" : ""}
+                    {days} day{days !== 1 ? "s" : ""}
                   </span>
                 </div>
               )}
 
-              {/* Availability indicator - ONLY rendered for valid stays (nights >= 1) */}
-              {checkIn && checkOut && nights >= 1 && availStatus !== "idle" && (
+              {/* Availability indicator - ONLY rendered for valid stays (days >= 1) */}
+              {checkIn && checkOut && days >= 1 && availStatus !== "idle" && (
                 <div className={`flex items-center gap-2.5 px-4 py-3 rounded-xl text-sm font-medium border transition-all
                   ${availStatus === "checking" ? "bg-blue-50 border-blue-200 text-blue-700" :
                     availStatus === "free" ? "bg-emerald-50 border-emerald-200 text-emerald-800" :
@@ -402,11 +393,11 @@ export default function BookingModal({
                 </div>
               )}
 
-              {/* Warning when dates are same day or invalid */}
-              {checkIn && checkOut && nights < 1 && (
+              {/* Warning when dates are invalid */}
+              {checkIn && checkOut && days < 1 && (
                 <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl text-sm font-medium border bg-amber-50 border-amber-200 text-amber-800">
                   <AlertTriangle className="w-4 h-4 shrink-0 text-amber-600" />
-                  <span>Check-out date must be at least 1 night after check-in.</span>
+                  <span>Check-out date must be the same as or after check-in.</span>
                 </div>
               )}
 
@@ -415,7 +406,7 @@ export default function BookingModal({
                 <div className="space-y-2">
                   <p className="text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-                    Smart Suggestions — Nearest Available Stays
+                    Smart Suggestions — Nearest Available Dates
                   </p>
                   {suggestions.map((s, i) => (
                     <button
@@ -426,10 +417,10 @@ export default function BookingModal({
                     >
                       <div>
                         <p className="text-sm font-bold text-emerald-900">
-                          {fmt(s.checkIn)} → {fmt(s.checkOut)}
+                          {fmt(s.checkIn)} {s.checkIn !== s.checkOut && `→ ${fmt(s.checkOut)}`}
                         </p>
                         <p className="text-xs text-emerald-700 mt-0.5">
-                          {s.nights} night{s.nights !== 1 ? "s" : ""} · {s.description}
+                          {s.days} day{s.days !== 1 ? "s" : ""} · {s.description}
                         </p>
                       </div>
                       <span className="text-xs font-bold text-emerald-700 bg-emerald-200 group-hover:bg-emerald-300 px-3 py-1.5 rounded-lg transition-colors shrink-0 ml-2">
@@ -527,9 +518,9 @@ export default function BookingModal({
               <div className="flex items-center gap-2 p-3.5 rounded-xl bg-emerald-50 border border-emerald-100 text-xs">
                 <Calendar className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                 <span className="font-semibold text-emerald-900">
-                  {fmt(checkIn)} → {fmt(checkOut)}
+                  {fmt(checkIn)} {checkIn !== checkOut && `→ ${fmt(checkOut)}`}
                 </span>
-                <span className="text-emerald-600">· {nights} nights · {guests} guests</span>
+                <span className="text-emerald-600">· {days} day{days !== 1 ? "s" : ""} · {guests} {guests === 1 ? "guest" : "guests"}</span>
               </div>
 
               <div>
@@ -604,9 +595,9 @@ export default function BookingModal({
                 {[
                   { label: "Guest", value: name, icon: User },
                   { label: "Phone", value: phone, icon: Phone },
-                  { label: "Check-In", value: `${fmt(checkIn)} (from 2:00 PM)`, icon: Calendar },
-                  { label: "Check-Out", value: `${fmt(checkOut)} (by 11:00 AM)`, icon: Calendar },
-                  { label: "Duration", value: `${nights} night${nights !== 1 ? "s" : ""}`, icon: Clock },
+                  { label: "Check-In", value: fmt(checkIn), icon: Calendar },
+                  { label: "Check-Out", value: fmt(checkOut), icon: Calendar },
+                  { label: "Duration", value: `${days} day${days !== 1 ? "s" : ""}`, icon: Calendar },
                   { label: "Guests", value: `${guests} guest${guests !== 1 ? "s" : ""}`, icon: Users },
                 ].map(({ label, value, icon: Icon }) => (
                   <div key={label} className="flex items-center gap-3 text-sm">
@@ -669,8 +660,8 @@ export default function BookingModal({
                 We&apos;ll confirm your dates and send you all details shortly.
               </p>
               <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-100 text-sm text-emerald-800 font-medium space-y-2">
-                <div>{fmt(checkIn)} → {fmt(checkOut)}</div>
-                <div className="text-xs text-emerald-600">{nights} night{nights !== 1 ? "s" : ""} · {guests} guest{guests !== 1 ? "s" : ""}</div>
+                <div>{fmt(checkIn)} {checkIn !== checkOut && `→ ${fmt(checkOut)}`}</div>
+                <div className="text-xs text-emerald-600">{days} day{days !== 1 ? "s" : ""} · {guests} guest{guests !== 1 ? "s" : ""}</div>
               </div>
               <div className="flex flex-col gap-2 pt-2">
                 <a
@@ -712,7 +703,7 @@ export default function BookingModal({
               <button
                 type="button"
                 onClick={goToDetails}
-                disabled={!checkIn || !checkOut || nights < 1 || availStatus !== "free" || !guests || guests < 1}
+                disabled={!checkIn || !checkOut || days < 1 || availStatus !== "free" || !guests || guests < 1}
                 className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm transition-all cursor-pointer"
               >
                 Continue to Guest Details
