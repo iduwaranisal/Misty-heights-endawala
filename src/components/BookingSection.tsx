@@ -44,11 +44,15 @@ function MiniCalendar({
   const MONTHS_FULL = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   const DAYS = ["S","M","T","W","T","F","S"];
 
+  const toLocalISO = (d: Date) => {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  };
+
   const pick = (d: number) => {
     const date = new Date(yr, mo, d);
     date.setHours(0,0,0,0);
     if (date < min) return;
-    onChange(date.toISOString().slice(0,10));
+    onChange(toLocalISO(date));
   };
 
   useEffect(() => {
@@ -89,7 +93,7 @@ function MiniCalendar({
           const date = new Date(yr, mo, day);
           date.setHours(0,0,0,0);
           const past = date < min;
-          const sel = value === date.toISOString().slice(0,10);
+          const sel = value === toLocalISO(date);
           const isToday = date.getTime() === new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
           return (
             <button type="button" key={day} onClick={() => pick(day)} disabled={past}
@@ -348,11 +352,14 @@ export default function BookingSection() {
                       Number of Guests
                     </p>
                     <div className="flex items-center gap-4 p-3.5 rounded-xl border border-gray-200 bg-gray-50">
-                      <input type="range" min={1} max={15} step={1} value={guests}
-                        onChange={(e) => setGuests(Number(e.target.value))}
-                        className="flex-1 accent-emerald-600" />
-                      <span className="text-sm font-extrabold text-gray-900 w-24 text-right shrink-0">
-                        {guests} guest{guests !== 1 ? "s" : ""}
+                      <input
+                        type="number" min={1} value={guests || ""}
+                        onChange={(e) => setGuests(parseInt(e.target.value) || 0)}
+                        className="flex-1 bg-transparent border-none text-sm font-bold text-gray-900 focus:outline-none focus:ring-0 p-0"
+                        placeholder="Enter number of guests"
+                      />
+                      <span className="text-sm font-extrabold text-gray-900 w-20 text-right shrink-0">
+                        guest{guests !== 1 ? "s" : ""}
                       </span>
                     </div>
                   </div>

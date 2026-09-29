@@ -173,12 +173,7 @@ export default function GalleryPage() {
       category: "cabana",
       desc: "A family sharing a warm meal on the open veranda with the green hills stretching behind them.",
     },
-    {
-      src: "/images/photo_2026-09-28_18-10-25.jpg",
-      title: "Fresh Village Fruit Salad",
-      category: "nature",
-      desc: "A colourful plate of locally sourced village fruit with the Sinharaja forest in the background.",
-    },
+
     {
       src: "/images/photo_2026-09-28_18-10-30.jpg",
       title: "Spiced Crab with Mountain Views",
@@ -291,7 +286,7 @@ export default function GalleryPage() {
               <div
                 key={idx}
                 onClick={() => openLightbox(idx)}
-                className="group relative rounded-2xl overflow-hidden shadow-xs hover:shadow-xl bg-gray-100 aspect-square cursor-pointer transition-all border border-gray-100 card-lift"
+                className="group relative rounded-2xl overflow-hidden shadow-xs hover:shadow-xl bg-gray-100 aspect-[4/3] cursor-pointer transition-all border border-gray-100 card-lift"
               >
                 <Image
                   src={img.src}

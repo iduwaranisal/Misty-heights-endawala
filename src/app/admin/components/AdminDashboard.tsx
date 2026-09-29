@@ -5,13 +5,14 @@ import {
   LayoutDashboard, Calendar, Plus, LogOut, Users, Clock,
   CheckCircle, XCircle, Loader2, Phone, Mail, Trash2,
   ChevronLeft, ChevronRight, AlertTriangle, Sparkles,
-  RefreshCw, Menu, X, Check, Ban, ClipboardList
+  RefreshCw, Menu, X, Check, Ban, ClipboardList, Image as ImageIcon, Settings
 } from "lucide-react";
 import {
   adminLogout, adminCreateBooking, updateBookingStatus,
   deleteBooking, getAllBookings, getBookingStats,
   checkDateAvailabilityAction
 } from "@/actions/bookings";
+import SettingsView from "./SettingsView";
 import { useRouter } from "next/navigation";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -498,19 +499,34 @@ function NewBookingForm({ onSuccess }: { onSuccess: () => void }) {
 function BookingCard({ booking, onRefresh }: { booking: Booking; onRefresh: () => void }) {
   const [isPending, startTransition] = useTransition();
 
+  const [confirmModal, setConfirmModal] = useState<{type: 'delete' | 'cancel' | 'status', newStatus?: BookingStatus} | null>(null);
+
   const handleStatus = (status: BookingStatus) => {
+    if (status === 'cancelled') {
+      setConfirmModal({ type: 'cancel', newStatus: status });
+    } else {
+      executeStatusUpdate(status);
+    }
+  };
+
+  const executeStatusUpdate = (status: BookingStatus) => {
     startTransition(async () => {
       await updateBookingStatus(booking.id, status);
       onRefresh();
     });
+    setConfirmModal(null);
   };
 
   const handleDelete = () => {
-    if (!confirm(`Delete booking for ${booking.guestName}? This cannot be undone.`)) return;
+    setConfirmModal({ type: 'delete' });
+  };
+
+  const executeDelete = () => {
     startTransition(async () => {
       await deleteBooking(booking.id);
       onRefresh();
     });
+    setConfirmModal(null);
   };
 
   return (
@@ -613,8 +629,47 @@ function BookingCard({ booking, onRefresh }: { booking: Booking; onRefresh: () =
         >
           <Trash2 className="w-3.5 h-3.5" />
         </button>
-        {isPending && <Loader2 className="w-4 h-4 animate-spin text-gray-400 self-center" />}
+      {isPending && <Loader2 className="w-4 h-4 animate-spin text-gray-400 self-center" />}
       </div>
+
+      {/* Confirmation Modal */}
+      {confirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 max-w-sm w-full animate-in fade-in zoom-in duration-200">
+            <div className="flex items-start gap-4">
+              <div className={`p-3 rounded-full shrink-0 ${confirmModal.type === 'delete' ? 'bg-red-100 text-red-600' : 'bg-yellow-100 text-yellow-600'}`}>
+                <AlertTriangle className="w-6 h-6" />
+              </div>
+              <div>
+                <h4 className="text-lg font-bold text-gray-900">
+                  {confirmModal.type === 'delete' ? 'Delete Booking?' : 'Cancel Booking?'}
+                </h4>
+                <p className="text-sm text-gray-500 mt-1">
+                  {confirmModal.type === 'delete' 
+                    ? `Are you sure you want to permanently delete the booking for ${booking.guestName}? This action cannot be undone.`
+                    : `Are you sure you want to cancel the booking for ${booking.guestName}?`}
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setConfirmModal(null)}
+                className="flex-1 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl text-sm font-bold transition-colors"
+              >
+                Go Back
+              </button>
+              <button
+                onClick={confirmModal.type === 'delete' ? executeDelete : () => executeStatusUpdate('cancelled')}
+                className={`flex-1 px-4 py-2 text-white rounded-xl text-sm font-bold transition-colors ${
+                  confirmModal.type === 'delete' ? 'bg-red-600 hover:bg-red-700' : 'bg-yellow-600 hover:bg-yellow-700'
+                }`}
+              >
+                {confirmModal.type === 'delete' ? 'Yes, Delete' : 'Yes, Cancel'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -624,7 +679,7 @@ function BookingCard({ booking, onRefresh }: { booking: Booking; onRefresh: () =
 export default function AdminDashboard({ stats, initialBookings, username }: Props) {
   const [bookings, setBookings] = useState<Booking[]>(initialBookings);
   const [activeStats, setActiveStats] = useState<Stats | null>(stats);
-  const [activeTab, setActiveTab] = useState<"dashboard" | "bookings" | "new">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "bookings" | "new" | "settings">("dashboard");
   const [statusFilter, setStatusFilter] = useState("all");
   const [isRefreshing, startRefresh] = useTransition();
   const [isLoggingOut, startLogout] = useTransition();
@@ -657,6 +712,7 @@ export default function AdminDashboard({ stats, initialBookings, username }: Pro
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "bookings", label: "All Bookings", icon: ClipboardList },
     { id: "new", label: "New Booking", icon: Plus },
+    { id: "settings", label: "Site Settings", icon: Settings },
   ] as const;
 
   const Sidebar = () => (
@@ -890,6 +946,13 @@ export default function AdminDashboard({ stats, initialBookings, username }: Pro
                 </div>
                 <NewBookingForm onSuccess={() => { refresh(); setActiveTab("bookings"); }} />
               </div>
+            </div>
+          )}
+
+          {/* ── SETTINGS TAB ── */}
+          {activeTab === "settings" && (
+            <div className="max-w-2xl">
+              <SettingsView />
             </div>
           )}
         </div>

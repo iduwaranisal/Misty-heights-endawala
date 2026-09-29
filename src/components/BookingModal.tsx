@@ -54,11 +54,15 @@ function InlineCalendar({
     "July", "August", "September", "October", "November", "December"];
   const weekDays = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
+  const toLocalISO = (d: Date) => {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  };
+
   const selectDate = (day: number) => {
     const d = new Date(year, month, day);
     d.setHours(0, 0, 0, 0);
     if (d < min) return;
-    onChange(d.toISOString().slice(0, 10));
+    onChange(toLocalISO(d));
   };
 
   return (
@@ -98,7 +102,7 @@ function InlineCalendar({
           const date = new Date(year, month, day);
           date.setHours(0, 0, 0, 0);
           const isPast = date < min;
-          const isSelected = value === date.toISOString().slice(0, 10);
+          const isSelected = value === toLocalISO(date);
           const isToday = date.getTime() === new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
 
           return (
@@ -377,14 +381,16 @@ export default function BookingModal({
                   <Users className="w-4 h-4 text-gray-500 shrink-0" />
                   <div className="flex-1">
                     <input
-                      type="range" min={1} max={15} step={1}
-                      value={guests}
-                      onChange={(e) => setGuests(Number(e.target.value))}
-                      className="w-full accent-emerald-600"
+                      type="number"
+                      min={1}
+                      value={guests || ""}
+                      onChange={(e) => setGuests(parseInt(e.target.value) || 0)}
+                      className="w-full bg-transparent border-none text-sm font-bold text-gray-900 focus:outline-none focus:ring-0 p-0"
+                      placeholder="Enter number of guests"
                     />
                   </div>
                   <span className="text-sm font-bold text-gray-900 w-20 text-right shrink-0">
-                    {guests} guest{guests !== 1 ? "s" : ""}
+                    guest{guests !== 1 ? "s" : ""}
                   </span>
                 </div>
               </div>
