@@ -1,12 +1,17 @@
-// Booking availability checker - pure algorithm, no AI
-// A property is considered "booked" if ANY existing confirmed/pending booking overlaps with the requested range.
+// Booking availability checker - Pure Day/Night Algorithm
+// In hotel & villa hospitality:
+// - A stay is measured by calendar nights.
+// - Check-in on Date A and check-out on Date B occupies nights [A, B).
+// - On Date B (check-out morning), the departing guest leaves, allowing a new guest to check in on Date B afternoon.
+// - Therefore, two bookings [A_in, A_out) and [B_in, B_out) conflict IF AND ONLY IF:
+//   A_in < B_out && A_out > B_in (strict inequality).
 
 import { connectDB } from "@/lib/db";
 import Booking from "@/models/Booking";
 
 export interface DateRange {
-  checkIn: Date;
-  checkOut: Date;
+  checkIn: Date | string;
+  checkOut: Date | string;
 }
 
 export interface ConflictResult {
@@ -15,23 +20,59 @@ export interface ConflictResult {
     guestName: string;
     checkIn: Date;
     checkOut: Date;
+    checkInStr: string;
+    checkOutStr: string;
     status: string;
   };
 }
 
 export interface AlternativeSuggestion {
-  type: "before" | "after" | "split";
-  checkIn: Date;
-  checkOut: Date;
-  checkInStr: string;
-  checkOutStr: string;
+  type: "before" | "after" | "next";
+  checkIn: string; // "YYYY-MM-DD"
+  checkOut: string; // "YYYY-MM-DD"
   nights: number;
   description: string;
 }
 
 /**
- * Check if a date range overlaps with any existing bookings.
- * Two ranges overlap if one starts before the other ends AND ends after the other starts.
+ * Convert any Date object or ISO string to a clean local "YYYY-MM-DD" date string
+ */
+export function toDateStr(d: Date | string): string {
+  if (typeof d === "string") return d.slice(0, 10);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+/**
+ * Today's date as a local "YYYY-MM-DD" string
+ */
+export function getTodayStr(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+}
+
+/**
+ * Calculate the number of calendar nights between two "YYYY-MM-DD" dates
+ */
+export function calcNightsBetween(inStr: string, outStr: string): number {
+  if (!inStr || !outStr) return 0;
+  const [inY, inM, inD] = inStr.slice(0, 10).split("-").map(Number);
+  const [outY, outM, outD] = outStr.slice(0, 10).split("-").map(Number);
+  const diff = new Date(outY, outM - 1, outD).getTime() - new Date(inY, inM - 1, inD).getTime();
+  return Math.max(0, Math.round(diff / (1000 * 60 * 60 * 24)));
+}
+
+/**
+ * Add (or subtract) a given number of days to a "YYYY-MM-DD" string
+ */
+export function addDays(str: string, days: number): string {
+  const [y, m, d] = str.slice(0, 10).split("-").map(Number);
+  const next = new Date(y, m - 1, d + days);
+  return `${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, "0")}-${String(next.getDate()).padStart(2, "0")}`;
+}
+
+/**
+ * Check if a requested date range conflicts with any existing confirmed/pending bookings.
+ * Strictly day/night based: Check-out date is free for incoming guests on the same day.
  */
 export async function checkAvailability(
   range: DateRange,
@@ -39,208 +80,211 @@ export async function checkAvailability(
 ): Promise<ConflictResult> {
   await connectDB();
 
+  const reqInStr = toDateStr(range.checkIn);
+  const reqOutStr = toDateStr(range.checkOut);
+
+  if (!reqInStr || !reqOutStr || reqOutStr <= reqInStr) {
+    return { hasConflict: false };
+  }
+
+  // Broad date query to leverage MongoDB index with a safety margin
+  const [inY, inM, inD] = reqInStr.split("-").map(Number);
+  const [outY, outM, outD] = reqOutStr.split("-").map(Number);
+
+  const broadStart = new Date(Date.UTC(inY, inM - 1, inD - 2, 0, 0, 0));
+  const broadEnd = new Date(Date.UTC(outY, outM - 1, outD + 2, 23, 59, 59));
+
   const query: Record<string, unknown> = {
     status: { $in: ["pending", "confirmed"] },
-    // Overlap condition: existing.checkIn < newCheckOut AND existing.checkOut > newCheckIn
-    checkIn: { $lt: range.checkOut },
-    checkOut: { $gt: range.checkIn },
+    checkIn: { $lt: broadEnd },
+    checkOut: { $gt: broadStart },
   };
 
   if (excludeBookingId) {
     query._id = { $ne: excludeBookingId };
   }
 
-  const conflict = await Booking.findOne(query).lean();
+  const candidateBookings = await Booking.find(query).lean();
 
-  if (!conflict) {
-    return { hasConflict: false };
+  for (const b of candidateBookings) {
+    const bInStr = b.checkInDateStr || toDateStr(b.checkIn);
+    const bOutStr = b.checkOutDateStr || toDateStr(b.checkOut);
+
+    // Exact night overlap:
+    // Two bookings overlap if and only if bIn < reqOut && bOut > reqIn.
+    // If bOut === reqIn (existing checks out on requested check-in day): NO CONFLICT.
+    // If bIn === reqOut (existing checks in on requested check-out day): NO CONFLICT.
+    if (bInStr < reqOutStr && bOutStr > reqInStr) {
+      return {
+        hasConflict: true,
+        conflictingBooking: {
+          guestName: b.guestName,
+          checkIn: b.checkIn,
+          checkOut: b.checkOut,
+          checkInStr: bInStr,
+          checkOutStr: bOutStr,
+          status: b.status,
+        },
+      };
+    }
   }
 
-  return {
-    hasConflict: true,
-    conflictingBooking: {
-      guestName: conflict.guestName,
-      checkIn: conflict.checkIn,
-      checkOut: conflict.checkOut,
-      status: conflict.status,
-    },
-  };
+  return { hasConflict: false };
 }
 
 /**
- * Get all booked date ranges (pending + confirmed), used for calendar display
+ * Get all active booked date ranges (pending + confirmed) for calendar rendering
  */
 export async function getBookedRanges(): Promise<
-  Array<{ checkIn: Date; checkOut: Date; guestName: string; status: string }>
+  Array<{ checkIn: Date; checkOut: Date; checkInStr: string; checkOutStr: string; guestName: string; status: string }>
 > {
   await connectDB();
   const bookings = await Booking.find({
     status: { $in: ["pending", "confirmed"] },
   })
-    .select("checkIn checkOut guestName status")
+    .select("checkIn checkOut checkInDateStr checkOutDateStr guestName status")
     .lean();
 
   return bookings.map((b) => ({
     checkIn: b.checkIn,
     checkOut: b.checkOut,
+    checkInStr: b.checkInDateStr || toDateStr(b.checkIn),
+    checkOutStr: b.checkOutDateStr || toDateStr(b.checkOut),
     guestName: b.guestName,
     status: b.status,
   }));
 }
 
 /**
- * Smart alternative suggestion algorithm.
- * Looks for the nearest available window matching the same number of nights.
+ * Smart day-based alternative suggestion algorithm.
+ * Generates alternative available windows with the exact same number of nights.
  *
- * Strategy:
- * 1. Try exactly before the conflicting booking starts
- * 2. Try exactly after the conflicting booking ends
- * 3. Scan 90 days forward to find the next available window
+ * Strategies:
+ * 1. Check immediately after the conflicting booking(s) end
+ * 2. Check immediately before the conflicting booking(s) start (if not in the past)
+ * 3. Scan forward day by day for the next free window
  */
 export async function suggestAlternatives(
   requestedRange: DateRange
 ): Promise<AlternativeSuggestion[]> {
   await connectDB();
 
-  const toLocalISO = (d: Date) => {
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-  };
+  const reqInStr = toDateStr(requestedRange.checkIn);
+  const reqOutStr = toDateStr(requestedRange.checkOut);
+  const nights = Math.max(1, calcNightsBetween(reqInStr, reqOutStr));
+  const todayStr = getTodayStr();
 
-  const nights = Math.max(
-    1,
-    Math.round(
-      (new Date(
-        requestedRange.checkOut.getFullYear(),
-        requestedRange.checkOut.getMonth(),
-        requestedRange.checkOut.getDate()
-      ).getTime() -
-        new Date(
-          requestedRange.checkIn.getFullYear(),
-          requestedRange.checkIn.getMonth(),
-          requestedRange.checkIn.getDate()
-        ).getTime()) /
-        (1000 * 60 * 60 * 24)
-    )
-  );
+  // Scan up to 90 days forward from today
+  const scanLimitDays = 90;
+  const scanEndStr = addDays(todayStr > reqInStr ? todayStr : reqInStr, scanLimitDays);
 
-  // Fetch all bookings in the next 90 days
-  const scanEnd = new Date(requestedRange.checkIn);
-  scanEnd.setDate(scanEnd.getDate() + 90);
+  const [tY, tM, tD] = todayStr.split("-").map(Number);
+  const [eY, eM, eD] = scanEndStr.split("-").map(Number);
 
-  const existingBookings = await Booking.find({
+  const broadStart = new Date(Date.UTC(tY, tM - 1, tD - 2, 0, 0, 0));
+  const broadEnd = new Date(Date.UTC(eY, eM - 1, eD + 2, 23, 59, 59));
+
+  const activeBookings = await Booking.find({
     status: { $in: ["pending", "confirmed"] },
-    checkIn: { $lt: scanEnd },
-    checkOut: { $gt: new Date(Date.now() - 1000 * 60 * 60 * 24) }, // not in the past
+    checkIn: { $lt: broadEnd },
+    checkOut: { $gt: broadStart },
   })
-    .select("checkIn checkOut")
+    .select("checkIn checkOut checkInDateStr checkOutDateStr guestName")
     .sort({ checkIn: 1 })
     .lean();
 
-  const suggestions: AlternativeSuggestion[] = [];
-  const today = new Date();
-  today.setHours(requestedRange.checkIn.getHours(), requestedRange.checkIn.getMinutes(), 0, 0);
+  // Normalized list of existing booked night intervals [bInStr, bOutStr]
+  const bookedIntervals = activeBookings.map((b) => ({
+    inStr: b.checkInDateStr || toDateStr(b.checkIn),
+    outStr: b.checkOutDateStr || toDateStr(b.checkOut),
+    guestName: b.guestName,
+  }));
 
   /**
-   * Check if a candidate window is free from all bookings
+   * Helper: Is a candidate [candIn, candOut) free from any overlapping bookings?
    */
-  function isWindowFree(start: Date, end: Date): boolean {
-    for (const b of existingBookings) {
-      if (b.checkIn < end && b.checkOut > start) return false;
+  function isRangeAvailable(candIn: string, candOut: string): boolean {
+    if (candIn < todayStr) return false;
+    for (const b of bookedIntervals) {
+      if (b.inStr < candOut && b.outStr > candIn) {
+        return false;
+      }
     }
     return true;
   }
 
-  // --- Strategy 1: try BEFORE the requested check-in ---
-  const beforeEnd = new Date(requestedRange.checkIn);
-  const beforeStart = new Date(beforeEnd);
-  beforeStart.setDate(beforeStart.getDate() - nights);
-  beforeStart.setHours(requestedRange.checkIn.getHours(), requestedRange.checkIn.getMinutes(), 0, 0);
-  beforeEnd.setHours(requestedRange.checkOut.getHours(), requestedRange.checkOut.getMinutes(), 0, 0);
+  const suggestions: AlternativeSuggestion[] = [];
 
-  if (beforeStart >= today && isWindowFree(beforeStart, beforeEnd)) {
-    suggestions.push({
-      type: "before",
-      checkIn: new Date(beforeStart),
-      checkOut: new Date(beforeEnd),
-      checkInStr: toLocalISO(beforeStart),
-      checkOutStr: toLocalISO(beforeEnd),
-      nights,
-      description: `${nights} night${nights > 1 ? "s" : ""} just before your requested dates`,
-    });
-  }
+  // Identify bookings directly conflicting with requested stay
+  const conflicts = bookedIntervals.filter((b) => b.inStr < reqOutStr && b.outStr > reqInStr);
 
-  // --- Strategy 2: try AFTER the conflict ends ---
-  const conflictCheck = await Booking.findOne({
-    status: { $in: ["pending", "confirmed"] },
-    checkIn: { $lt: requestedRange.checkOut },
-    checkOut: { $gt: requestedRange.checkIn },
-  })
-    .sort({ checkOut: 1 })
-    .lean();
+  // --- Strategy 1: Immediately AFTER the conflict ends ---
+  if (conflicts.length > 0) {
+    // Find the latest checkout among all conflicting bookings
+    let maxConflictOut = conflicts[0].outStr;
+    for (const c of conflicts) {
+      if (c.outStr > maxConflictOut) maxConflictOut = c.outStr;
+    }
 
-  if (conflictCheck) {
-    const afterStart = new Date(conflictCheck.checkOut);
-    afterStart.setHours(requestedRange.checkIn.getHours(), requestedRange.checkIn.getMinutes(), 0, 0);
-    const afterEnd = new Date(afterStart);
-    afterEnd.setDate(afterEnd.getDate() + nights);
-    afterEnd.setHours(requestedRange.checkOut.getHours(), requestedRange.checkOut.getMinutes(), 0, 0);
+    const candIn = maxConflictOut;
+    const candOut = addDays(candIn, nights);
 
-    if (isWindowFree(afterStart, afterEnd)) {
+    if (isRangeAvailable(candIn, candOut)) {
       suggestions.push({
         type: "after",
-        checkIn: new Date(afterStart),
-        checkOut: new Date(afterEnd),
-        checkInStr: toLocalISO(afterStart),
-        checkOutStr: toLocalISO(afterEnd),
+        checkIn: candIn,
+        checkOut: candOut,
         nights,
-        description: `${nights} night${nights > 1 ? "s" : ""} immediately after current booking`,
+        description: `${nights} night${nights !== 1 ? "s" : ""} right after the current booking`,
       });
     }
   }
 
-  // --- Strategy 3: Scan forward to find next free window ---
-  if (suggestions.length < 2) {
-    let scanStart = new Date(requestedRange.checkIn);
-    scanStart.setHours(requestedRange.checkIn.getHours(), requestedRange.checkIn.getMinutes(), 0, 0);
+  // --- Strategy 2: Immediately BEFORE the conflict starts ---
+  if (conflicts.length > 0) {
+    // Find the earliest checkin among all conflicting bookings
+    let minConflictIn = conflicts[0].inStr;
+    for (const c of conflicts) {
+      if (c.inStr < minConflictIn) minConflictIn = c.inStr;
+    }
 
-    // Scan day by day for next 90 days
-    for (let i = 0; i < 90; i++) {
-      const candidateEnd = new Date(scanStart);
-      candidateEnd.setDate(candidateEnd.getDate() + nights);
-      candidateEnd.setHours(requestedRange.checkOut.getHours(), requestedRange.checkOut.getMinutes(), 0, 0);
+    const candOut = minConflictIn;
+    const candIn = addDays(candOut, -nights);
 
-      if (isWindowFree(scanStart, candidateEnd)) {
-        // Make sure this isn't the same as an existing suggestion
-        const isDuplicate = suggestions.some(
-          (s) => Math.abs(s.checkIn.getTime() - scanStart.getTime()) < 60000
-        );
-        if (!isDuplicate) {
+    if (candIn >= todayStr && isRangeAvailable(candIn, candOut)) {
+      suggestions.push({
+        type: "before",
+        checkIn: candIn,
+        checkOut: candOut,
+        nights,
+        description: `${nights} night${nights !== 1 ? "s" : ""} right before the booked dates`,
+      });
+    }
+  }
+
+  // --- Strategy 3: Nearest Upcoming Available Window ---
+  if (suggestions.length < 3) {
+    const baseDate = reqInStr > todayStr ? reqInStr : todayStr;
+
+    for (let dayOffset = 1; dayOffset <= 60; dayOffset++) {
+      const candIn = addDays(baseDate, dayOffset);
+      const candOut = addDays(candIn, nights);
+
+      if (isRangeAvailable(candIn, candOut)) {
+        // Ensure not duplicate
+        const exists = suggestions.some((s) => s.checkIn === candIn && s.checkOut === candOut);
+        if (!exists) {
           suggestions.push({
-            type: "after",
-            checkIn: new Date(scanStart),
-            checkOut: new Date(candidateEnd),
-            checkInStr: toLocalISO(scanStart),
-            checkOutStr: toLocalISO(candidateEnd),
+            type: "next",
+            checkIn: candIn,
+            checkOut: candOut,
             nights,
-            description: `Next available ${nights}-night window`,
+            description: `Next available ${nights}-night stay`,
           });
-          break;
         }
       }
 
-      // Jump to the end of conflicting booking
-      let jumped = false;
-      for (const b of existingBookings) {
-        if (b.checkIn <= scanStart && b.checkOut > scanStart) {
-          scanStart = new Date(b.checkOut);
-          scanStart.setHours(14, 0, 0, 0);
-          jumped = true;
-          break;
-        }
-      }
-      if (!jumped) {
-        scanStart.setDate(scanStart.getDate() + 1);
-      }
+      if (suggestions.length >= 3) break;
     }
   }
 

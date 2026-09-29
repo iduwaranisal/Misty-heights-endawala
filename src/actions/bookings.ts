@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { connectDB } from "@/lib/db";
 import Booking, { BookingSource, BookingStatus } from "@/models/Booking";
-import { checkAvailability, suggestAlternatives } from "@/lib/availability";
+import { checkAvailability, suggestAlternatives, calcNightsBetween, getTodayStr } from "@/lib/availability";
 import { verifyAdminSession, createAdminSession, setSessionCookie, clearSessionCookie } from "@/lib/auth";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -77,67 +77,60 @@ export async function submitPublicBooking(
       return { success: false, message: "Please provide a valid phone or WhatsApp number" };
     }
 
-    const [inY, inM, inD] = data.checkIn.split("-").map(Number);
-    const [outY, outM, outD] = data.checkOut.split("-").map(Number);
-    const [inH, inMin] = (data.checkInTime || "14:00").split(":").map(Number);
-    const [outH, outMin] = (data.checkOutTime || "11:00").split(":").map(Number);
-    
-    const checkInDate = new Date(inY, inM - 1, inD, inH, inMin, 0, 0);
-    const checkOutDate = new Date(outY, outM - 1, outD, outH, outMin, 0, 0);
+    const ci = data.checkIn.slice(0, 10);
+    const co = data.checkOut.slice(0, 10);
 
-    if (checkInDate >= checkOutDate) {
-      return { success: false, message: "Check-out must be after check-in" };
+    if (co <= ci) {
+      return { success: false, message: "Check-out date must be after check-in date" };
     }
     
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    if (new Date(inY, inM - 1, inD) < today) {
+    const todayStr = getTodayStr();
+    if (ci < todayStr) {
       return { success: false, message: "Check-in date cannot be in the past" };
     }
 
-    // Check availability
-    const conflict = await checkAvailability({ checkIn: checkInDate, checkOut: checkOutDate });
+    const nights = calcNightsBetween(ci, co);
+    if (nights < 1) {
+      return { success: false, message: "Stay must be at least 1 night" };
+    }
+
+    // Check availability strictly by days
+    const conflict = await checkAvailability({ checkIn: ci, checkOut: co });
 
     if (conflict.hasConflict) {
-      // Generate smart alternatives
+      // Generate smart alternatives based strictly on days
       const alternatives = await suggestAlternatives({
-        checkIn: checkInDate,
-        checkOut: checkOutDate,
+        checkIn: ci,
+        checkOut: co,
       });
 
       return {
         success: false,
-        message: `Sorry, those dates are not available (${conflict.conflictingBooking?.guestName ? "property already booked" : "conflict detected"}). We found ${alternatives.length} alternative date(s) that work!`,
+        message: `Sorry, those dates are already booked. We found ${alternatives.length} smart alternative date(s) for your ${nights}-night stay!`,
         suggestions: alternatives.map((a) => ({
-          checkIn: a.checkInStr,
-          checkOut: a.checkOutStr,
+          checkIn: a.checkIn,
+          checkOut: a.checkOut,
           nights: a.nights,
           description: a.description,
         })),
       };
     }
 
-    // Calculate calendar nights accurately
-    const nights = Math.max(
-      1,
-      Math.round(
-        (new Date(outY, outM - 1, outD).getTime() - new Date(inY, inM - 1, inD).getTime()) /
-          (1000 * 60 * 60 * 24)
-      )
-    );
-
     const validGuests = Math.max(1, parseInt(String(data.guests), 10) || 1);
+
+    const [inY, inM, inD] = ci.split("-").map(Number);
+    const [outY, outM, outD] = co.split("-").map(Number);
 
     const booking = new Booking({
       guestName: data.guestName.trim(),
       guestPhone: data.guestPhone.trim(),
       guestEmail: data.guestEmail?.trim(),
-      checkIn: checkInDate,
-      checkOut: checkOutDate,
+      checkIn: new Date(Date.UTC(inY, inM - 1, inD, 14, 0, 0)),
+      checkOut: new Date(Date.UTC(outY, outM - 1, outD, 11, 0, 0)),
       checkInTime: data.checkInTime || "14:00",
       checkOutTime: data.checkOutTime || "11:00",
-      checkInDateStr: data.checkIn,
-      checkOutDateStr: data.checkOut,
+      checkInDateStr: ci,
+      checkOutDateStr: co,
       guests: validGuests,
       notes: data.notes?.trim(),
       status: "pending",
@@ -178,51 +171,46 @@ export async function adminCreateBooking(
       return { success: false, message: "Please provide phone number" };
     }
 
-    const [inY, inM, inD] = data.checkIn.split("-").map(Number);
-    const [outY, outM, outD] = data.checkOut.split("-").map(Number);
-    const [inH, inMin] = (data.checkInTime || "14:00").split(":").map(Number);
-    const [outH, outMin] = (data.checkOutTime || "11:00").split(":").map(Number);
-    
-    const checkInDate = new Date(inY, inM - 1, inD, inH, inMin, 0, 0);
-    const checkOutDate = new Date(outY, outM - 1, outD, outH, outMin, 0, 0);
+    const ci = data.checkIn.slice(0, 10);
+    const co = data.checkOut.slice(0, 10);
 
-    if (checkInDate >= checkOutDate) {
-      return { success: false, message: "Check-out must be after check-in" };
+    if (co <= ci) {
+      return { success: false, message: "Check-out date must be after check-in date" };
     }
 
-    const conflict = await checkAvailability({ checkIn: checkInDate, checkOut: checkOutDate });
+    const nights = calcNightsBetween(ci, co);
+    if (nights < 1) {
+      return { success: false, message: "Stay must be at least 1 night" };
+    }
+
+    const conflict = await checkAvailability({ checkIn: ci, checkOut: co });
     if (conflict.hasConflict) {
-      const alternatives = await suggestAlternatives({ checkIn: checkInDate, checkOut: checkOutDate });
+      const alternatives = await suggestAlternatives({ checkIn: ci, checkOut: co });
       return {
         success: false,
-        message: `Date conflict with ${conflict.conflictingBooking?.guestName}'s booking (${conflict.conflictingBooking?.checkIn.toLocaleDateString()} – ${conflict.conflictingBooking?.checkOut.toLocaleDateString()})`,
+        message: `Date conflict with ${conflict.conflictingBooking?.guestName}'s booking (${conflict.conflictingBooking?.checkInStr || ci} – ${conflict.conflictingBooking?.checkOutStr || co})`,
         suggestions: alternatives.map((a) => ({
-          checkIn: a.checkInStr,
-          checkOut: a.checkOutStr,
+          checkIn: a.checkIn,
+          checkOut: a.checkOut,
           nights: a.nights,
           description: a.description,
         })),
       };
     }
 
-    const nights = Math.max(
-      1,
-      Math.round(
-        (new Date(outY, outM - 1, outD).getTime() - new Date(inY, inM - 1, inD).getTime()) /
-          (1000 * 60 * 60 * 24)
-      )
-    );
+    const [inY, inM, inD] = ci.split("-").map(Number);
+    const [outY, outM, outD] = co.split("-").map(Number);
 
     const booking = new Booking({
       guestName: data.guestName.trim(),
       guestPhone: data.guestPhone.trim(),
       guestEmail: data.guestEmail?.trim(),
-      checkIn: checkInDate,
-      checkOut: checkOutDate,
+      checkIn: new Date(Date.UTC(inY, inM - 1, inD, 14, 0, 0)),
+      checkOut: new Date(Date.UTC(outY, outM - 1, outD, 11, 0, 0)),
       checkInTime: data.checkInTime || "14:00",
       checkOutTime: data.checkOutTime || "11:00",
-      checkInDateStr: data.checkIn,
-      checkOutDateStr: data.checkOut,
+      checkInDateStr: ci,
+      checkOutDateStr: co,
       guests: Math.max(1, parseInt(String(data.guests), 10) || 1),
       notes: data.notes?.trim(),
       status: "confirmed",  // Admin-created bookings are auto-confirmed
@@ -360,31 +348,27 @@ export async function getBookingStats() {
 export async function checkDateAvailabilityAction(
   checkIn: string,
   checkOut: string,
-  checkInTime: string = "14:00",
-  checkOutTime: string = "11:00",
-  excludeId?: string
+  arg3?: string,
+  _arg4?: string,
+  arg5?: string
 ): Promise<ActionResult> {
   try {
     await connectDB();
-    const [inY, inM, inD] = checkIn.split("-").map(Number);
-    const [outY, outM, outD] = checkOut.split("-").map(Number);
-    const [inH, inMin] = checkInTime.split(":").map(Number);
-    const [outH, outMin] = checkOutTime.split(":").map(Number);
-    
-    const checkInDate = new Date(inY, inM - 1, inD, inH, inMin, 0, 0);
-    const checkOutDate = new Date(outY, outM - 1, outD, outH, outMin, 0, 0);
+    if (!checkIn || !checkOut) {
+      return { success: false, message: "Please select both check-in and check-out dates." };
+    }
 
-    if (checkOutDate <= checkInDate) {
+    const ci = checkIn.slice(0, 10);
+    const co = checkOut.slice(0, 10);
+
+    if (co <= ci) {
       return {
         success: false,
-        message: "Check-out must be after check-in date and time.",
+        message: "Check-out date must be after check-in date.",
       };
     }
 
-    const nights = Math.round(
-      (new Date(outY, outM - 1, outD).getTime() - new Date(inY, inM - 1, inD).getTime()) /
-        (1000 * 60 * 60 * 24)
-    );
+    const nights = calcNightsBetween(ci, co);
     if (nights < 1) {
       return {
         success: false,
@@ -392,27 +376,31 @@ export async function checkDateAvailabilityAction(
       };
     }
 
+    // Support excludeId whether passed as 3rd param (new signature) or 5th param (legacy)
+    const excludeId = typeof arg3 === "string" && !arg3.includes(":") ? arg3 : arg5;
+
     const conflict = await checkAvailability(
-      { checkIn: checkInDate, checkOut: checkOutDate },
+      { checkIn: ci, checkOut: co },
       excludeId
     );
 
     if (!conflict.hasConflict) {
-      return { success: true, message: "Available! Dates are free." };
+      return { success: true, message: "Great! Those dates are free and available." };
     }
 
-    const alternatives = await suggestAlternatives({ checkIn: checkInDate, checkOut: checkOutDate });
+    const alternatives = await suggestAlternatives({ checkIn: ci, checkOut: co });
     return {
       success: false,
-      message: "Dates are not available.",
+      message: "Those dates are already booked.",
       suggestions: alternatives.map((a) => ({
-        checkIn: a.checkInStr,
-        checkOut: a.checkOutStr,
+        checkIn: a.checkIn,
+        checkOut: a.checkOut,
         nights: a.nights,
         description: a.description,
       })),
     };
-  } catch {
-    return { success: false, message: "Could not check availability" };
+  } catch (err) {
+    console.error("checkDateAvailabilityAction error:", err);
+    return { success: false, message: "Could not check availability. Please try again." };
   }
 }

@@ -156,14 +156,9 @@ export default function BookingModal({
   const { getSetting } = useSettings();
   const whatsapp = getSetting("site.contact.whatsapp", "94719817000");
   const primaryPhone = getSetting("site.contact.primaryPhone", "071 981 7000");
-  const defaultCheckInTime = getSetting("site.booking.defaultCheckInTime", "14:00");
-  const defaultCheckOutTime = getSetting("site.booking.defaultCheckOutTime", "11:00");
-
   const [step, setStep] = useState<Step>("dates");
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
-  const [checkInTime, setCheckInTime] = useState(defaultCheckInTime);
-  const [checkOutTime, setCheckOutTime] = useState(defaultCheckOutTime);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -201,8 +196,8 @@ export default function BookingModal({
     onClose();
   };
 
-  // Check availability when both dates set
-  const checkDates = useCallback((ci: string, co: string, timeIn: string, timeOut: string) => {
+  // Check availability strictly by dates
+  const checkDates = useCallback((ci: string, co: string) => {
     if (!ci || !co) return;
     const n = calcNights(ci, co);
     if (co <= ci || n < 1) {
@@ -215,7 +210,7 @@ export default function BookingModal({
     setSuggestions([]);
     setErrorMsg("");
     startCheck(async () => {
-      const res = await checkDateAvailabilityAction(ci, co, timeIn, timeOut);
+      const res = await checkDateAvailabilityAction(ci, co);
       if (res.success) {
         setAvailStatus("free");
       } else {
@@ -235,7 +230,7 @@ export default function BookingModal({
     if (checkOut && checkOut <= v) {
       setCheckOut("");
     } else if (checkOut && checkOut > v) {
-      checkDates(v, checkOut, checkInTime, checkOutTime);
+      checkDates(v, checkOut);
     }
   };
 
@@ -245,17 +240,7 @@ export default function BookingModal({
     setSuggestions([]);
     setErrorMsg("");
     if (checkIn && v > checkIn) {
-      checkDates(checkIn, v, checkInTime, checkOutTime);
-    }
-  };
-
-  const handleTimeChange = (type: 'in' | 'out', val: string) => {
-    if (type === 'in') {
-      setCheckInTime(val);
-      if (checkIn && checkOut && checkOut > checkIn) checkDates(checkIn, checkOut, val, checkOutTime);
-    } else {
-      setCheckOutTime(val);
-      if (checkIn && checkOut && checkOut > checkIn) checkDates(checkIn, checkOut, checkInTime, val);
+      checkDates(checkIn, v);
     }
   };
 
@@ -281,14 +266,15 @@ export default function BookingModal({
     setErrorMsg("");
     const validGuests = Math.max(1, guests || 1);
     startTransition(async () => {
-      const res = await submitPublicBooking({ guestName: name, guestPhone: phone, guestEmail: email, checkIn, checkOut, checkInTime, checkOutTime, guests: validGuests, notes });
+      const res = await submitPublicBooking({ guestName: name, guestPhone: phone, guestEmail: email, checkIn, checkOut, guests: validGuests, notes });
       if (res.success && res.data) {
         setBookingId((res.data as { bookingId: string }).bookingId || "");
         setStep("success");
         // Open WhatsApp to notify
-        const msg = `🌿 Ayubowan Misty Heights Endawala!\n\nMy booking has been submitted:\n• Name: ${name}\n• Phone: ${phone}\n• Check-in: ${fmt(checkIn)} at ${checkInTime}\n• Check-out: ${fmt(checkOut)} at ${checkOutTime}\n• ${nights} night${nights !== 1 ? "s" : ""} · ${validGuests} guest${validGuests !== 1 ? "s" : ""}\n${notes ? `• Notes: ${notes}\n` : ""}• Booking Ref: #${(res.data as { bookingId: string }).bookingId?.slice(-6).toUpperCase()}\n\nPlease confirm my reservation. Thank you!`;
+        const cleanWa = whatsapp.replace(/\D/g, "");
+        const msg = `🌿 Ayubowan Misty Heights Endawala!\n\nMy booking has been submitted:\n• Name: ${name}\n• Phone: ${phone}\n• Check-in: ${fmt(checkIn)} (from 2:00 PM)\n• Check-out: ${fmt(checkOut)} (by 11:00 AM)\n• Duration: ${nights} night${nights !== 1 ? "s" : ""} · ${validGuests} guest${validGuests !== 1 ? "s" : ""}\n${notes ? `• Special Notes: ${notes}\n` : ""}• Booking Ref: #${(res.data as { bookingId: string }).bookingId?.slice(-6).toUpperCase()}\n\nPlease confirm my reservation. Thank you!`;
         setTimeout(() => {
-          window.open(`https://wa.me/${whatsapp}?text=${encodeURIComponent(msg)}`, "_blank");
+          window.open(`https://wa.me/${cleanWa}?text=${encodeURIComponent(msg)}`, "_blank");
         }, 800);
       } else {
         setErrorMsg(res.message);
@@ -355,29 +341,30 @@ export default function BookingModal({
             <>
               {/* Calendar pickers */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="space-y-2">
-                  <InlineCalendar
-                    label="Check-In Date"
-                    value={checkIn}
-                    onChange={handleCheckInChange}
-                    minDate={toLocalToday()}
-                  />
-                  <div className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-gray-50">
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider w-12">Time</span>
-                    <input type="time" value={checkInTime} onChange={e => handleTimeChange('in', e.target.value)} className="flex-1 bg-transparent border-none text-sm font-bold text-gray-900 outline-none p-0 cursor-pointer" />
-                  </div>
+                <InlineCalendar
+                  label="Check-In Date"
+                  value={checkIn}
+                  onChange={handleCheckInChange}
+                  minDate={toLocalToday()}
+                />
+                <InlineCalendar
+                  label="Check-Out Date"
+                  value={checkOut}
+                  onChange={handleCheckOutChange}
+                  minDate={checkIn ? getNextDay(checkIn) : getNextDay(toLocalToday())}
+                />
+              </div>
+
+              {/* Standard Hotel Hours Info */}
+              <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-[11px] text-gray-600">
+                <div className="flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Check-in: <strong>From 2:00 PM</strong></span>
                 </div>
-                <div className="space-y-2">
-                  <InlineCalendar
-                    label="Check-Out Date"
-                    value={checkOut}
-                    onChange={handleCheckOutChange}
-                    minDate={checkIn ? getNextDay(checkIn) : getNextDay(toLocalToday())}
-                  />
-                  <div className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 bg-gray-50">
-                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider w-12">Time</span>
-                    <input type="time" value={checkOutTime} onChange={e => handleTimeChange('out', e.target.value)} className="flex-1 bg-transparent border-none text-sm font-bold text-gray-900 outline-none p-0 cursor-pointer" />
-                  </div>
+                <span className="text-gray-300">•</span>
+                <div className="flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Check-out: <strong>By 11:00 AM</strong></span>
                 </div>
               </div>
 
@@ -617,8 +604,8 @@ export default function BookingModal({
                 {[
                   { label: "Guest", value: name, icon: User },
                   { label: "Phone", value: phone, icon: Phone },
-                  { label: "Check-In", value: `${fmt(checkIn)} at ${checkInTime}`, icon: Calendar },
-                  { label: "Check-Out", value: `${fmt(checkOut)} at ${checkOutTime}`, icon: Calendar },
+                  { label: "Check-In", value: `${fmt(checkIn)} (from 2:00 PM)`, icon: Calendar },
+                  { label: "Check-Out", value: `${fmt(checkOut)} (by 11:00 AM)`, icon: Calendar },
                   { label: "Duration", value: `${nights} night${nights !== 1 ? "s" : ""}`, icon: Clock },
                   { label: "Guests", value: `${guests} guest${guests !== 1 ? "s" : ""}`, icon: Users },
                 ].map(({ label, value, icon: Icon }) => (

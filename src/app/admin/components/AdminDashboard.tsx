@@ -248,7 +248,6 @@ function NewBookingForm({ onSuccess }: { onSuccess: () => void }) {
   const [form, setForm] = useState({
     guestName: "", guestPhone: "", guestEmail: "",
     checkIn: "", checkOut: "",
-    checkInTime: "14:00", checkOutTime: "11:00",
     guests: 2, notes: "",
     source: "manual" as string,
   });
@@ -257,18 +256,29 @@ function NewBookingForm({ onSuccess }: { onSuccess: () => void }) {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [result, setResult] = useState<{ ok: boolean; msg: string } | null>(null);
 
+  const getNextDay = (dateStr: string) => {
+    if (!dateStr) return new Date().toISOString().slice(0, 10);
+    const [y, m, d] = dateStr.slice(0, 10).split("-").map(Number);
+    const next = new Date(y, m - 1, d + 1);
+    return `${next.getFullYear()}-${String(next.getMonth() + 1).padStart(2, "0")}-${String(next.getDate()).padStart(2, "0")}`;
+  };
+
   const handleDateBlur = useCallback(() => {
     if (!form.checkIn || !form.checkOut) return;
+    if (form.checkOut <= form.checkIn) {
+      setAvailabilityStatus("idle");
+      return;
+    }
     setAvailabilityStatus("checking");
     setSuggestions([]);
     startTransition(async () => {
-      const res = await checkDateAvailabilityAction(form.checkIn, form.checkOut, form.checkInTime, form.checkOutTime);
+      const res = await checkDateAvailabilityAction(form.checkIn, form.checkOut);
       setAvailabilityStatus(res.success ? "free" : "conflict");
       if (!res.success && res.suggestions) {
         setSuggestions(res.suggestions as Suggestion[]);
       }
     });
-  }, [form.checkIn, form.checkOut, form.checkInTime, form.checkOutTime]);
+  }, [form.checkIn, form.checkOut]);
 
   const applySuggestion = (s: Suggestion) => {
     setForm((f) => ({
@@ -276,7 +286,7 @@ function NewBookingForm({ onSuccess }: { onSuccess: () => void }) {
       checkIn: s.checkIn.slice(0, 10),
       checkOut: s.checkOut.slice(0, 10),
     }));
-    setAvailabilityStatus("idle");
+    setAvailabilityStatus("free");
     setSuggestions([]);
   };
 
@@ -294,7 +304,6 @@ function NewBookingForm({ onSuccess }: { onSuccess: () => void }) {
         setForm({
           guestName: "", guestPhone: "", guestEmail: "",
           checkIn: "", checkOut: "",
-          checkInTime: "14:00", checkOutTime: "11:00",
           guests: 2, notes: "", source: "manual",
         });
         setAvailabilityStatus("idle");
@@ -348,8 +357,8 @@ function NewBookingForm({ onSuccess }: { onSuccess: () => void }) {
         />
       </div>
 
-      {/* Date + Time */}
-      <div className="grid grid-cols-2 gap-3">
+      {/* Date Pickers */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wider">
             Check-In Date *
@@ -358,18 +367,16 @@ function NewBookingForm({ onSuccess }: { onSuccess: () => void }) {
             className={inputCls} type="date" required
             value={form.checkIn}
             min={new Date().toISOString().slice(0, 10)}
-            onChange={(e) => setForm((f) => ({ ...f, checkIn: e.target.value }))}
+            onChange={(e) => {
+              const val = e.target.value;
+              setForm((f) => ({
+                ...f,
+                checkIn: val,
+                checkOut: f.checkOut && f.checkOut <= val ? "" : f.checkOut,
+              }));
+              setAvailabilityStatus("idle");
+            }}
             onBlur={handleDateBlur}
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wider">
-            Check-In Time
-          </label>
-          <input
-            className={inputCls} type="time"
-            value={form.checkInTime}
-            onChange={(e) => setForm((f) => ({ ...f, checkInTime: e.target.value }))}
           />
         </div>
         <div>
@@ -379,20 +386,26 @@ function NewBookingForm({ onSuccess }: { onSuccess: () => void }) {
           <input
             className={inputCls} type="date" required
             value={form.checkOut}
-            min={form.checkIn || new Date().toISOString().slice(0, 10)}
-            onChange={(e) => setForm((f) => ({ ...f, checkOut: e.target.value }))}
+            min={form.checkIn ? getNextDay(form.checkIn) : getNextDay(new Date().toISOString().slice(0, 10))}
+            onChange={(e) => {
+              setForm((f) => ({ ...f, checkOut: e.target.value }));
+              setAvailabilityStatus("idle");
+            }}
             onBlur={handleDateBlur}
           />
         </div>
-        <div>
-          <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wider">
-            Check-Out Time
-          </label>
-          <input
-            className={inputCls} type="time"
-            value={form.checkOutTime}
-            onChange={(e) => setForm((f) => ({ ...f, checkOutTime: e.target.value }))}
-          />
+      </div>
+
+      {/* Villa Policy Note */}
+      <div className="flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-gray-50 border border-gray-200 text-xs text-gray-600">
+        <div className="flex items-center gap-1.5">
+          <Clock className="w-3.5 h-3.5 text-emerald-600" />
+          <span>Check-in: <strong>From 2:00 PM</strong></span>
+        </div>
+        <span className="text-gray-300">•</span>
+        <div className="flex items-center gap-1.5">
+          <Clock className="w-3.5 h-3.5 text-emerald-600" />
+          <span>Check-out: <strong>By 11:00 AM</strong></span>
         </div>
       </div>
 
@@ -581,14 +594,14 @@ function BookingCard({ booking, onRefresh }: { booking: Booking; onRefresh: () =
         <Calendar className="w-4 h-4 text-emerald-600 shrink-0" />
         <div className="text-xs">
           <span className="font-semibold text-gray-800">
-            {fmt(booking.checkIn)} {booking.checkInTime}
+            {fmt(booking.checkIn)}
           </span>
           <span className="text-gray-400 mx-2">→</span>
           <span className="font-semibold text-gray-800">
-            {fmt(booking.checkOut)} {booking.checkOutTime}
+            {fmt(booking.checkOut)}
           </span>
-          <span className="ml-2 text-gray-500">
-            · {booking.totalNights} night{booking.totalNights !== 1 ? "s" : ""}
+          <span className="ml-2 font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+            {booking.totalNights} night{booking.totalNights !== 1 ? "s" : ""}
           </span>
         </div>
       </div>
