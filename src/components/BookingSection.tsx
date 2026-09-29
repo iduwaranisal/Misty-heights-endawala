@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import {
   Calendar,
   Users,
@@ -13,33 +13,69 @@ import {
   ArrowRight,
   User,
   HeartHandshake,
+  AlertTriangle,
+  CheckCircle,
+  Loader2,
 } from "lucide-react";
+import { submitPublicBooking, checkDateAvailabilityAction } from "@/actions/bookings";
+
+interface Suggestion {
+  checkIn: string;
+  checkOut: string;
+  nights: number;
+  description: string;
+}
+
+const fmt = (iso: string) =>
+  new Date(iso).toLocaleDateString("en-LK", { day: "2-digit", month: "short", year: "numeric" });
 
 export default function BookingSection() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
-  const [guests, setGuests] = useState("2 Guests · Couples Retreat");
+  const [guests, setGuests] = useState(2);
   const [notes, setNotes] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  const [availStatus, setAvailStatus] = useState<"idle" | "checking" | "free" | "conflict">("idle");
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [result, setResult] = useState<{ ok: boolean; msg: string } | null>(null);
+  const [isPending, startTransition] = useTransition();
+  const [isCheckingDates, startCheck] = useTransition();
+
+  const handleDateBlur = () => {
+    if (!checkIn || !checkOut) return;
+    setAvailStatus("checking");
+    setSuggestions([]);
+    startCheck(async () => {
+      const res = await checkDateAvailabilityAction(checkIn, checkOut);
+      setAvailStatus(res.success ? "free" : "conflict");
+      if (!res.success && res.suggestions) setSuggestions(res.suggestions as Suggestion[]);
+    });
+  };
+
+  const applySuggestion = (s: Suggestion) => {
+    setCheckIn(s.checkIn.slice(0, 10));
+    setCheckOut(s.checkOut.slice(0, 10));
+    setAvailStatus("idle");
+    setSuggestions([]);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    const message = `🌿 Ayubowan Misty Heights Endawala! 🌿
-I would like to inquire about booking a stay:
-• Name: ${name || "Guest"}
-• Phone: ${phone || "Not provided"}
-• Check-in: ${checkIn || "Flexible"}
-• Check-out: ${checkOut || "Flexible"}
-• Guests: ${guests}
-${notes ? `• Special Requests: ${notes}` : ""}
-
-Please let me know availability and details. Thank you!`;
-
-    window.open(`https://wa.me/94719817000?text=${encodeURIComponent(message)}`, "_blank");
-    setSubmitted(true);
+    setResult(null);
+    startTransition(async () => {
+      const res = await submitPublicBooking({ guestName: name, guestPhone: phone, checkIn, checkOut, guests, notes });
+      if (res.success) {
+        setResult({ ok: true, msg: res.message });
+        // Also open WhatsApp as confirmation channel
+        const msg = `🌿 Ayubowan Misty Heights Endawala!\nBooking confirmed in our system.\n• Name: ${name}\n• Phone: ${phone}\n• Check-in: ${checkIn}\n• Check-out: ${checkOut}\n• Guests: ${guests}\n${notes ? `• Notes: ${notes}` : ""}`;
+        window.open(`https://wa.me/94719817000?text=${encodeURIComponent(msg)}`, "_blank");
+        setName(""); setPhone(""); setCheckIn(""); setCheckOut(""); setNotes("");
+      } else {
+        setResult({ ok: false, msg: res.message });
+        if (res.suggestions) setSuggestions(res.suggestions as Suggestion[]);
+      }
+    });
   };
 
   return (
@@ -117,7 +153,7 @@ Please let me know availability and details. Thank you!`;
                 </div>
               </div>
 
-              {/* Dates */}
+               {/* Dates */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
@@ -129,7 +165,9 @@ Please let me know availability and details. Thank you!`;
                       type="date"
                       required
                       value={checkIn}
+                      min={new Date().toISOString().slice(0, 10)}
                       onChange={(e) => setCheckIn(e.target.value)}
+                      onBlur={handleDateBlur}
                       className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-50/80 border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition-all"
                     />
                   </div>
@@ -145,29 +183,81 @@ Please let me know availability and details. Thank you!`;
                       type="date"
                       required
                       value={checkOut}
+                      min={checkIn || new Date().toISOString().slice(0, 10)}
                       onChange={(e) => setCheckOut(e.target.value)}
+                      onBlur={handleDateBlur}
                       className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-50/80 border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition-all"
                     />
                   </div>
                 </div>
               </div>
 
+              {/* Availability Indicator */}
+              {availStatus !== "idle" && (
+                <div className={`flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium border
+                  ${availStatus === "checking" ? "bg-blue-50 border-blue-200 text-blue-700" :
+                    availStatus === "free" ? "bg-emerald-50 border-emerald-200 text-emerald-800" :
+                    "bg-red-50 border-red-200 text-red-700"}`}
+                >
+                  {availStatus === "checking" && <Loader2 className="w-4 h-4 animate-spin shrink-0" />}
+                  {availStatus === "free" && <CheckCircle className="w-4 h-4 shrink-0" />}
+                  {availStatus === "conflict" && <AlertTriangle className="w-4 h-4 shrink-0" />}
+                  <span className="text-sm">
+                    {availStatus === "checking" && "Checking availability..."}
+                    {availStatus === "free" && "✓ Great news! Those dates are available."}
+                    {availStatus === "conflict" && "Those dates are already booked. See alternatives below."}
+                  </span>
+                </div>
+              )}
+
+              {/* Smart Alternative Suggestions */}
+              {suggestions.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                    Nearest Available Dates for You
+                  </p>
+                  {suggestions.map((s, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => applySuggestion(s)}
+                      className="w-full flex items-center justify-between p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/80 hover:bg-emerald-100 text-left transition-colors group"
+                    >
+                      <div>
+                        <p className="text-sm font-semibold text-emerald-900">
+                          {fmt(s.checkIn)} → {fmt(s.checkOut)}
+                        </p>
+                        <p className="text-xs text-emerald-700 mt-0.5">
+                          {s.nights} night{s.nights > 1 ? "s" : ""} · {s.description}
+                        </p>
+                      </div>
+                      <span className="text-xs font-bold text-emerald-700 bg-emerald-200 px-2 py-1 rounded-lg group-hover:bg-emerald-300">
+                        Select →
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
               {/* Guests Count */}
               <div>
                 <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-                  Guests & Travel Party
+                  Guests &amp; Travel Party
                 </label>
                 <div className="relative">
                   <Users className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <select
                     value={guests}
-                    onChange={(e) => setGuests(e.target.value)}
+                    onChange={(e) => setGuests(Number(e.target.value))}
                     className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-50/80 border border-gray-200 text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:bg-white transition-all"
                   >
-                    <option value="2 Guests · Couples Retreat">2 Guests · Couples Retreat</option>
-                    <option value="3–4 Guests · Family or Small Group">3–4 Guests · Family or Small Group</option>
-                    <option value="5–8 Guests · Group Getaway">5–8 Guests · Group Getaway</option>
-                    <option value="Entire Wooden Cabana (Private Stay)">Entire Wooden Cabana (Private Stay)</option>
+                    <option value={2}>2 Guests · Couples Retreat</option>
+                    <option value={3}>3 Guests · Small Family</option>
+                    <option value={4}>4 Guests · Family / Friends</option>
+                    <option value={6}>5–6 Guests · Group Getaway</option>
+                    <option value={8}>7–8 Guests · Large Group</option>
+                    <option value={10}>9–10 Guests · Private Party</option>
                   </select>
                 </div>
               </div>
@@ -186,23 +276,29 @@ Please let me know availability and details. Thank you!`;
                 />
               </div>
 
+              {/* Result message */}
+              {result && (
+                <div className={`p-3.5 rounded-xl text-sm font-medium border text-center
+                  ${result.ok ? "bg-emerald-50 border-emerald-300 text-emerald-800" : "bg-red-50 border-red-200 text-red-700"}`}
+                >
+                  {result.msg}
+                </div>
+              )}
+
               {/* Submit CTA */}
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full py-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm sm:text-base shadow-xl shadow-emerald-950/20 flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99] border border-emerald-600/30"
+                  disabled={isPending || availStatus === "conflict"}
+                  className="w-full py-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 disabled:opacity-60 text-white font-bold text-sm sm:text-base shadow-xl shadow-emerald-950/20 flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.99] border border-emerald-600/30"
                 >
-                  <MessageSquare className="w-5 h-5 text-emerald-300" />
-                  Request Availability on WhatsApp
-                  <ArrowRight className="w-4 h-4" />
+                  {isPending ? (
+                    <><Loader2 className="w-5 h-5 animate-spin" /> Submitting Booking...</>
+                  ) : (
+                    <><MessageSquare className="w-5 h-5 text-emerald-300" /> Reserve Your Stay &amp; Confirm on WhatsApp <ArrowRight className="w-4 h-4" /></>
+                  )}
                 </button>
               </div>
-
-              {submitted && (
-                <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-300 text-xs text-emerald-800 text-center font-medium">
-                  ✓ Opening WhatsApp with your reservation details! You can also call us directly anytime.
-                </div>
-              )}
             </form>
           </div>
 
