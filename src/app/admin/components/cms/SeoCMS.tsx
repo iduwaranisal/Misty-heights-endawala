@@ -71,10 +71,10 @@ export default function SeoCMS({ settings, onRefresh }: SeoCMSProps) {
         <div>
           <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
             <Search className="w-5 h-5 text-emerald-600" />
-            SEO &amp; Search Engine Optimization
+            Google Search Preview &amp; Info
           </h2>
           <p className="text-xs text-gray-500 mt-0.5">
-            Optimize meta titles, descriptions, and high-ranking keywords for Google Search.
+            Preview and customize how your website looks when guests search for Misty Heights on Google.
           </p>
         </div>
 
@@ -88,7 +88,7 @@ export default function SeoCMS({ settings, onRefresh }: SeoCMSProps) {
           ) : success ? (
             <><Check className="w-4 h-4" /> Saved Live!</>
           ) : (
-            <><Save className="w-4 h-4" /> Save SEO Settings</>
+            <><Save className="w-4 h-4" /> Save Search Settings</>
           )}
         </button>
       </div>
@@ -120,7 +120,7 @@ export default function SeoCMS({ settings, onRefresh }: SeoCMSProps) {
       <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-xs space-y-4">
         <div>
           <label className="block text-xs font-semibold text-gray-700 mb-1">
-            Meta Title (Page Title) *
+            Website Title (Headline in Google search results) *
           </label>
           <input
             type="text"
@@ -129,12 +129,12 @@ export default function SeoCMS({ settings, onRefresh }: SeoCMSProps) {
             onChange={(e) => setTitle(e.target.value)}
             className={inputCls}
           />
-          <p className="text-[11px] text-gray-400 mt-1">Recommended length: 50-60 characters</p>
+          <p className="text-[11px] text-gray-400 mt-1">Keep it under 60 characters for best display on mobile phones.</p>
         </div>
 
         <div>
           <label className="block text-xs font-semibold text-gray-700 mb-1">
-            Meta Description *
+            Website Summary (Short description under the title) *
           </label>
           <textarea
             rows={3}
@@ -143,12 +143,12 @@ export default function SeoCMS({ settings, onRefresh }: SeoCMSProps) {
             onChange={(e) => setDescription(e.target.value)}
             className={inputCls}
           />
-          <p className="text-[11px] text-gray-400 mt-1">Recommended length: 150-160 characters</p>
+          <p className="text-[11px] text-gray-400 mt-1">A 2-3 sentence overview highlighting the Sinharaja rainforest, cabana, and river pool.</p>
         </div>
 
         <div>
           <label className="block text-xs font-semibold text-gray-700 mb-1">
-            Target SEO Keywords (Comma Separated)
+            Search Keywords (Comma separated words guests might search)
           </label>
           <textarea
             rows={3}
@@ -156,12 +156,12 @@ export default function SeoCMS({ settings, onRefresh }: SeoCMSProps) {
             onChange={(e) => setKeywords(e.target.value)}
             className={inputCls}
           />
-          <p className="text-[11px] text-gray-400 mt-1">e.g. endawala, dellawa, dellawa river, gin ganga, sinharaja villa</p>
+          <p className="text-[11px] text-gray-400 mt-1">e.g. misty heights, dellawa river, sinharaja villa, endawala, neluwa cabana</p>
         </div>
 
         <div>
           <label className="block text-xs font-semibold text-gray-700 mb-1">
-            Canonical URL
+            Website Address (URL)
           </label>
           <input
             type="text"

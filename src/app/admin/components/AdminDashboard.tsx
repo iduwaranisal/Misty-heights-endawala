@@ -23,7 +23,6 @@ import ExperiencesCMS from "./cms/ExperiencesCMS";
 import TestimonialsCMS from "./cms/TestimonialsCMS";
 import FaqCMS from "./cms/FaqCMS";
 import SeoCMS from "./cms/SeoCMS";
-import MediaLibraryCMS from "./cms/MediaLibraryCMS";
 import GalleryCMS from "./cms/GalleryCMS";
 import { useRouter } from "next/navigation";
 
@@ -699,6 +698,7 @@ type TabType =
   | "bookings"
   | "new"
   | "cms_general"
+  | "cms_gallery"
   | "cms_hero"
   | "cms_cabana"
   | "cms_pool"
@@ -706,9 +706,7 @@ type TabType =
   | "cms_experiences"
   | "cms_reviews"
   | "cms_faq"
-  | "cms_seo"
-  | "cms_gallery"
-  | "cms_media";
+  | "cms_seo";
 
 export default function AdminDashboard({ stats, initialBookings, initialSettings, username }: Props) {
   const [bookings, setBookings] = useState<Booking[]>(initialBookings);
@@ -792,41 +790,39 @@ export default function AdminDashboard({ stats, initialBookings, initialSettings
   };
 
   const operationsNav = [
-    { id: "dashboard" as TabType, label: "Overview", icon: LayoutDashboard },
+    { id: "dashboard" as TabType, label: "Overview & Calendar", icon: LayoutDashboard },
     { id: "bookings" as TabType, label: "All Bookings", icon: ClipboardList, badge: activeStats?.pending },
-    { id: "new" as TabType, label: "New Booking", icon: Plus },
+    { id: "new" as TabType, label: "Add New Booking", icon: Plus },
   ];
 
   const cmsNav = [
-    { id: "cms_general" as TabType, label: "General & Contacts", icon: Globe },
+    { id: "cms_general" as TabType, label: "Hotel Info & Contacts", icon: Globe },
+    { id: "cms_gallery" as TabType, label: "Photo Gallery", icon: Camera },
     { id: "cms_hero" as TabType, label: "Hero Banner & Slides", icon: Sparkles },
-    { id: "cms_cabana" as TabType, label: "Cabana Showcase", icon: Home },
-    { id: "cms_pool" as TabType, label: "River Pool & Stream", icon: Waves },
+    { id: "cms_cabana" as TabType, label: "Cabana Villa & Rooms", icon: Home },
+    { id: "cms_pool" as TabType, label: "River Pool & Swimming", icon: Waves },
     { id: "cms_dining" as TabType, label: "Village Dining & BBQ", icon: Utensils },
-    { id: "cms_experiences" as TabType, label: "Activities & Pillars", icon: Compass },
+    { id: "cms_experiences" as TabType, label: "Activities & Highlights", icon: Compass },
     { id: "cms_reviews" as TabType, label: "Guest Reviews", icon: Star },
     { id: "cms_faq" as TabType, label: "FAQ Questions", icon: HelpCircle },
-    { id: "cms_seo" as TabType, label: "SEO & Search", icon: Search },
-    { id: "cms_gallery" as TabType, label: "Photo Gallery", icon: Camera },
-    { id: "cms_media" as TabType, label: "Media Library", icon: ImageIcon },
+    { id: "cms_seo" as TabType, label: "Google Search (SEO)", icon: Search },
   ];
 
   const getTabTitle = () => {
     switch (activeTab) {
-      case "dashboard": return "Operations Overview";
-      case "bookings": return "Smart Booking Management";
-      case "new": return "Create New Booking";
-      case "cms_general": return "General Info & Contacts";
-      case "cms_hero": return "Hero Banner & Slides";
-      case "cms_cabana": return "Cabana Villa Experience";
-      case "cms_pool": return "Natural River Pool";
-      case "cms_dining": return "Village Dining & BBQ";
-      case "cms_experiences": return "Activities & Core Pillars";
-      case "cms_reviews": return "Guest Reviews & Stories";
+      case "dashboard": return "Overview & Booking Calendar";
+      case "bookings": return "All Reservations & Guests";
+      case "new": return "Add New Booking";
+      case "cms_general": return "Hotel Info & Direct Contacts";
+      case "cms_gallery": return "Website Photo Gallery";
+      case "cms_hero": return "Hero Banner & Top Slides";
+      case "cms_cabana": return "Cabana Villa & Bedroom Details";
+      case "cms_pool": return "Natural River Pool & Stream";
+      case "cms_dining": return "Village Food & Dining Packages";
+      case "cms_experiences": return "Guest Activities & Signature Pillars";
+      case "cms_reviews": return "Guest Reviews & Traveler Stories";
       case "cms_faq": return "Frequently Asked Questions";
-      case "cms_seo": return "SEO & Search Engine";
-      case "cms_gallery": return "Photo Gallery Management";
-      case "cms_media": return "Media Library & Uploader";
+      case "cms_seo": return "Google Search Preview & SEO";
       default: return "Admin Dashboard";
     }
   };
@@ -1149,9 +1145,6 @@ export default function AdminDashboard({ stats, initialBookings, initialSettings
             )}
             {activeTab === "cms_gallery" && (
               <GalleryCMS settings={settings} onRefresh={loadSettings} />
-            )}
-            {activeTab === "cms_media" && (
-              <MediaLibraryCMS />
             )}
           </div>
         </div>
