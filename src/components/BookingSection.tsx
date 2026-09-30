@@ -415,9 +415,6 @@ export default function BookingSection() {
                           <Users className="w-3.5 h-3.5 text-emerald-600" />
                           Number of Guests *
                         </label>
-                        <p className="text-[11px] text-gray-500 mt-0.5">
-                          Entire wooden cabana villa reserved for your party
-                        </p>
                       </div>
 
                       {/* Counter Controls */}

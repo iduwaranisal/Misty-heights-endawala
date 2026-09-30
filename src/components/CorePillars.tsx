@@ -2,42 +2,57 @@
 
 import Image from "next/image";
 import { Mountain, Waves, Flame, Home, ArrowUpRight } from "lucide-react";
+import { useSettings } from "@/components/SettingsProvider";
+
+const DEFAULT_PILLARS = [
+  {
+    title: "Scenic Hikes Through Sinharaja",
+    subtitle: "Rainforest Trails",
+    desc: "Trek through misty trails, hear endemic forest birds, and discover hidden streams under the virgin rainforest canopy.",
+    icon: Mountain,
+    image: "/images/mountain-panoramic.jpg",
+    badge: "Nature",
+  },
+  {
+    title: "Kayaking Adventures",
+    subtitle: "River Exploration",
+    desc: "Gently paddle down crystal-clear freshwater river bends surrounded by untouched tropical greenery and cool breezes.",
+    icon: Waves,
+    image: "/images/kayak.jpg",
+    badge: "Water",
+  },
+  {
+    title: "Bonfire Nights Under the Stars",
+    subtitle: "Evening Gathering",
+    desc: "Gather around the warm outdoor fire pit as night falls. Enjoy barbecue dinners, storytelling, and clear mountain night skies.",
+    icon: Flame,
+    image: "/images/twilight-forest.jpg",
+    badge: "Campfire",
+  },
+  {
+    title: "Nature Stays with Comfort",
+    subtitle: "Handcrafted Retreat",
+    desc: "Rest peacefully in our wooden cabana with king bed, open observation balcony, and fresh mountain cross-breeze.",
+    icon: Home,
+    image: "/images/cabana-balcony.jpg",
+    badge: "Living",
+  },
+];
 
 export default function CorePillars({ onOpenBooking }: { onOpenBooking: () => void }) {
-  const pillars = [
-    {
-      title: "Scenic Hikes Through Sinharaja",
-      subtitle: "Rainforest Trails",
-      desc: "Trek through misty trails, hear endemic forest birds, and discover hidden streams under the virgin rainforest canopy.",
-      icon: Mountain,
-      image: "/images/mountain-panoramic.jpg",
-      badge: "Nature",
-    },
-    {
-      title: "Kayaking Adventures",
-      subtitle: "River Exploration",
-      desc: "Gently paddle down crystal-clear freshwater river bends surrounded by untouched tropical greenery and cool breezes.",
-      icon: Waves,
-      image: "/images/kayak.jpg",
-      badge: "Water",
-    },
-    {
-      title: "Bonfire Nights Under the Stars",
-      subtitle: "Evening Gathering",
-      desc: "Gather around the warm outdoor fire pit as night falls. Enjoy barbecue dinners, storytelling, and clear mountain night skies.",
-      icon: Flame,
-      image: "/images/twilight-forest.jpg",
-      badge: "Campfire",
-    },
-    {
-      title: "Nature Stays with Comfort",
-      subtitle: "Handcrafted Retreat",
-      desc: "Rest peacefully in our wooden cabana with king bed, open observation balcony, and fresh mountain cross-breeze.",
-      icon: Home,
-      image: "/images/cabana-balcony.jpg",
-      badge: "Living",
-    },
-  ];
+  const { getSetting } = useSettings();
+  const customPillars = getSetting<Array<{ title: string; desc: string; subtitle?: string; badge?: string }>>("site.pillars.items", []);
+
+  const displayPillars = (customPillars && customPillars.length > 0)
+    ? customPillars.map((item, i) => ({
+        title: item.title,
+        desc: item.desc,
+        subtitle: item.subtitle || DEFAULT_PILLARS[i % DEFAULT_PILLARS.length]?.subtitle || "Explore",
+        badge: item.badge || DEFAULT_PILLARS[i % DEFAULT_PILLARS.length]?.badge || "Experience",
+        icon: DEFAULT_PILLARS[i % DEFAULT_PILLARS.length]?.icon || Mountain,
+        image: DEFAULT_PILLARS[i % DEFAULT_PILLARS.length]?.image || "/images/mountain-panoramic.jpg",
+      }))
+    : DEFAULT_PILLARS;
 
   return (
     <section id="overview" className="py-20 bg-white">
@@ -57,7 +72,7 @@ export default function CorePillars({ onOpenBooking }: { onOpenBooking: () => vo
 
         {/* 4 Clean Minimal Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {pillars.map((item, idx) => (
+          {displayPillars.map((item, idx) => (
             <div
               key={idx}
               className="group bg-white rounded-2xl border border-emerald-100/80 shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col overflow-hidden card-lift"

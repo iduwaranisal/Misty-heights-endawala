@@ -32,44 +32,74 @@ export async function getSettings() {
 }
 
 export async function getSettingByKey(key: string, defaultValue: any = null) {
-  await connectDB();
-  const setting = await Setting.findOne({ key }).lean();
-  return setting ? setting.value : defaultValue;
+  try {
+    await connectDB();
+    const setting = await Setting.findOne({ key }).lean();
+    return setting ? setting.value : defaultValue;
+  } catch (err) {
+    console.error(`getSettingByKey error for ${key}:`, err);
+    return defaultValue;
+  }
 }
 
 export async function saveSetting(key: string, value: any, type: string = "string", description?: string) {
   const admin = await verifyAdminSession();
-  if (!admin) return { success: false, message: "Unauthorized" };
+  if (!admin) return { success: false, message: "Unauthorized: Please log in as admin." };
 
-  await connectDB();
-  await Setting.findOneAndUpdate(
-    { key },
-    { value, type, description },
-    { upsert: true, new: true }
-  );
+  try {
+    await connectDB();
+    const updateDoc: Record<string, any> = { key, value, type };
+    if (description !== undefined) {
+      updateDoc.description = description;
+    }
 
-  revalidatePath("/");
-  return { success: true, message: "Setting saved successfully" };
+    await Setting.findOneAndUpdate(
+      { key },
+      { $set: updateDoc },
+      { upsert: true, new: true }
+    );
+
+    revalidatePath("/", "layout");
+    revalidatePath("/gallery", "layout");
+    revalidatePath("/admin", "layout");
+    return { success: true, message: "Setting saved successfully" };
+  } catch (error: any) {
+    console.error("saveSetting error:", error);
+    return { success: false, message: error.message || "Failed to save setting" };
+  }
 }
 
 export async function saveMultipleSettings(
   settingsMap: Record<string, { value: any; type?: string; description?: string } | any>
 ) {
   const admin = await verifyAdminSession();
-  if (!admin) return { success: false, message: "Unauthorized" };
+  if (!admin) return { success: false, message: "Unauthorized: Please log in as admin." };
 
   try {
     await connectDB();
     const ops = Object.entries(settingsMap).map(([key, data]) => {
       const isObj = data && typeof data === "object" && "value" in data && !Array.isArray(data);
       const value = isObj ? data.value : data;
-      const type = isObj && data.type ? data.type : (typeof value === "object" ? "json" : typeof value === "number" ? "number" : typeof value === "boolean" ? "boolean" : "string");
+      const type = isObj && data.type 
+        ? data.type 
+        : (Array.isArray(value) || (typeof value === "object" && value !== null) 
+          ? "json" 
+          : typeof value === "number" 
+          ? "number" 
+          : typeof value === "boolean" 
+          ? "boolean" 
+          : "string");
       const description = isObj && data.description ? data.description : undefined;
+
+      const setFields: Record<string, any> = { key, value, type };
+      if (description !== undefined) {
+        setFields.description = description;
+      }
 
       return {
         updateOne: {
           filter: { key },
-          update: { $set: { key, value, type, description } },
+          update: { $set: setFields },
           upsert: true,
         },
       };
@@ -79,9 +109,10 @@ export async function saveMultipleSettings(
       await Setting.bulkWrite(ops);
     }
 
-    revalidatePath("/");
-    revalidatePath("/gallery");
-    return { success: true, message: "Setting saved successfully" };
+    revalidatePath("/", "layout");
+    revalidatePath("/gallery", "layout");
+    revalidatePath("/admin", "layout");
+    return { success: true, message: "Settings saved successfully" };
   } catch (error: any) {
     console.error("saveMultipleSettings error:", error);
     return { success: false, message: error.message || "Failed to save settings" };
@@ -90,13 +121,14 @@ export async function saveMultipleSettings(
 
 export async function deleteSetting(key: string) {
   const admin = await verifyAdminSession();
-  if (!admin) return { success: false, message: "Unauthorized" };
+  if (!admin) return { success: false, message: "Unauthorized: Please log in as admin." };
 
   try {
     await connectDB();
     await Setting.deleteOne({ key });
-    revalidatePath("/");
-    revalidatePath("/gallery");
+    revalidatePath("/", "layout");
+    revalidatePath("/gallery", "layout");
+    revalidatePath("/admin", "layout");
     return { success: true, message: "Setting deleted successfully" };
   } catch (error: any) {
     return { success: false, message: error.message || "Failed to delete setting" };
@@ -105,7 +137,7 @@ export async function deleteSetting(key: string) {
 
 export async function uploadImageToCloudinary(formData: FormData) {
   const admin = await verifyAdminSession();
-  if (!admin) return { success: false, message: "Unauthorized" };
+  if (!admin) return { success: false, message: "Unauthorized: Please log in as admin." };
 
   try {
     const file = formData.get("file") as File;
@@ -136,11 +168,19 @@ export async function uploadImageToCloudinary(formData: FormData) {
       await connectDB();
       await Setting.findOneAndUpdate(
         { key },
-        { value: url, type: "image", description: formData.get("description") || "Uploaded Image" },
+        { 
+          $set: {
+            key,
+            value: url, 
+            type: "image", 
+            description: (formData.get("description") as string) || "Uploaded Image"
+          } 
+        },
         { upsert: true }
       );
-      revalidatePath("/");
-      revalidatePath("/gallery");
+      revalidatePath("/", "layout");
+      revalidatePath("/gallery", "layout");
+      revalidatePath("/admin", "layout");
     }
 
     return { success: true, url, message: "Image uploaded successfully" };

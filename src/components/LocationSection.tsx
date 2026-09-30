@@ -1,8 +1,15 @@
 "use client";
 
 import { MapPin, Navigation, Phone } from "lucide-react";
+import { useSettings } from "@/components/SettingsProvider";
 
 export default function LocationSection() {
+  const { getSetting } = useSettings();
+  const address = getSetting("site.contact.address", "Warukandeniya, Endawala, Dellawa, Neluwa, Galle District, Sri Lanka");
+  const primaryPhone = getSetting("site.contact.primaryPhone", "071 981 7000");
+  const mapUrl = getSetting("site.contact.mapUrl", "https://maps.google.com/?q=8FF2%2BPW+Warukandeniya");
+  const cleanPhone = primaryPhone.replace(/\D/g, "");
+
   return (
     <section id="location" className="py-20 bg-gradient-to-b from-white via-emerald-50/20 to-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -33,7 +40,7 @@ export default function LocationSection() {
                     Property Address
                   </span>
                   <h4 className="text-base font-serif font-bold text-[#0f2416]">
-                    Warukandeniya, Endawala, Dellawa, Neluwa
+                    {address}
                   </h4>
                   <p className="text-xs text-gray-500 mt-0.5">
                     Galle District, Southern Province, Sri Lanka · Plus Code: 8FF2+PW
@@ -69,7 +76,7 @@ export default function LocationSection() {
 
               <div className="pt-2 flex gap-3">
                 <a
-                  href="https://maps.google.com/?q=8FF2%2BPW+Warukandeniya"
+                  href={mapUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold text-center flex items-center justify-center gap-1.5 shadow-sm transition-colors"
@@ -78,7 +85,7 @@ export default function LocationSection() {
                   Open in Maps
                 </a>
                 <a
-                  href="tel:0719817000"
+                  href={`tel:${cleanPhone || "0719817000"}`}
                   className="py-2.5 px-4 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-50 text-xs font-semibold flex items-center gap-1.5 transition-colors"
                 >
                   <Phone className="w-3.5 h-3.5 text-emerald-700" />

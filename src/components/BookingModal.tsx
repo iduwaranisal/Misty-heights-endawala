@@ -438,9 +438,6 @@ export default function BookingModal({
                     <label className="block text-xs font-bold text-gray-800 uppercase tracking-wider">
                       Number of Guests *
                     </label>
-                    <p className="text-[11px] text-gray-500 mt-0.5">
-                      Entire wooden cabana villa reserved for your party
-                    </p>
                   </div>
 
                   {/* Counter Controls */}
