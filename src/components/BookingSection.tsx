@@ -367,8 +367,8 @@ export default function BookingSection() {
                       {availStatus === "conflict" && <AlertTriangle className="w-4 h-4 shrink-0" />}
                       <span>
                         {availStatus === "checking" && "Checking availability with our calendar…"}
-                        {availStatus === "free" && "Great news! Those dates are free and available."}
-                        {availStatus === "conflict" && "Those dates are already taken. See smart alternatives below."}
+                        {availStatus === "free" && "Great news! The cabana is available for your dates."}
+                        {availStatus === "conflict" && "Those dates are already reserved. See alternative dates below."}
                       </span>
                     </div>
                   )}
@@ -377,7 +377,7 @@ export default function BookingSection() {
                   {checkIn && checkOut && daysBooking < 1 && (
                     <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl text-sm font-medium border bg-amber-50 border-amber-200 text-amber-800">
                       <AlertTriangle className="w-4 h-4 shrink-0 text-amber-600" />
-                      <span>Check-out must be the same as or after check-in.</span>
+                      <span>Check-out date must be after check-in.</span>
                     </div>
                   )}
 
@@ -386,7 +386,7 @@ export default function BookingSection() {
                     <div className="space-y-2">
                       <p className="text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5">
                         <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-                        Nearest Available Dates
+                        Suggested Alternative Open Dates
                       </p>
                       {suggestions.map((s, i) => (
                         <button key={i} type="button" onClick={() => applySuggestion(s)}

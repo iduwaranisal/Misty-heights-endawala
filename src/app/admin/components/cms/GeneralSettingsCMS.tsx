@@ -75,10 +75,10 @@ export default function GeneralSettingsCMS({ settings, onRefresh }: GeneralSetti
         <div>
           <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
             <Globe className="w-5 h-5 text-emerald-600" />
-            General Information & Contacts
+            Hotel Information &amp; Direct Contacts
           </h2>
           <p className="text-xs text-gray-500 mt-0.5">
-            Configure hotel name, phone numbers, WhatsApp, physical address, and social links.
+            Update your property name, phone numbers, WhatsApp, physical address, and standard check-in hours.
           </p>
         </div>
 
@@ -92,7 +92,7 @@ export default function GeneralSettingsCMS({ settings, onRefresh }: GeneralSetti
           ) : success ? (
             <><Check className="w-4 h-4" /> Saved Live!</>
           ) : (
-            <><Save className="w-4 h-4" /> Save Changes</>
+            <><Save className="w-4 h-4" /> Save Hotel Details</>
           )}
         </button>
       </div>
@@ -106,13 +106,13 @@ export default function GeneralSettingsCMS({ settings, onRefresh }: GeneralSetti
       {/* Brand Identity */}
       <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-xs space-y-4">
         <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-800">
-          Brand Identity
+          Hotel Identity &amp; Tagline
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-semibold text-gray-700 mb-1">
-              Property Name *
+              Hotel Name *
             </label>
             <input
               type="text"

@@ -102,7 +102,7 @@ export default function RiverPoolCMS({ settings, onRefresh }: RiverPoolCMSProps)
             Natural River Pool &amp; Stream
           </h2>
           <p className="text-xs text-gray-500 mt-0.5">
-            Customize the Dellawa river pool texts, feature cards, and 3 gallery photographs.
+            Update river bathing details, stream descriptions, and swimming photos.
           </p>
         </div>
 
@@ -116,7 +116,7 @@ export default function RiverPoolCMS({ settings, onRefresh }: RiverPoolCMSProps)
           ) : success ? (
             <><Check className="w-4 h-4" /> Saved Live!</>
           ) : (
-            <><Save className="w-4 h-4" /> Save River Pool</>
+            <><Save className="w-4 h-4" /> Save River Pool Details</>
           )}
         </button>
       </div>

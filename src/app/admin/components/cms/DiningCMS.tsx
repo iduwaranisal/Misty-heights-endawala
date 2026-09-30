@@ -108,7 +108,7 @@ export default function DiningCMS({ settings, onRefresh }: DiningCMSProps) {
             Village Dining &amp; Fireside BBQ
           </h2>
           <p className="text-xs text-gray-500 mt-0.5">
-            Customize the traditional food menu, dining photographs, and meal descriptions.
+            Update traditional clay-pot meals, breakfast items, and evening bonfire BBQ options.
           </p>
         </div>
 
@@ -122,7 +122,7 @@ export default function DiningCMS({ settings, onRefresh }: DiningCMSProps) {
           ) : success ? (
             <><Check className="w-4 h-4" /> Saved Live!</>
           ) : (
-            <><Save className="w-4 h-4" /> Save Dining Section</>
+            <><Save className="w-4 h-4" /> Save Dining Details</>
           )}
         </button>
       </div>

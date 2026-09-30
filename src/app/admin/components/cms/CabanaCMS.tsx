@@ -138,10 +138,10 @@ export default function CabanaCMS({ settings, onRefresh }: CabanaCMSProps) {
         <div>
           <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
             <Home className="w-5 h-5 text-emerald-600" />
-            Cabana Showcase Section
+            Cabana Villa &amp; Bedroom Details
           </h2>
           <p className="text-xs text-gray-500 mt-0.5">
-            Customize the wooden cabana villa details, 6 interactive gallery photos, and key amenities.
+            Update your wooden cabana descriptions, room photos, and guest amenities.
           </p>
         </div>
 
@@ -155,7 +155,7 @@ export default function CabanaCMS({ settings, onRefresh }: CabanaCMSProps) {
           ) : success ? (
             <><Check className="w-4 h-4" /> Saved Live!</>
           ) : (
-            <><Save className="w-4 h-4" /> Save Cabana Section</>
+            <><Save className="w-4 h-4" /> Save Villa Details</>
           )}
         </button>
       </div>

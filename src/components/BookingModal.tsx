@@ -385,9 +385,9 @@ export default function BookingModal({
                   {availStatus === "free" && <CheckCircle className="w-4 h-4 shrink-0" />}
                   {availStatus === "conflict" && <AlertTriangle className="w-4 h-4 shrink-0" />}
                   <span>
-                    {availStatus === "checking" && "Checking availability…"}
-                    {availStatus === "free" && "Great! Those dates are available ✓"}
-                    {availStatus === "conflict" && (errorMsg || "Already booked — see alternatives below")}
+                    {availStatus === "checking" && "Checking room availability…"}
+                    {availStatus === "free" && "Great! The cabana is available for your dates ✓"}
+                    {availStatus === "conflict" && (errorMsg || "Those dates are already reserved. Please see alternative dates below.")}
                   </span>
                   {isChecking && <Loader2 className="w-3.5 h-3.5 animate-spin ml-auto shrink-0" />}
                 </div>
@@ -397,7 +397,7 @@ export default function BookingModal({
               {checkIn && checkOut && days < 1 && (
                 <div className="flex items-center gap-2.5 px-4 py-3 rounded-xl text-sm font-medium border bg-amber-50 border-amber-200 text-amber-800">
                   <AlertTriangle className="w-4 h-4 shrink-0 text-amber-600" />
-                  <span>Check-out date must be the same as or after check-in.</span>
+                  <span>Check-out date must be after check-in.</span>
                 </div>
               )}
 
@@ -406,7 +406,7 @@ export default function BookingModal({
                 <div className="space-y-2">
                   <p className="text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-                    Smart Suggestions — Nearest Available Dates
+                    Suggested Alternative Open Dates
                   </p>
                   {suggestions.map((s, i) => (
                     <button

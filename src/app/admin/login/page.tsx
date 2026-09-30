@@ -35,13 +35,13 @@ export default function AdminLoginPage() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-white/10 border border-white/20 mb-4">
             <Lock className="w-8 h-8 text-emerald-300" />
           </div>
-          <h1 className="text-2xl font-bold text-white">Misty Heights Admin</h1>
+          <h1 className="text-2xl font-bold text-white">Misty Heights Hotel Portal</h1>
           <p className="text-emerald-300/70 text-sm mt-1">Endawala · Sinharaja Forest</p>
         </div>
 
         {/* Login Card */}
         <div className="bg-white rounded-3xl p-8 shadow-2xl">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Sign In</h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Staff Sign In</h2>
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Username */}
@@ -56,7 +56,7 @@ export default function AdminLoginPage() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                  placeholder="Admin username"
+                  placeholder="Username"
                   required
                   autoFocus
                 />
@@ -105,14 +105,14 @@ export default function AdminLoginPage() {
                   Signing in...
                 </>
               ) : (
-                "Sign In to Dashboard"
+                "Sign In to Hotel Management"
               )}
             </button>
           </form>
         </div>
 
         <p className="text-center text-emerald-300/50 text-xs mt-6">
-          Restricted access · Misty Heights Endawala Management
+          Authorized hotel staff access only · Misty Heights Endawala
         </p>
       </div>
     </div>

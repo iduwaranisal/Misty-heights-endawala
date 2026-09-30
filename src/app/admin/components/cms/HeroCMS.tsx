@@ -114,10 +114,10 @@ export default function HeroCMS({ settings, onRefresh }: HeroCMSProps) {
         <div>
           <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-emerald-600" />
-            Hero Section & Slideshow
+            Homepage Welcome Banner &amp; Photo Slides
           </h2>
           <p className="text-xs text-gray-500 mt-0.5">
-            Customize the main banner, headlines, CTA button, and 5 luxury rotating slideshow slides.
+            Customize the main headline, welcome text, booking button, and rotating background photos.
           </p>
         </div>
 
@@ -131,7 +131,7 @@ export default function HeroCMS({ settings, onRefresh }: HeroCMSProps) {
           ) : success ? (
             <><Check className="w-4 h-4" /> Saved Live!</>
           ) : (
-            <><Save className="w-4 h-4" /> Save Hero Section</>
+            <><Save className="w-4 h-4" /> Save Banner Settings</>
           )}
         </button>
       </div>
@@ -145,13 +145,13 @@ export default function HeroCMS({ settings, onRefresh }: HeroCMSProps) {
       {/* Headlines & Copy */}
       <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-xs space-y-4">
         <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-800">
-          Hero Content & Headlines
+          Welcome Text &amp; Booking Button
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-semibold text-gray-700 mb-1">
-              Top Pill Badge Text
+              Top Small Tag (Location Badge)
             </label>
             <input
               type="text"
@@ -163,7 +163,7 @@ export default function HeroCMS({ settings, onRefresh }: HeroCMSProps) {
 
           <div>
             <label className="block text-xs font-semibold text-gray-700 mb-1">
-              Primary CTA Button Text
+              Reservation Button Text
             </label>
             <input
               type="text"
@@ -176,7 +176,7 @@ export default function HeroCMS({ settings, onRefresh }: HeroCMSProps) {
 
         <div>
           <label className="block text-xs font-semibold text-gray-700 mb-1">
-            Main Big Heading *
+            Main Hotel Title *
           </label>
           <input
             type="text"
@@ -189,7 +189,7 @@ export default function HeroCMS({ settings, onRefresh }: HeroCMSProps) {
 
         <div>
           <label className="block text-xs font-semibold text-gray-700 mb-1">
-            Hero Subtitle / Description *
+            Welcome Description *
           </label>
           <textarea
             rows={3}
@@ -207,10 +207,10 @@ export default function HeroCMS({ settings, onRefresh }: HeroCMSProps) {
           <div>
             <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-800 flex items-center gap-1.5">
               <Layers className="w-4 h-4" />
-              Hero Slideshow (5 Rotating Slides)
+              Rotating Background Photos (5 Slides)
             </h3>
             <p className="text-xs text-gray-500 mt-0.5">
-              Each slide has an image, tag, and caption that rotates automatically on the homepage.
+              These photos change automatically on the homepage behind the welcome text.
             </p>
           </div>
 
@@ -219,7 +219,7 @@ export default function HeroCMS({ settings, onRefresh }: HeroCMSProps) {
             onClick={handleResetSlides}
             className="text-xs font-medium text-gray-500 hover:text-gray-800 flex items-center gap-1 cursor-pointer"
           >
-            <RefreshCw className="w-3.5 h-3.5" /> Reset Defaults
+            <RefreshCw className="w-3.5 h-3.5" /> Restore Original Photos
           </button>
         </div>
 

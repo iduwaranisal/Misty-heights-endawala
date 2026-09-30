@@ -106,7 +106,7 @@ export async function submitPublicBooking(
 
       return {
         success: false,
-        message: `Sorry, those dates are already booked. We found ${alternatives.length} smart alternative date(s) for your ${days}-day stay!`,
+        message: `Those dates are already reserved. We found ${alternatives.length} alternative date option(s) for your ${days}-day stay:`,
         suggestions: alternatives.map((a) => ({
           checkIn: a.checkIn,
           checkOut: a.checkOut,
@@ -188,7 +188,7 @@ export async function adminCreateBooking(
       const alternatives = await suggestAlternatives({ checkIn: ci, checkOut: co });
       return {
         success: false,
-        message: `Date conflict with ${conflict.conflictingBooking?.guestName}'s booking (${conflict.conflictingBooking?.checkInStr || ci} – ${conflict.conflictingBooking?.checkOutStr || co})`,
+        message: `Those dates overlap with ${conflict.conflictingBooking?.guestName}'s reserved stay (${conflict.conflictingBooking?.checkInStr || ci} – ${conflict.conflictingBooking?.checkOutStr || co})`,
         suggestions: alternatives.map((a) => ({
           checkIn: a.checkIn,
           checkOut: a.checkOut,
@@ -385,13 +385,13 @@ export async function checkDateAvailabilityAction(
     );
 
     if (!conflict.hasConflict) {
-      return { success: true, message: "Great! Those dates are free and available." };
+      return { success: true, message: "Great news! The cabana is available for your dates." };
     }
 
     const alternatives = await suggestAlternatives({ checkIn: ci, checkOut: co });
     return {
       success: false,
-      message: "Those dates are already booked.",
+      message: "Those dates are already reserved by another guest.",
       suggestions: alternatives.map((a) => ({
         checkIn: a.checkIn,
         checkOut: a.checkOut,

@@ -87,10 +87,10 @@ const statusColor: Record<BookingStatus, string> = {
 };
 
 const sourceLabel: Record<string, string> = {
-  website: "🌐 Website",
+  website: "🌐 Online Booking",
   whatsapp: "💬 WhatsApp",
-  phone: "📞 Phone",
-  manual: "✍️ Manual",
+  phone: "📞 Phone Call",
+  manual: "🏨 Front Desk",
 };
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -406,9 +406,9 @@ function NewBookingForm({ onSuccess }: { onSuccess: () => void }) {
           {availabilityStatus === "free" && <CheckCircle className="w-4 h-4" />}
           {availabilityStatus === "conflict" && <AlertTriangle className="w-4 h-4" />}
           <span>
-            {availabilityStatus === "checking" && "Checking availability..."}
-            {availabilityStatus === "free" && "✓ Dates are available!"}
-            {availabilityStatus === "conflict" && "✗ Dates conflict with an existing booking"}
+            {availabilityStatus === "checking" && "Checking room availability..."}
+            {availabilityStatus === "free" && "✓ Cabana is available for these dates!"}
+            {availabilityStatus === "conflict" && "✗ These dates are already booked by another guest."}
           </span>
         </div>
       )}
@@ -418,7 +418,7 @@ function NewBookingForm({ onSuccess }: { onSuccess: () => void }) {
         <div className="space-y-2">
           <p className="text-xs font-bold text-gray-600 uppercase tracking-wider flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-            Smart Suggestions — Nearest Available Dates
+            Suggested Alternative Dates (Nearest Free Days)
           </p>
           {suggestions.map((s, i) => (
             <button
@@ -436,7 +436,7 @@ function NewBookingForm({ onSuccess }: { onSuccess: () => void }) {
                 </p>
               </div>
               <span className="text-xs font-bold text-emerald-700 bg-emerald-200 px-2 py-1 rounded-lg group-hover:bg-emerald-300">
-                Apply →
+                Choose These Dates →
               </span>
             </button>
           ))}
@@ -446,7 +446,7 @@ function NewBookingForm({ onSuccess }: { onSuccess: () => void }) {
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wider">
-            Guests *
+            Total Guests *
           </label>
           <input
             className={inputCls} type="number" required min={1}
@@ -456,30 +456,30 @@ function NewBookingForm({ onSuccess }: { onSuccess: () => void }) {
         </div>
         <div>
           <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wider">
-            Source
+            Booking Channel
           </label>
           <select
             className={inputCls}
             value={form.source}
             onChange={(e) => setForm((f) => ({ ...f, source: e.target.value }))}
           >
-            <option value="manual">Manual Entry</option>
+            <option value="manual">Front Desk / Direct</option>
             <option value="phone">Phone Call</option>
             <option value="whatsapp">WhatsApp</option>
-            <option value="website">Website</option>
+            <option value="website">Website Inquiry</option>
           </select>
         </div>
       </div>
 
       <div>
         <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wider">
-          Notes / Special Requests
+          Special Requests / Guest Notes
         </label>
         <textarea
           className={`${inputCls} h-20 resize-none`}
           value={form.notes}
           onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
-          placeholder="Any special requests or notes..."
+          placeholder="e.g. Vegetarian meals, early arrival, BBQ night..."
         />
       </div>
 
@@ -498,9 +498,9 @@ function NewBookingForm({ onSuccess }: { onSuccess: () => void }) {
         className="w-full py-3 rounded-xl bg-emerald-700 hover:bg-emerald-800 disabled:opacity-60 text-white font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
       >
         {isPending ? (
-          <><Loader2 className="w-4 h-4 animate-spin" /> Creating Booking...</>
+          <><Loader2 className="w-4 h-4 animate-spin" /> Saving Reservation...</>
         ) : (
-          <><Plus className="w-4 h-4" /> Confirm Booking</>
+          <><Plus className="w-4 h-4" /> Save Reservation</>
         )}
       </button>
     </form>
@@ -836,15 +836,15 @@ export default function AdminDashboard({ stats, initialBookings, initialSettings
         </div>
         <div className="min-w-0">
           <p className="font-bold text-sm leading-tight truncate">Misty Heights</p>
-          <p className="text-[10px] text-emerald-400 font-medium">Control Center</p>
+          <p className="text-[10px] text-emerald-400 font-medium">Hotel Portal</p>
         </div>
       </div>
 
       <div className="space-y-6 flex-1">
-        {/* Operations */}
+        {/* Reservations */}
         <div className="space-y-1">
           <p className="px-3 text-[10px] font-bold text-emerald-400/80 uppercase tracking-widest mb-1.5">
-            Operations
+            Guest Reservations
           </p>
           {operationsNav.map(({ id, label, icon: Icon, badge }) => (
             <button
@@ -868,10 +868,10 @@ export default function AdminDashboard({ stats, initialBookings, initialSettings
           ))}
         </div>
 
-        {/* Website CMS */}
+        {/* Website Content */}
         <div className="space-y-1">
           <p className="px-3 text-[10px] font-bold text-emerald-400/80 uppercase tracking-widest mb-1.5">
-            Website Customization
+            Website Sections
           </p>
           {cmsNav.map(({ id, label, icon: Icon }) => (
             <button
@@ -894,13 +894,13 @@ export default function AdminDashboard({ stats, initialBookings, initialSettings
         <div className="flex items-center justify-between px-2">
           <div className="min-w-0">
             <p className="text-xs font-semibold text-white truncate">{username}</p>
-            <p className="text-[10px] text-emerald-400">Master Admin</p>
+            <p className="text-[10px] text-emerald-400">Hotel Staff</p>
           </div>
           <button
             onClick={handleLogout}
             disabled={isLoggingOut}
             className="p-2 rounded-lg hover:bg-emerald-800 text-emerald-300 hover:text-white transition-colors cursor-pointer"
-            title="Logout"
+            title="Log Out"
           >
             {isLoggingOut ? <Loader2 className="w-4 h-4 animate-spin" /> : <LogOut className="w-4 h-4" />}
           </button>
@@ -978,10 +978,10 @@ export default function AdminDashboard({ stats, initialBookings, initialSettings
             <div className="space-y-6 max-w-7xl mx-auto">
               {/* Stat Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard label="Total Bookings" value={activeStats?.total ?? 0} icon={ClipboardList} color="bg-gray-100 text-gray-600" />
-                <StatCard label="Pending" value={activeStats?.pending ?? 0} icon={Clock} color="bg-yellow-100 text-yellow-600" />
-                <StatCard label="Confirmed" value={activeStats?.confirmed ?? 0} icon={CheckCircle} color="bg-emerald-100 text-emerald-600" />
-                <StatCard label="Today Check-ins" value={activeStats?.todayCheckIns ?? 0} icon={Users} color="bg-blue-100 text-blue-600" />
+                <StatCard label="Total Stays" value={activeStats?.total ?? 0} icon={ClipboardList} color="bg-gray-100 text-gray-600" />
+                <StatCard label="Pending Requests" value={activeStats?.pending ?? 0} icon={Clock} color="bg-yellow-100 text-yellow-600" />
+                <StatCard label="Confirmed Stays" value={activeStats?.confirmed ?? 0} icon={CheckCircle} color="bg-emerald-100 text-emerald-600" />
+                <StatCard label="Today's Check-ins" value={activeStats?.todayCheckIns ?? 0} icon={Users} color="bg-blue-100 text-blue-600" />
               </div>
 
               {/* Calendar + Pending Bookings */}
@@ -992,7 +992,7 @@ export default function AdminDashboard({ stats, initialBookings, initialSettings
                 <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
                   <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
                     <Clock className="w-4 h-4 text-yellow-500" />
-                    Pending Approvals
+                    Pending Guest Requests
                     {activeStats?.pending ? (
                       <span className="ml-auto px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-800 text-xs font-bold">
                         {activeStats.pending}
@@ -1002,7 +1002,7 @@ export default function AdminDashboard({ stats, initialBookings, initialSettings
                   <div className="space-y-3 max-h-80 overflow-y-auto">
                     {bookings.filter((b) => b.status === "pending").length === 0 ? (
                       <p className="text-sm text-gray-400 text-center py-8">
-                        No pending bookings 🎉
+                        No pending reservation requests right now 🎉
                       </p>
                     ) : (
                       bookings
@@ -1018,7 +1018,7 @@ export default function AdminDashboard({ stats, initialBookings, initialSettings
               <div>
                 <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
                   <Calendar className="w-4 h-4 text-emerald-600" />
-                  Upcoming Confirmed Stays
+                  Upcoming Confirmed Guest Stays
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                   {bookings
@@ -1027,7 +1027,7 @@ export default function AdminDashboard({ stats, initialBookings, initialSettings
                     .map((b) => <BookingCard key={b.id} booking={b} onRefresh={refresh} />)}
                   {bookings.filter((b) => b.status === "confirmed" && new Date(b.checkIn) >= new Date()).length === 0 && (
                     <p className="text-sm text-gray-400 col-span-3 text-center py-8">
-                      No upcoming confirmed stays
+                      No upcoming confirmed guest stays
                     </p>
                   )}
                 </div>
@@ -1055,7 +1055,7 @@ export default function AdminDashboard({ stats, initialBookings, initialSettings
                           : "bg-white text-gray-600 border-gray-200 hover:border-gray-300"
                         }`}
                     >
-                      {s === "all" ? `All (${bookings.length})` : s}
+                      {s === "all" ? `All Reservations (${bookings.length})` : s}
                     </button>
                   ))}
                 </div>
@@ -1065,7 +1065,7 @@ export default function AdminDashboard({ stats, initialBookings, initialSettings
                     <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                     <input
                       type="text"
-                      placeholder="Search name, phone, email..."
+                      placeholder="Search guest name, phone, email..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
@@ -1075,10 +1075,10 @@ export default function AdminDashboard({ stats, initialBookings, initialSettings
                   <button
                     onClick={exportBookingsToCSV}
                     className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-200 bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold transition-colors cursor-pointer shrink-0 shadow-2xs"
-                    title="Export Bookings to CSV"
+                    title="Download guest list as spreadsheet"
                   >
                     <Download className="w-3.5 h-3.5 text-emerald-600" />
-                    <span className="hidden sm:inline">Export CSV</span>
+                    <span className="hidden sm:inline">Download List</span>
                   </button>
                 </div>
               </div>
@@ -1087,7 +1087,7 @@ export default function AdminDashboard({ stats, initialBookings, initialSettings
               {filteredBookings.length === 0 ? (
                 <div className="text-center py-16 text-gray-400">
                   <XCircle className="w-12 h-12 mx-auto mb-3 opacity-30" />
-                  <p>No bookings found for &quot;{statusFilter}&quot;</p>
+                  <p>No reservations found under &quot;{statusFilter}&quot;</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -1104,9 +1104,9 @@ export default function AdminDashboard({ stats, initialBookings, initialSettings
             <div className="max-w-3xl mx-auto">
               <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 sm:p-8">
                 <div className="mb-6">
-                  <h2 className="text-lg font-bold text-gray-900">Create New Booking</h2>
+                  <h2 className="text-lg font-bold text-gray-900">Add New Guest Reservation</h2>
                   <p className="text-xs text-gray-500 mt-1">
-                    Conflicts are checked automatically with accurate times · Smart alternative dates suggested on conflict
+                    Direct reservation for walk-in or phone guests · Automatic availability check
                   </p>
                 </div>
                 <NewBookingForm onSuccess={() => { refresh(); setActiveTab("bookings"); }} />

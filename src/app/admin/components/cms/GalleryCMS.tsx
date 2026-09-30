@@ -197,10 +197,10 @@ export default function GalleryCMS({ settings, onRefresh }: GalleryCMSProps) {
         <div>
           <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
             <Camera className="w-5 h-5 text-emerald-600" />
-            Photo Gallery &amp; Cloudinary Storage
+            Website Photo Gallery
           </h2>
           <p className="text-xs text-gray-500 mt-1">
-            Upload new high-resolution retreat images to Cloudinary, organize categories, and select homepage features.
+            Add photos of your hotel rooms, river pool, dining, and rainforest views.
           </p>
         </div>
 
@@ -210,10 +210,10 @@ export default function GalleryCMS({ settings, onRefresh }: GalleryCMSProps) {
             onClick={handleResetDefaults}
             disabled={isSaving}
             className="px-3.5 py-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-100 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
-            title="Reset gallery to default photos"
+            title="Reset gallery to default original photos"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span>Reset Defaults</span>
+            <span>Restore Originals</span>
           </button>
 
           <button
@@ -223,7 +223,7 @@ export default function GalleryCMS({ settings, onRefresh }: GalleryCMSProps) {
             className="px-5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white font-bold text-xs flex items-center gap-2 shadow-xs transition-all cursor-pointer"
           >
             {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-            {isSaving ? "Saving Changes…" : "Save All Gallery"}
+            {isSaving ? "Saving..." : "Save Gallery Photos"}
           </button>
         </div>
       </div>
