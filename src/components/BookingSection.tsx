@@ -5,6 +5,7 @@ import {
   Calendar, Users, Phone, Mail, MessageSquare, ShieldCheck,
   Clock, Sparkles, ArrowRight, User, HeartHandshake,
   AlertTriangle, CheckCircle, Loader2, ChevronLeft, ChevronRight,
+  CalendarCheck,
 } from "lucide-react";
 import { submitPublicBooking, checkDateAvailabilityAction } from "@/actions/bookings";
 import { useSettings } from "@/components/SettingsProvider";
@@ -547,12 +548,12 @@ export default function BookingSection() {
                     {isPending ? (
                       <><Loader2 className="w-5 h-5 animate-spin" /> Submitting Your Booking…</>
                     ) : (
-                      <><MessageSquare className="w-5 h-5 text-emerald-300" /> Reserve & Confirm on WhatsApp <ArrowRight className="w-4 h-4" /></>
+                      <><CalendarCheck className="w-5 h-5 text-emerald-300" /> Confirm & Request Reservation <ArrowRight className="w-4 h-4" /></>
                     )}
                   </button>
 
                   <p className="text-xs text-center text-gray-400">
-                    Your booking is saved in our system and sent to us via WhatsApp for confirmation.
+                    Your booking request is saved in our system and confirmed directly with you.
                   </p>
                 </form>
               )}
@@ -647,7 +648,7 @@ export default function BookingSection() {
               {[
                 { n: "1", t: "Pick your dates", d: "Select check-in & check-out — availability checked live" },
                 { n: "2", t: "Fill your details", d: "Name, phone, and any special requests" },
-                { n: "3", t: "Submit & WhatsApp", d: "Your booking is saved and we confirm via WhatsApp" },
+                { n: "3", t: "Submit & Confirm", d: "Your booking is saved and we confirm your stay promptly" },
               ].map(({ n, t, d }) => (
                 <div key={n} className="flex gap-3">
                   <div className="w-6 h-6 rounded-full bg-emerald-600 text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">{n}</div>
