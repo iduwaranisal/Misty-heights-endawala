@@ -97,6 +97,9 @@ export async function generateMetadata(): Promise<Metadata> {
         "max-snippet": -1,
       },
     },
+    verification: {
+      google: "google1ea1d023a4981f4d",
+    },
     openGraph: {
       title: seoTitle,
       description: seoDesc,
