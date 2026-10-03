@@ -1,10 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Playfair_Display } from "next/font/google";
 import { getSettings, getSettingByKey } from "@/actions/settings";
 import { SettingsProvider } from "@/components/SettingsProvider";
 import "./globals.css";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -18,6 +18,13 @@ const playfair = Playfair_Display({
   display: "swap",
 });
 
+export const viewport: Viewport = {
+  themeColor: "#064e3b",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
+
 export async function generateMetadata(): Promise<Metadata> {
   const seoTitle = await getSettingByKey(
     "site.seo.title",
@@ -25,66 +32,108 @@ export async function generateMetadata(): Promise<Metadata> {
   );
   const seoDesc = await getSettingByKey(
     "site.seo.description",
-    "Escape to Misty Heights Endawala near Sinharaja Forest & Dellawa River (Gin Ganga tributary). Handcrafted wooden villa cabana, natural river pool, kayaking, and misty mountain views in Neluwa, Galle, Sri Lanka."
+    "Escape to Misty Heights Endawala near Sinharaja Rainforest & Dellawa River (Gin Ganga). Handcrafted wooden villa cabana, natural river pool, kayaking, and misty mountain views in Neluwa, Galle, Sri Lanka."
   );
   const seoKeywordsRaw = await getSettingByKey(
     "site.seo.keywords",
-    "endawala, dellawa, dellawa river, gin ganga, dellawa endawala, dellawa ganga, dellawa sinharaja, sinharaja forest, sinharaja villa, dellawa villa, misty heights, misty heights endawala sinharaja, misty heights endawala, endawala cabana, endawala nature retreat, dellawa river swimming, dellawa ganga bath, gin ganga bathing spots, edawala dola natural pool, sinharaja forest resort, sinharaja cabana stay, warukandeniya endawala, neluwa hotel, galle eco villa, wooden villa sri lanka, river kayaking sinharaja, sinharaja rainforest bird watching"
+    "misty heights endawala, misty heights, dellawa, dellawa river, dellawa ganga, dellawa sinharaja, sinharaja forest cabana, sinharaja villa, sinharaja forest resort, endawala, endawala cabana, endawala dellawa, neluwa hotel, neluwa cabana, warukandeniya, warukandeniya endawala, galle eco villa, dellawa river swimming, dellawa ganga bath, gin ganga bathing spots, edawala dola, edawala dola natural pool, river kayaking sinharaja, wooden villa sri lanka, nature retreat sri lanka, rainforest cabana galle, misty heights sinharaja"
   );
   const canonicalUrl = await getSettingByKey(
     "site.seo.canonical",
-    "https://www.mistyheightsendawala.lk"
+    "https://mistyheightsendawala.lk"
   );
-  const keywords = typeof seoKeywordsRaw === "string"
-    ? seoKeywordsRaw.split(",").map((k: string) => k.trim()).filter(Boolean)
-    : seoKeywordsRaw;
+
+  const keywords =
+    typeof seoKeywordsRaw === "string"
+      ? seoKeywordsRaw.split(",").map((k: string) => k.trim()).filter(Boolean)
+      : seoKeywordsRaw;
+
+  const siteUrl = canonicalUrl || "https://mistyheightsendawala.lk";
 
   return {
-    metadataBase: new URL(canonicalUrl || "https://www.mistyheightsendawala.lk"),
+    metadataBase: new URL(siteUrl),
     title: {
       default: seoTitle,
-      template: "%s | Misty Heights Endawala Sinharaja",
+      template: "%s | Misty Heights Endawala",
     },
     description: seoDesc,
     keywords,
-    authors: [{ name: "Misty Heights Endawala" }],
+    applicationName: "Misty Heights Endawala",
+    authors: [{ name: "Misty Heights Endawala", url: siteUrl }],
     creator: "Misty Heights Endawala",
     publisher: "Misty Heights Endawala",
+    category: "Travel & Tourism",
+    formatDetection: {
+      telephone: true,
+      email: true,
+      address: true,
+    },
     alternates: {
-      canonical: canonicalUrl || "https://www.mistyheightsendawala.lk",
+      canonical: siteUrl,
+      languages: {
+        "en-US": siteUrl,
+        "en-LK": siteUrl,
+        "si-LK": siteUrl,
+      },
     },
     icons: {
-      icon: "/images/logo.png",
+      icon: [
+        { url: "/images/logo.png" },
+        { url: "/icon.png", type: "image/png" },
+      ],
       shortcut: "/images/logo.png",
       apple: "/images/logo.png",
+    },
+    robots: {
+      index: true,
+      follow: true,
+      nocache: false,
+      googleBot: {
+        index: true,
+        follow: true,
+        noimageindex: false,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
     },
     openGraph: {
       title: seoTitle,
       description: seoDesc,
-      url: canonicalUrl || "https://www.mistyheightsendawala.lk",
+      url: siteUrl,
       siteName: "Misty Heights Endawala",
       images: [
         {
-          url: "https://www.mistyheightsendawala.lk/images/cabana-view.jpg",
+          url: `${siteUrl}/images/cabana-view.jpg`,
           width: 1200,
           height: 630,
           alt: "Misty Heights Endawala Sinharaja Forest Villa and Cabana Retreat",
         },
+        {
+          url: `${siteUrl}/images/natural-stream.jpg`,
+          width: 1200,
+          height: 630,
+          alt: "Edawala Dola Natural River Pool in Dellawa, Sinharaja",
+        },
       ],
       locale: "en_US",
+      alternateLocale: ["en_LK", "si_LK"],
       type: "website",
     },
     twitter: {
       card: "summary_large_image",
       title: seoTitle,
       description: seoDesc,
-      images: ["https://www.mistyheightsendawala.lk/images/cabana-view.jpg"],
+      images: [`${siteUrl}/images/cabana-view.jpg`],
     },
     other: {
       "geo.region": "LK-31",
-      "geo.placename": "Warukandeniya, Dellawa, Endawala, Neluwa, Galle District",
+      "geo.placename": "Warukandeniya, Dellawa, Endawala, Neluwa, Galle District, Sri Lanka",
       "geo.position": "6.324313;80.452313",
       ICBM: "6.324313, 80.452313",
+      "apple-mobile-web-app-title": "Misty Heights",
+      "apple-mobile-web-app-capable": "yes",
+      "apple-mobile-web-app-status-bar-style": "black-translucent",
     },
   };
 }
@@ -93,23 +142,74 @@ const jsonLd = {
   "@context": "https://schema.org",
   "@graph": [
     {
-      "@type": ["LodgingBusiness", "Resort", "BedAndBreakfast"],
-      "@id": "https://www.mistyheightsendawala.lk/#lodging",
+      "@type": "WebSite",
+      "@id": "https://mistyheightsendawala.lk/#website",
+      url: "https://mistyheightsendawala.lk",
+      name: "Misty Heights Endawala",
+      description:
+        "Official website of Misty Heights Endawala - Luxury Wooden Cabana, Natural River Pool & Sinharaja Rainforest Retreat in Sri Lanka.",
+      inLanguage: ["en-US", "si-LK"],
+      publisher: {
+        "@id": "https://mistyheightsendawala.lk/#organization",
+      },
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://mistyheightsendawala.lk/#organization",
+      name: "Misty Heights Endawala",
+      url: "https://mistyheightsendawala.lk",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://mistyheightsendawala.lk/images/logo.png",
+        width: "512",
+        height: "512",
+      },
+      sameAs: [
+        "https://www.facebook.com/profile.php?id=61571649441031",
+      ],
+      contactPoint: [
+        {
+          "@type": "ContactPoint",
+          telephone: "+94719817000",
+          contactType: "customer service",
+          areaServed: "LK",
+          availableLanguage: ["English", "Sinhala"],
+        },
+        {
+          "@type": "ContactPoint",
+          telephone: "+94718680633",
+          contactType: "reservations",
+          areaServed: "LK",
+          availableLanguage: ["English", "Sinhala"],
+        },
+      ],
+    },
+    {
+      "@type": ["LodgingBusiness", "Resort", "Hotel", "BedAndBreakfast"],
+      "@id": "https://mistyheightsendawala.lk/#lodging",
       name: "Misty Heights Endawala",
       alternateName: [
         "Misty Heights Dellawa",
         "Misty Heights Endawala Sinharaja",
         "Misty Heights Sinharaja Villa",
         "Misty Heights Cabana",
+        "Misty Heights Neluwa",
       ],
       description:
-        "Handcrafted wooden villa and cabana retreat situated in Warukandeniya, Endawala near Dellawa, bordering the UNESCO World Heritage Sinharaja Rainforest. Features fresh river pool bathing in the Dellawa river / Edawala Dola (Gin Ganga basin), kayaking, mountain observation deck, and traditional village meals.",
-      url: "https://www.mistyheightsendawala.lk",
+        "Handcrafted wooden villa and eco cabana retreat in Warukandeniya, Endawala near Dellawa, bordering the UNESCO Sinharaja Rainforest. Features fresh river bathing in Dellawa river / Edawala Dola (Gin Ganga basin), kayaking, panoramic mountain observation deck, campfires, and authentic Sri Lankan village dining.",
+      url: "https://mistyheightsendawala.lk",
       telephone: "+94719817000",
       email: "mistyheightsendawala@gmail.com",
-      image: "https://www.mistyheightsendawala.lk/images/cabana-view.jpg",
-      logo: "https://www.mistyheightsendawala.lk/images/logo.png",
+      image: [
+        "https://mistyheightsendawala.lk/images/cabana-view.jpg",
+        "https://mistyheightsendawala.lk/images/natural-stream.jpg",
+        "https://mistyheightsendawala.lk/images/kayak.jpg",
+        "https://mistyheightsendawala.lk/images/bedroom.jpg",
+      ],
+      logo: "https://mistyheightsendawala.lk/images/logo.png",
       priceRange: "$$",
+      currenciesAccepted: "LKR, USD",
+      paymentAccepted: "Cash, Bank Transfer",
       address: {
         "@type": "PostalAddress",
         streetAddress: "Warukandeniya, Endawala Road",
@@ -156,13 +256,36 @@ const jsonLd = {
           name: "Starlit Campfire Bonfire",
           value: true,
         },
+        {
+          "@type": "LocationFeatureSpecification",
+          name: "Guided Sinharaja Forest Nature Walks & Bird Watching",
+          value: true,
+        },
       ],
       checkinTime: "14:00",
       checkoutTime: "11:00",
     },
     {
+      "@type": "BreadcrumbList",
+      "@id": "https://mistyheightsendawala.lk/#breadcrumb",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Home",
+          item: "https://mistyheightsendawala.lk",
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Gallery",
+          item: "https://mistyheightsendawala.lk/gallery",
+        },
+      ],
+    },
+    {
       "@type": "FAQPage",
-      "@id": "https://www.mistyheightsendawala.lk/#faq",
+      "@id": "https://mistyheightsendawala.lk/#faq",
       mainEntity: [
         {
           "@type": "Question",
@@ -194,6 +317,14 @@ const jsonLd = {
           acceptedAnswer: {
             "@type": "Answer",
             text: "From Colombo, take the Southern Expressway (E01) to Kurundugahahetekma or Baddegama exit, then travel through Neluwa towards Dellawa and Warukandeniya (approx. 2.5 to 3 hours). The road is paved and accessible by all vehicles.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Is village food and BBQ available at Misty Heights?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Yes! We serve authentic Sri Lankan village rice and curry made with organic local ingredients, fresh river fish, herbal teas, and outdoor evening BBQ and bonfire setups.",
           },
         },
       ],
@@ -228,4 +359,3 @@ export default async function RootLayout({
     </html>
   );
 }
-
